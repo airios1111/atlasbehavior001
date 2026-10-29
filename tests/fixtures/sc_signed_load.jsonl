@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","event_type":"model_load","artifact_id":"art-9f1","model_id":"llm-rag-v6","signature_status":"valid","digest_match":true,"environment":"prod"}
+{"timestamp":"2026-10-01T14:00:05Z","event_type":"model_scan","artifact_id":"art-9f3","model_id":"llm-rag-v8","signature_status":"unsigned","digest_match":null,"environment":"prod"}

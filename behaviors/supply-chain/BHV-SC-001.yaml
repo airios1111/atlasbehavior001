@@ -1,0 +1,45 @@
+id: BHV-SC-001
+name: Unsigned or hash-mismatched model artifact loaded
+status: stable
+severity: critical
+confidence: high
+description: >
+  A model artifact is loaded or promoted for serving without a valid signature,
+  or its digest does not match the registry record.
+
+atlas:
+  tactics: [AML.TA0004]                 # Initial Access
+  techniques:
+    - { id: AML.T0010.003, relationship: primary }      # Supply chain: Model
+    - { id: AML.T0018, relationship: secondary }        # Manipulated / backdoored model
+
+telemetry:
+  required:
+    - source: model_registry
+      fields: [timestamp, event_type, artifact_id, model_id, signature_status, digest_match]
+
+detection:
+  logic: field_match
+  filters:
+    event_type: { in: [model_load, model_promote] }
+  match:
+    signature_status: { in: [unsigned, invalid, expired] }
+  false_positives:
+    - Local dev loads in sandbox registries (scope by environment)
+
+countermeasures:
+  mitigations: [AML.M0014, AML.M0016]
+  response:
+    - action: block_deploy
+      params: { artifact: "{{artifact_id}}" }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P1 }
+    - action: pull_model
+      params: { model: "{{model_id}}", rollback_to: last_signed }
+
+tests:
+  - { fixture: tests/fixtures/sc_unsigned_load.jsonl, expect: alert }
+  - { fixture: tests/fixtures/sc_signed_load.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0010

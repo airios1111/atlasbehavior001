@@ -1,0 +1,50 @@
+id: BHV-PI-001
+name: Instruction-override pattern in direct user input
+status: stable
+severity: high
+confidence: medium
+description: >
+  User-supplied prompt contains phrasing that attempts to override, disregard or
+  reveal the system/developer instructions. Signature floor; pair with a
+  prompt-injection classifier score in production.
+
+atlas:
+  tactics: [AML.TA0005]                 # Execution
+  techniques:
+    - { id: AML.T0051.000, relationship: primary }      # LLM Prompt Injection: Direct
+    - { id: AML.T0040, relationship: precondition }     # Inference API access
+
+telemetry:
+  required:
+    - source: llm_gateway
+      fields: [timestamp, principal_id, session_id, model_id, prompt]
+
+detection:
+  logic: signature
+  signatures:
+    - field: prompt
+      patterns:
+        - '(?i)\bignore\s+(all\s+|any\s+)?(previous|prior|above|earlier)\s+(instructions|directions|rules)\b'
+        - '(?i)\bdisregard\s+(your|the|all)\s+(system\s+prompt|instructions|guidelines)\b'
+        - '(?i)\byou\s+are\s+now\s+(in\s+)?(developer\s+mode|dan|unrestricted|jailbroken)\b'
+        - '(?i)\breveal\s+(your|the)\s+(system\s+prompt|hidden\s+instructions|initial\s+prompt)\b'
+  false_positives:
+    - Security training content and red-team exercises (scope by principal)
+    - Users quoting injection examples in support tickets
+
+countermeasures:
+  mitigations: [AML.M0020, AML.M0015]
+  response:
+    - action: block_request
+      params: { session: "{{session_id}}" }
+    - action: increment_risk
+      params: { principal: "{{principal_id}}", delta: 25 }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P3 }
+
+tests:
+  - { fixture: tests/fixtures/pi_direct_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/pi_direct_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0051

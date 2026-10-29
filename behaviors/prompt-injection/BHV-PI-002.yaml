@@ -1,0 +1,50 @@
+id: BHV-PI-002
+name: Embedded instructions in untrusted retrieved content (RAG / web / email)
+status: stable
+severity: high
+confidence: medium
+description: >
+  Content retrieved from an untrusted source (web, inbound email, user-uploaded
+  document) and placed into the model context contains instruction-bearing text
+  addressed to the model.
+
+atlas:
+  tactics: [AML.TA0005]
+  techniques:
+    - { id: AML.T0051.001, relationship: primary }      # LLM Prompt Injection: Indirect
+
+telemetry:
+  required:
+    - source: llm_retrieval
+      fields: [timestamp, session_id, source_uri, source_trust, retrieved_content]
+
+detection:
+  logic: signature
+  filters:
+    source_trust: { in: [untrusted, external, unknown] }
+  signatures:
+    - field: retrieved_content
+      patterns:
+        - '(?i)\bignore\s+(all\s+|any\s+)?(previous|prior|above)\s+(instructions|directions)\b'
+        - '(?i)\b(assistant|ai|model)\s*[:,]\s*(you\s+must|now|please)\b'
+        - '(?i)<\s*/?\s*(system|instructions?)\s*>'
+        - '(?i)\b(send|forward|exfiltrate|post)\s+(the|all|this)\s+.{0,40}\b(to|at)\s+https?://'
+  false_positives:
+    - Internal docs flagged untrusted by misconfigured connectors
+
+countermeasures:
+  mitigations: [AML.M0020, AML.M0015]
+  response:
+    - action: strip_content
+      params: { source: "{{source_uri}}" }
+    - action: quarantine_source
+      params: { source: "{{source_uri}}" }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P2 }
+
+tests:
+  - { fixture: tests/fixtures/pi_indirect_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/pi_indirect_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0051

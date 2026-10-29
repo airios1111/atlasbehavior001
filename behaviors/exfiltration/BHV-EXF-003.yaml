@@ -1,0 +1,62 @@
+id: BHV-EXF-003
+name: High-volume systematic inference queries consistent with model extraction
+status: stable
+severity: high
+confidence: medium
+description: >
+  A single principal issues a large number of structurally similar queries
+  against an inference endpoint with low input variance across few sessions,
+  consistent with surrogate-model training.
+
+atlas:
+  tactics: [AML.TA0010]                 # Exfiltration
+  techniques:
+    - { id: AML.T0024.002, relationship: primary }      # Extract model via inference API
+    - { id: AML.T0040, relationship: precondition }
+
+attack_bridge: [T1567]
+
+telemetry:
+  required:
+    - source: inference_gateway
+      fields: [timestamp, principal_id, model_id, session_id, input_embedding_norm]
+  optional:
+    - source: identity
+      fields: [auth_method, ip, asn]
+
+detection:
+  logic: windowed_threshold
+  window: 1h
+  group_by: [principal_id, model_id]
+  filters:
+    principal_id: { not_in: [sp-batch-eval, sp-loadtest] }   # allowlist; move to watchlist in prod
+  metrics:
+    request_count: count
+    input_embedding_variance: variance(input_embedding_norm)
+    distinct_session_count: dcount(session_id)
+  conditions:
+    - request_count > 5000
+    - input_embedding_variance < 0.15
+    - distinct_session_count <= 2
+  false_positives:
+    - Authorized batch evaluation jobs (allowlist by service principal)
+    - Load testing in non-prod
+
+countermeasures:
+  mitigations: [AML.M0004, AML.M0002, AML.M0019]
+  response:
+    - action: rate_limit
+      params: { principal: "{{principal_id}}", limit: 100/min, ttl: 24h }
+    - action: degrade_output
+      params: { model: "{{model_id}}", mode: top1_label_only }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P2 }
+    - action: revoke_token
+      params: { principal: "{{principal_id}}" }
+
+tests:
+  - { fixture: tests/fixtures/extraction_burst.jsonl, expect: alert }
+  - { fixture: tests/fixtures/benign_batch_eval.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0024

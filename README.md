@@ -2,7 +2,7 @@
 
 **Behavior-to-MITRE ATLAS mapping engine for detecting and countering adversarial activity against AI/ML systems.**
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![ATLAS](https://img.shields.io/badge/MITRE-ATLAS-red.svg)](https://atlas.mitre.org)
 [![Status](https://img.shields.io/badge/status-alpha-orange.svg)]()
 
@@ -98,9 +98,9 @@ atlas:
   tactics:
     - AML.TA0010          # Exfiltration
   techniques:
-    - id: AML.T0024.002   # Extract ML Model (via inference API)
+    - id: AML.T0024.002   # Extract AI Model (via inference API)
       relationship: primary
-    - id: AML.T0040       # ML Model Inference API Access
+    - id: AML.T0040       # AI Model Inference API Access
       relationship: precondition
 
 attack_bridge:            # optional ATT&CK enterprise linkage
@@ -109,7 +109,7 @@ attack_bridge:            # optional ATT&CK enterprise linkage
 telemetry:
   required:
     - source: inference_gateway
-      fields: [principal_id, model_id, request_hash, input_embedding, timestamp]
+      fields: [timestamp, principal_id, model_id, session_id, input_embedding_norm]
   optional:
     - source: identity
       fields: [auth_method, ip, asn]
@@ -118,6 +118,12 @@ detection:
   logic: windowed_threshold
   window: 1h
   group_by: [principal_id, model_id]
+  filters:
+    principal_id: { not_in: [sp-batch-eval, sp-loadtest] }
+  metrics:
+    request_count: count
+    input_embedding_variance: variance(input_embedding_norm)
+    distinct_session_count: dcount(session_id)
   conditions:
     - request_count > 5000
     - input_embedding_variance < 0.15
@@ -128,18 +134,18 @@ detection:
 
 countermeasures:
   mitigations:
-    - AML.M0004           # Restrict Number of ML Model Queries
-    - AML.M0002           # Passive ML Output Obfuscation
-    - AML.M0019           # Control Access to ML Models and Data in Production
+    - AML.M0004           # Restrict Number of AI Model Queries
+    - AML.M0002           # Passive AI Output Obfuscation
+    - AML.M0019           # Control Access to AI Models and Data in Production
   response:
     - action: rate_limit
-      params: { principal: "{{principal_id}}", limit: "100/min", ttl: 24h }
+      params: { principal: "{{principal_id}}", limit: 100/min, ttl: 24h }
     - action: degrade_output
       params: { mode: top1_label_only }
     - action: open_incident
       params: { queue: ai-sec, priority: P2 }
-    - action: revoke_token
-      requires_approval: true
+    - action: revoke_token            # requires_approval by registry default
+      params: { principal: "{{principal_id}}" }
 
 tests:
   - fixture: tests/fixtures/extraction_burst.jsonl
@@ -160,20 +166,22 @@ references:
 | BHV-PI-001 | Instruction-override pattern in direct user input | AML.T0051.000 LLM Prompt Injection: Direct | AML.M0020, AML.M0015 | Block, log, increment principal risk |
 | BHV-PI-002 | Embedded instructions in retrieved content (RAG / web / email) | AML.T0051.001 LLM Prompt Injection: Indirect | AML.M0020, AML.M0015 | Quarantine source doc, strip, alert |
 | BHV-JB-001 | Role-play / persona jailbreak sequences | AML.T0054 LLM Jailbreak | AML.M0020, AML.M0021 | Refuse, session risk escalation |
-| BHV-LK-001 | System prompt disclosure in completion | AML.T0056 LLM Meta Prompt Extraction | AML.M0020 | Redact output, alert |
+| BHV-LK-001 | System prompt disclosure in completion | AML.T0056 Extract LLM System Prompt | AML.M0020 | Redact output, alert |
 | BHV-LK-002 | Sensitive data / PII in completion | AML.T0057 LLM Data Leakage | AML.M0020, AML.M0019 | DLP redact, incident |
 | BHV-EXF-001 | Membership-inference query patterns | AML.T0024.000 Infer Training Data Membership | AML.M0002, AML.M0004 | Output obfuscation, rate limit |
-| BHV-EXF-002 | Model-inversion query patterns | AML.T0024.001 Invert ML Model | AML.M0002, AML.M0004 | Output obfuscation, rate limit |
-| BHV-EXF-003 | Systematic extraction query volume | AML.T0024.002 Extract ML Model | AML.M0004, AML.M0002, AML.M0019 | Rate limit, degrade output, revoke |
-| BHV-EV-001 | Adversarial perturbation in classifier inputs | AML.T0015 Evade ML Model / AML.T0043 Craft Adversarial Data | AML.M0015 | Reject input, flag for review |
+| BHV-EXF-002 | Model-inversion query patterns | AML.T0024.001 Invert AI Model | AML.M0002, AML.M0004 | Output obfuscation, rate limit |
+| BHV-EXF-003 | Systematic extraction query volume | AML.T0024.002 Extract AI Model | AML.M0004, AML.M0002, AML.M0019 | Rate limit, degrade output, revoke |
+| BHV-EV-001 | Adversarial perturbation in classifier inputs | AML.T0015 Evade AI Model / AML.T0043 Craft Adversarial Data | AML.M0015 | Reject input, flag for review |
 | BHV-PO-001 | Training data distribution shift / label anomaly at ingest | AML.T0020 Poison Training Data | AML.M0007, AML.M0014 | Halt pipeline, quarantine batch |
-| BHV-SC-001 | Unsigned / hash-mismatched model artifact loaded | AML.T0010 ML Supply Chain Compromise | AML.M0014, AML.M0016 | Block deploy, alert |
-| BHV-BD-001 | Trigger-conditioned output anomaly | AML.T0018 Backdoor ML Model | AML.M0014 | Pull model from serving, incident |
-| BHV-AG-001 | Agent tool call outside declared scope | AML.T0053 LLM Plugin Compromise | AML.M0019, AML.M0020 | Deny call, kill session |
-| BHV-DOS-001 | Token-exhaustion / sponge inputs | AML.T0029 Denial of ML Service | AML.M0004 | Throttle, cap max tokens |
+| BHV-SC-001 | Unsigned / hash-mismatched model artifact loaded | AML.T0010.003 AI Supply Chain Compromise: Model | AML.M0014, AML.M0016 | Block deploy, alert |
+| BHV-BD-001 | Trigger-conditioned output anomaly | AML.T0018 Manipulate AI Model | AML.M0014 | Pull model from serving, incident |
+| BHV-AG-001 | Agent tool call outside declared scope | AML.T0053 AI Agent Tool Invocation | AML.M0019, AML.M0020 | Deny call, kill session |
+| BHV-DOS-001 | Token-exhaustion / sponge inputs | AML.T0029 Denial of AI Service | AML.M0004 | Throttle, cap max tokens |
 | BHV-CH-001 | Abnormal compute spend per principal | AML.T0034 Cost Harvesting | AML.M0004, AML.M0019 | Quota enforce, alert finance + SOC |
 
-> IDs and names are validated at build time against the pinned `atlas-data` release. If ATLAS renames or restructures a technique, `make validate` fails and lists the drift.
+> IDs and names are validated against ATLAS 5.6.0 (pinned in `atlas/atlas-data.lock`). If ATLAS renames or restructures a technique, `abm validate` fails and lists the drift.
+>
+> Implemented in the starter codebase: BHV-PI-001, PI-002, EXF-003, SC-001 (stable); AG-001, DOS-001 (test); CH-001 (experimental). The rest are backlog.
 
 ---
 
@@ -184,31 +192,32 @@ references:
 ├── behaviors/                 # Behavior definitions (source of truth)
 │   ├── prompt-injection/
 │   ├── exfiltration/
-│   ├── poisoning/
 │   ├── supply-chain/
-│   ├── evasion/
-│   └── agentic/
+│   ├── agentic/
+│   ├── availability/
+│   └── cost/
 ├── atlas/
-│   ├── atlas-data.lock        # Pinned ATLAS release + checksum
-│   └── attack-bridge.yaml     # ATLAS ⇄ ATT&CK cross-references
-├── extractors/                # Behavior extractor implementations (Python)
-├── compilers/
-│   ├── sigma/
-│   ├── kql/                   # Microsoft Sentinel / Defender XDR
-│   ├── spl/                   # Splunk
-│   └── navigator/             # ATLAS Navigator layer output
-├── playbooks/
-│   ├── logic-apps/            # Sentinel automation
-│   ├── xsoar/
-│   └── generic/               # Webhook / OpenAPI actions
-├── schemas/
-│   ├── behavior.schema.json
-│   └── event.schema.json      # Normalized AI telemetry schema
+│   ├── catalog.yaml           # ATLAS tactics/techniques/mitigations (from atlas-sync)
+│   ├── atlas-data.lock        # Pinned ATLAS release + sha256
+│   └── NOTICE
+├── src/abm/
+│   ├── models.py              # Behavior schema (pydantic)
+│   ├── catalog.py             # ATLAS catalog + atlas-data import
+│   ├── loader.py / validator.py
+│   ├── engine.py              # Reference detection engine (replay, fixtures)
+│   ├── response.py            # Action registry, response planner, executors
+│   ├── coverage.py            # Scoring, gaps, Navigator layer
+│   ├── compilers/             # kql.py, sigma.py, spl.py
+│   └── cli.py                 # `abm` CLI
+├── schemas/behavior.schema.json   # Generated from the model (make schema)
+├── scripts/gen_fixtures.py    # Deterministic fixture generator
 ├── tests/
-│   ├── fixtures/
+│   ├── fixtures/              # Positive + benign near-miss JSONL telemetry
 │   └── adversarial/           # Red-team replay corpora
-├── reports/                   # Generated coverage output
-├── docs/
+├── docs/behavior-authoring.md
+├── dist/                      # Generated rules (gitignored)
+├── reports/                   # Generated coverage (gitignored)
+├── .github/workflows/ci.yml
 ├── Makefile
 └── pyproject.toml
 ```
@@ -223,19 +232,22 @@ references:
 - `make`
 - Optional: Azure CLI (Sentinel deploy), Splunk SDK, `sigma-cli`
 
+Runtime dependencies are only `pydantic` and `PyYAML`.
+
 ### Install
 
 ```bash
 git clone https://github.com/<org>/atlas-behavior-map.git
 cd atlas-behavior-map
-make setup            # venv, deps, pre-commit hooks
-make atlas-sync       # pull pinned ATLAS release into atlas/
+make setup            # venv + editable install with dev deps
+make atlas-sync       # refresh atlas/catalog.yaml from the official ATLAS release
 ```
 
 ### Validate and Build
 
 ```bash
-make validate         # schema + ATLAS ID resolution + test fixtures
+make validate         # schema + ATLAS ID resolution + fixture replay
+make test             # pytest
 make build            # compile all targets into dist/
 make coverage         # generate reports/coverage.{md,json} + Navigator layer
 ```
@@ -248,8 +260,10 @@ abm compile --target kql --out dist/kql/
 abm compile --target sigma --out dist/sigma/
 abm map --behavior BHV-EXF-003 --format table
 abm coverage --matrix atlas --layer reports/atlas-layer.json
-abm replay --fixture tests/adversarial/indirect_pi.jsonl --expect alert
+abm replay --fixture tests/fixtures/extraction_burst.jsonl --respond --expect alert
+abm test                                   # run every behavior's declared fixtures
 abm gaps --tactic AML.TA0010
+abm atlas-sync [--file ATLAS.yaml]         # online or offline catalog refresh
 ```
 
 ---
@@ -259,7 +273,7 @@ abm gaps --tactic AML.TA0010
 ### KQL (Microsoft Sentinel)
 
 ```kql
-// BHV-EXF-003 | AML.T0024.002 Extract ML Model
+// BHV-EXF-003 | AML.T0024.002 Extract AI Model
 AIInferenceLogs
 | where TimeGenerated > ago(1h)
 | summarize RequestCount = count(),
@@ -290,7 +304,7 @@ detection:
   condition: selection
 tags:
   - atlas.aml.t0051.001
-  - atlas.aml.ta0004
+  - atlas.aml.ta0005
 level: high
 ```
 
@@ -304,7 +318,7 @@ Countermeasures are layered and resolved per technique:
 
 | Layer | Source | Example |
 |---|---|---|
-| **Preventive** | ATLAS mitigations (`AML.M*`) | AML.M0014 Verify ML Artifacts → signed model registry |
+| **Preventive** | ATLAS mitigations (`AML.M*`) | AML.M0014 Verify AI Artifacts → signed model registry |
 | **Detective** | Behavior detections | BHV-SC-001 hash mismatch at load |
 | **Responsive** | Playbook actions | Block deploy, roll back to last signed version |
 | **Recovery** | Runbooks in `docs/runbooks/` | Retrain from clean snapshot, rotate keys |
@@ -365,7 +379,7 @@ make replay
 
 Behavior ID prefixes: `PI` prompt injection · `JB` jailbreak · `LK` leakage · `EXF` exfiltration · `EV` evasion · `PO` poisoning · `SC` supply chain · `BD` backdoor · `AG` agentic · `DOS` denial of service · `CH` cost harvesting.
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
+See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 
 ---
 
@@ -393,4 +407,4 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/behavior-authoring.md`](docs
 
 ## License
 
-Apache-2.0. ATLAS content is © The MITRE Corporation and used under its published terms; see [`atlas/NOTICE`](atlas/NOTICE).
+MIT. ATLAS content is © The MITRE Corporation and used under its published terms; see [`atlas/NOTICE`](atlas/NOTICE).

@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# atlas-behavior-map generated output
+dist/*
+!dist/.gitkeep
+reports/*
+!reports/.gitkeep

@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","session_id":"s-201","source_uri":"sharepoint://kb/llm-security","source_trust":"trusted","retrieved_content":"Training example of an attack: 'ignore previous instructions'."}
+{"timestamp":"2026-10-01T14:00:05Z","session_id":"s-201","source_uri":"https://example.net/pricing","source_trust":"untrusted","retrieved_content":"Pricing starts at $20 per seat per month."}

@@ -1,0 +1,35 @@
+id: BHV-CH-001
+name: Abnormal compute spend per principal
+status: experimental
+severity: medium
+confidence: low
+description: >
+  A principal's inference spend in a day far exceeds its baseline. Static
+  threshold placeholder until per-principal baselining is implemented.
+
+atlas:
+  tactics: [AML.TA0011]
+  techniques:
+    - { id: AML.T0034, relationship: primary }
+
+telemetry:
+  required:
+    - source: llm_gateway
+      fields: [timestamp, principal_id, cost_usd]
+
+detection:
+  logic: windowed_threshold
+  window: 1d
+  group_by: [principal_id]
+  metrics:
+    daily_cost_usd: sum(cost_usd)
+  conditions:
+    - daily_cost_usd > 500
+
+countermeasures:
+  mitigations: [AML.M0004, AML.M0019]
+  response:
+    - action: enforce_quota
+      params: { principal: "{{principal_id}}" }
+    - action: notify
+      params: { channel: finops-soc }

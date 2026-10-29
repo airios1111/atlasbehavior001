@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","session_id":"s-ag1","agent_id":"support-agent","tool_name":"kb.search","tool_in_scope":true}
+{"timestamp":"2026-10-01T14:00:02Z","session_id":"s-ag1","agent_id":"support-agent","tool_name":"shell.exec","tool_in_scope":false}

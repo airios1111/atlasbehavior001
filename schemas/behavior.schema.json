@@ -1,0 +1,380 @@
+{
+  "$defs": {
+    "AtlasMapping": {
+      "additionalProperties": false,
+      "properties": {
+        "tactics": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Tactics",
+          "type": "array"
+        },
+        "techniques": {
+          "items": {
+            "$ref": "#/$defs/TechniqueRef"
+          },
+          "minItems": 1,
+          "title": "Techniques",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tactics",
+        "techniques"
+      ],
+      "title": "AtlasMapping",
+      "type": "object"
+    },
+    "Countermeasures": {
+      "additionalProperties": false,
+      "properties": {
+        "mitigations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Mitigations",
+          "type": "array"
+        },
+        "response": {
+          "items": {
+            "$ref": "#/$defs/ResponseStep"
+          },
+          "title": "Response",
+          "type": "array"
+        }
+      },
+      "title": "Countermeasures",
+      "type": "object"
+    },
+    "Detection": {
+      "additionalProperties": false,
+      "properties": {
+        "logic": {
+          "enum": [
+            "signature",
+            "windowed_threshold",
+            "field_match"
+          ],
+          "title": "Logic",
+          "type": "string"
+        },
+        "signatures": {
+          "items": {
+            "$ref": "#/$defs/Signature"
+          },
+          "title": "Signatures",
+          "type": "array"
+        },
+        "window": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window"
+        },
+        "group_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Group By",
+          "type": "array"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Metrics",
+          "type": "object"
+        },
+        "conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Conditions",
+          "type": "array"
+        },
+        "match": {
+          "additionalProperties": true,
+          "title": "Match",
+          "type": "object"
+        },
+        "filters": {
+          "additionalProperties": true,
+          "title": "Filters",
+          "type": "object"
+        },
+        "false_positives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "False Positives",
+          "type": "array"
+        }
+      },
+      "required": [
+        "logic"
+      ],
+      "title": "Detection",
+      "type": "object"
+    },
+    "Level": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "Level",
+      "type": "string"
+    },
+    "ResponseStep": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "requires_approval": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requires Approval"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "title": "ResponseStep",
+      "type": "object"
+    },
+    "Signature": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "patterns": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Patterns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "field",
+        "patterns"
+      ],
+      "title": "Signature",
+      "type": "object"
+    },
+    "Status": {
+      "enum": [
+        "experimental",
+        "test",
+        "stable",
+        "deprecated"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "TechniqueRef": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "relationship": {
+          "default": "primary",
+          "enum": [
+            "primary",
+            "secondary",
+            "precondition"
+          ],
+          "title": "Relationship",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "TechniqueRef",
+      "type": "object"
+    },
+    "Telemetry": {
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "items": {
+            "$ref": "#/$defs/TelemetrySource"
+          },
+          "minItems": 1,
+          "title": "Required",
+          "type": "array"
+        },
+        "optional": {
+          "items": {
+            "$ref": "#/$defs/TelemetrySource"
+          },
+          "title": "Optional",
+          "type": "array"
+        }
+      },
+      "required": [
+        "required"
+      ],
+      "title": "Telemetry",
+      "type": "object"
+    },
+    "TelemetrySource": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source",
+        "fields"
+      ],
+      "title": "TelemetrySource",
+      "type": "object"
+    },
+    "TestCase": {
+      "additionalProperties": false,
+      "properties": {
+        "fixture": {
+          "title": "Fixture",
+          "type": "string"
+        },
+        "expect": {
+          "enum": [
+            "alert",
+            "no_alert"
+          ],
+          "title": "Expect",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fixture",
+        "expect"
+      ],
+      "title": "TestCase",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/Status"
+    },
+    "severity": {
+      "$ref": "#/$defs/Level"
+    },
+    "confidence": {
+      "$ref": "#/$defs/Level"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "atlas": {
+      "$ref": "#/$defs/AtlasMapping"
+    },
+    "attack_bridge": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Attack Bridge",
+      "type": "array"
+    },
+    "telemetry": {
+      "$ref": "#/$defs/Telemetry"
+    },
+    "detection": {
+      "$ref": "#/$defs/Detection"
+    },
+    "countermeasures": {
+      "$ref": "#/$defs/Countermeasures"
+    },
+    "tests": {
+      "items": {
+        "$ref": "#/$defs/TestCase"
+      },
+      "title": "Tests",
+      "type": "array"
+    },
+    "references": {
+      "items": {
+        "type": "string"
+      },
+      "title": "References",
+      "type": "array"
+    },
+    "source_path": {
+      "anyOf": [
+        {
+          "format": "path",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Path"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "status",
+    "severity",
+    "confidence",
+    "description",
+    "atlas",
+    "telemetry",
+    "detection"
+  ],
+  "title": "Behavior",
+  "type": "object"
+}

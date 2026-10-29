@@ -1,0 +1,36 @@
+id: BHV-AG-001
+name: Agent tool invocation outside declared scope
+status: test
+severity: high
+confidence: medium
+description: >
+  An agent invokes a tool not in its declared manifest, or with a target outside
+  its granted scope, typically following injected instructions.
+
+atlas:
+  tactics: [AML.TA0005, AML.TA0012]
+  techniques:
+    - { id: AML.T0053, relationship: primary }          # AI agent tool invocation
+    - { id: AML.T0051.001, relationship: precondition }
+
+telemetry:
+  required:
+    - source: agent_runtime
+      fields: [timestamp, session_id, agent_id, tool_name, tool_in_scope]
+
+detection:
+  logic: field_match
+  match:
+    tool_in_scope: false
+
+countermeasures:
+  mitigations: [AML.M0019, AML.M0020]
+  response:
+    - action: deny_tool_call
+      params: { session: "{{session_id}}", tool: "{{tool_name}}" }
+    - action: kill_session
+      params: { session: "{{session_id}}" }
+
+tests:
+  - { fixture: tests/fixtures/ag_out_of_scope.jsonl, expect: alert }
+  - { fixture: tests/fixtures/ag_in_scope.jsonl, expect: no_alert }

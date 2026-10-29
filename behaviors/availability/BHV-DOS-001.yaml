@@ -1,0 +1,41 @@
+id: BHV-DOS-001
+name: Token-exhaustion / sponge input volume per principal
+status: test
+severity: medium
+confidence: medium
+description: >
+  A principal drives abnormal input-token volume in a short window, consistent
+  with sponge examples or context-flooding intended to degrade service.
+
+atlas:
+  tactics: [AML.TA0011]                 # Impact
+  techniques:
+    - { id: AML.T0029, relationship: primary }
+
+telemetry:
+  required:
+    - source: llm_gateway
+      fields: [timestamp, principal_id, input_tokens, latency_ms]
+
+detection:
+  logic: windowed_threshold
+  window: 5m
+  group_by: [principal_id]
+  metrics:
+    total_input_tokens: sum(input_tokens)
+    avg_latency_ms: avg(latency_ms)
+  conditions:
+    - total_input_tokens > 500000
+    - avg_latency_ms > 8000
+
+countermeasures:
+  mitigations: [AML.M0004]
+  response:
+    - action: cap_tokens
+      params: { principal: "{{principal_id}}", max_input_tokens: 8000 }
+    - action: rate_limit
+      params: { principal: "{{principal_id}}", limit: 10/min, ttl: 1h }
+
+tests:
+  - { fixture: tests/fixtures/dos_sponge.jsonl, expect: alert }
+  - { fixture: tests/fixtures/dos_normal.jsonl, expect: no_alert }
