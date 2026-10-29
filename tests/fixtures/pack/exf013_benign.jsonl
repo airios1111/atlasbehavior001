@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-vy","collection":"kb-prod","operation":"export","records_returned":500}
+{"timestamp":"2026-10-01T14:00:05Z","principal_id":"user-vy","collection":"kb-prod","operation":"query","records_returned":20}

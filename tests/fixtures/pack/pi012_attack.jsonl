@@ -1,0 +1,6 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-5000","session_id":"s-500","guardrail_verdict":"prompt_injection"}
+{"timestamp":"2026-10-01T14:05:00Z","principal_id":"user-5000","session_id":"s-501","guardrail_verdict":"prompt_injection"}
+{"timestamp":"2026-10-01T14:10:00Z","principal_id":"user-5000","session_id":"s-502","guardrail_verdict":"prompt_injection"}
+{"timestamp":"2026-10-01T14:15:00Z","principal_id":"user-5000","session_id":"s-500","guardrail_verdict":"prompt_injection"}
+{"timestamp":"2026-10-01T14:20:00Z","principal_id":"user-5000","session_id":"s-501","guardrail_verdict":"prompt_injection"}
+{"timestamp":"2026-10-01T14:25:00Z","principal_id":"user-5000","session_id":"s-502","guardrail_verdict":"prompt_injection"}

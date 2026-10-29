@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-4201","session_id":"s-4201","model_id":"assistant-prod","suffix_perplexity":85.2,"suffix_token_count":30}
+{"timestamp":"2026-10-01T14:00:05Z","principal_id":"user-4201","session_id":"s-4201","model_id":"assistant-prod","suffix_perplexity":2200.0,"suffix_token_count":4}

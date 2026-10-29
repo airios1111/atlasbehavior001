@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","job_id":"ft-302","event_type":"finetune_start","dataset_id":"chat-logs-q3","dataset_provenance_verified":false,"target_environment":"dev"}
+{"timestamp":"2026-10-01T14:00:05Z","job_id":"ft-303","event_type":"finetune_start","dataset_id":"curated-v2","dataset_provenance_verified":true,"target_environment":"prod"}

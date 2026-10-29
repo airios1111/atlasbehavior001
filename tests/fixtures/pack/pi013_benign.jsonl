@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","session_id":"s-ag8","agent_id":"research-agent","tool_name":"web.fetch","tool_output":"<b>Important:</b> office closed Friday."}
+{"timestamp":"2026-10-01T14:00:05Z","session_id":"s-ag8","agent_id":"research-agent","tool_name":"kb.search","tool_output":"How to write clear instructions for new hires (3 results)"}

@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","tool_name":"shell.exec","session_id":"s-ag1","agent_id":"ops-agent","tool_args":"docker ps"}
+{"timestamp":"2026-10-01T14:00:10Z","tool_name":"shell.exec","session_id":"s-ag1","agent_id":"ops-agent","tool_args":"cat /proc/cpuinfo"}

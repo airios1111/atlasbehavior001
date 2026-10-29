@@ -1,0 +1,17 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.05}
+{"timestamp":"2026-10-01T14:01:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.07}
+{"timestamp":"2026-10-01T14:02:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.09}
+{"timestamp":"2026-10-01T14:03:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.11}
+{"timestamp":"2026-10-01T14:04:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.13}
+{"timestamp":"2026-10-01T14:05:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.15}
+{"timestamp":"2026-10-01T14:06:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.17}
+{"timestamp":"2026-10-01T14:07:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.19}
+{"timestamp":"2026-10-01T14:08:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.21}
+{"timestamp":"2026-10-01T14:09:00Z","principal_id":"user-6101","session_id":"s-cr2","harm_score":0.23}
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6102","session_id":"s-cr3","harm_score":0.05}
+{"timestamp":"2026-10-01T14:01:00Z","principal_id":"user-6102","session_id":"s-cr3","harm_score":0.05}
+{"timestamp":"2026-10-01T14:02:00Z","principal_id":"user-6102","session_id":"s-cr3","harm_score":0.05}
+{"timestamp":"2026-10-01T14:03:00Z","principal_id":"user-6102","session_id":"s-cr3","harm_score":0.05}
+{"timestamp":"2026-10-01T14:04:00Z","principal_id":"user-6102","session_id":"s-cr3","harm_score":0.05}
+{"timestamp":"2026-10-01T14:05:00Z","principal_id":"user-6102","session_id":"s-cr3","harm_score":0.05}
+{"timestamp":"2026-10-01T14:06:00Z","principal_id":"user-6102","session_id":"s-cr3","harm_score":0.9}

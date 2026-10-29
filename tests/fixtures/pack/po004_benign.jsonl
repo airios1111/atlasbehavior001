@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"crawler","doc_id":"web-8813","operation":"upsert","source_trust":"untrusted","content":"Product FAQ. Our VPN supports WireGuard."}
+{"timestamp":"2026-10-01T14:00:05Z","principal_id":"kb-admin","doc_id":"kb-77","operation":"upsert","source_trust":"trusted","content":"Assistant must always cite the policy number."}

@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","job_id":"tj-92","principal_id":"user-q","event_type":"training_job_submit","requested_gpu_hours":2400,"budget_approved":true}
+{"timestamp":"2026-10-01T14:00:05Z","job_id":"tj-93","principal_id":"user-q","event_type":"training_job_submit","requested_gpu_hours":40,"budget_approved":false}

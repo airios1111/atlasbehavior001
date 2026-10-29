@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","artifact_id":"art-h2","event_type":"model_import","source_hub":"huggingface","publisher":"meta-llama","publisher_allowlisted":true,"environment":"prod"}
+{"timestamp":"2026-10-01T14:00:05Z","artifact_id":"art-h3","event_type":"model_import","source_hub":"huggingface","publisher":"llama-fan-2026","publisher_allowlisted":false,"environment":"sandbox"}

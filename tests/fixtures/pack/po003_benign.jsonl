@@ -1,0 +1,5 @@
+{"timestamp":"2026-10-01T14:00:00Z","dataset_id":"reviews-v9","contributor_id":"vendor-12","contributor_type":"external","record_count":5000}
+{"timestamp":"2026-10-01T14:10:00Z","dataset_id":"reviews-v9","contributor_id":"vendor-12","contributor_type":"external","record_count":5000}
+{"timestamp":"2026-10-01T14:20:00Z","dataset_id":"reviews-v9","contributor_id":"vendor-12","contributor_type":"external","record_count":5000}
+{"timestamp":"2026-10-01T14:00:00Z","dataset_id":"reviews-v9","contributor_id":"team-data","contributor_type":"internal","record_count":60000}
+{"timestamp":"2026-10-01T14:10:00Z","dataset_id":"reviews-v9","contributor_id":"team-data","contributor_type":"internal","record_count":60000}

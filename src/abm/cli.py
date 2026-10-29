@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -13,7 +14,7 @@ from abm.compilers import TARGETS
 from abm.coverage import SCORE_LABEL, compute, gaps, write_reports
 from abm.engine import Engine, load_events, run_tests
 from abm.loader import find_root, load_behaviors
-from abm.response import DryRunExecutor, WebhookExecutor, plan
+from abm.response import DryRunExecutor, WebhookExecutor, XsoarExecutor, plan, run_plan
 from abm.validator import validate
 
 
@@ -134,18 +135,33 @@ def cmd_gaps(args) -> int:
     return 0
 
 
+def _executor(args):
+    if args.xsoar:
+        # secrets only from the environment, never the command line (shell history, process list)
+        return XsoarExecutor(args.xsoar, os.environ.get("XSOAR_API_KEY", ""),
+                             os.environ.get("XSOAR_API_KEY_ID") or None,
+                             incident_type=args.xsoar_incident_type)
+    if not args.respond:
+        return None
+    return WebhookExecutor(args.webhook) if args.webhook else DryRunExecutor()
+
+
 def cmd_replay(args) -> int:
     root, catalog = _ctx(args)
     res = _behaviors(root, None)
     bs = [b for b in res.behaviors if not args.behavior or b.id == args.behavior]
     events = load_events(Path(args.fixture))
     alerts = Engine(bs, catalog).run(events)
-    executor = (WebhookExecutor(args.webhook) if args.webhook else DryRunExecutor()) if args.respond else None
+    try:
+        executor = _executor(args)
+    except ValueError as e:
+        print(f"replay: {e}", file=sys.stderr)
+        return 2
     by_id = {b.id: b for b in bs}
     for a in alerts:
         rec = a.to_dict()
         if executor:
-            rec["response"] = [vars(executor.execute(a, p)) for p in plan(by_id[a.behavior_id], a)]
+            rec["response"] = [vars(p) for p in run_plan(executor, a, plan(by_id[a.behavior_id], a))]
         print(json.dumps(rec))
     print(f"# {len(alerts)} alert(s) from {len(events)} event(s)", file=sys.stderr)
     if args.expect:
@@ -228,6 +244,10 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--expect", choices=["alert", "no_alert"])
     s.add_argument("--respond", action="store_true", help="plan response actions (dry-run default)")
     s.add_argument("--webhook", help="https SOAR webhook for auto-approved actions")
+    s.add_argument("--xsoar", metavar="URL",
+                   help="create a Cortex XSOAR incident per alert (implies --respond); "
+                        "reads XSOAR_API_KEY and, for XSOAR 8, XSOAR_API_KEY_ID from the environment")
+    s.add_argument("--xsoar-incident-type", default="AI Security Alert", help="XSOAR incident type")
     s.set_defaults(fn=cmd_replay)
 
     s = sub.add_parser("test", help="run every behavior's declared fixture tests")

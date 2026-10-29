@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","agent_id":"support-agent","principal_id":"admin-1","event_type":"agent_config_change","change_target":"tool_list","actor_is_admin":true}
+{"timestamp":"2026-10-01T14:00:05Z","agent_id":"support-agent","principal_id":"user-c9","event_type":"agent_config_change","change_target":"display_name","actor_is_admin":false}

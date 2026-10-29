@@ -10,6 +10,11 @@ KQL_TABLES = {
     "model_registry": "AIModelRegistryEvents",
     "agent_runtime": "AIAgentToolCalls",
     "training_pipeline": "AITrainingPipelineEvents",
+    "vector_store": "AIVectorStoreEvents",
+    "agent_memory": "AIAgentMemoryEvents",
+    "mcp_gateway": "AIMCPGatewayEvents",
+    "ml_workspace": "AIMLWorkspaceEvents",
+    "cloud_audit": "AzureActivity",
     "identity": "SigninLogs",
 }
 
@@ -20,6 +25,11 @@ SPL_SOURCES = {
     "model_registry": 'index=ai sourcetype="ai:model_registry"',
     "agent_runtime": 'index=ai sourcetype="ai:agent"',
     "training_pipeline": 'index=ai sourcetype="ai:training"',
+    "vector_store": 'index=ai sourcetype="ai:vector_store"',
+    "agent_memory": 'index=ai sourcetype="ai:agent_memory"',
+    "mcp_gateway": 'index=ai sourcetype="ai:mcp"',
+    "ml_workspace": 'index=ai sourcetype="ai:ml_workspace"',
+    "cloud_audit": 'index=cloud sourcetype="cloud:audit"',
     "identity": 'index=identity',
 }
 

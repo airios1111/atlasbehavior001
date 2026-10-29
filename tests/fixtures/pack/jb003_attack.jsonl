@@ -1,0 +1,8 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6100","session_id":"s-cr1","harm_score":0.1}
+{"timestamp":"2026-10-01T14:01:00Z","principal_id":"user-6100","session_id":"s-cr1","harm_score":0.2}
+{"timestamp":"2026-10-01T14:02:00Z","principal_id":"user-6100","session_id":"s-cr1","harm_score":0.35}
+{"timestamp":"2026-10-01T14:03:00Z","principal_id":"user-6100","session_id":"s-cr1","harm_score":0.5}
+{"timestamp":"2026-10-01T14:04:00Z","principal_id":"user-6100","session_id":"s-cr1","harm_score":0.6}
+{"timestamp":"2026-10-01T14:05:00Z","principal_id":"user-6100","session_id":"s-cr1","harm_score":0.75}
+{"timestamp":"2026-10-01T14:06:00Z","principal_id":"user-6100","session_id":"s-cr1","harm_score":0.85}
+{"timestamp":"2026-10-01T14:07:00Z","principal_id":"user-6100","session_id":"s-cr1","harm_score":0.95}

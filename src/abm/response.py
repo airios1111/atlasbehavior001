@@ -37,6 +37,12 @@ ACTION_REGISTRY: dict[str, ActionSpec] = {
     "block_deploy":      ActionSpec(False, True,  "service",   "Block a model artifact from deployment"),
     "pull_model":        ActionSpec(True,  True,  "service",   "Remove a model from serving / roll back"),
     "halt_pipeline":     ActionSpec(True,  True,  "pipeline",  "Halt a training/data pipeline"),
+    "step_up_auth":      ActionSpec(False, True,  "principal", "Require re-authentication / MFA for the principal"),
+    "quarantine_vector_records": ActionSpec(False, True, "source", "Exclude vector-store records from retrieval"),
+    "quarantine_artifact": ActionSpec(False, True, "service",  "Mark a model/dataset artifact as quarantined"),
+    "disable_tool":      ActionSpec(True,  True,  "service",   "Disable an agent tool / MCP server for all agents"),
+    "rotate_credentials": ActionSpec(True, True,  "service",   "Rotate credentials exposed to or by an AI component"),
+    "purge_agent_memory": ActionSpec(True, False, "principal", "Delete poisoned entries from agent long-term memory"),
 }
 
 _TEMPLATE_RE = re.compile(r"\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}")
@@ -133,3 +139,93 @@ class WebhookExecutor:
         except OSError as e:
             action.status = f"failed({e.__class__.__name__})"
         return action
+
+
+XSOAR_SEVERITY = {"low": 1, "medium": 2, "high": 3, "critical": 4}
+
+
+class XsoarExecutor:
+    """Creates one Cortex XSOAR incident per alert carrying the full response plan.
+
+    XSOAR owns execution: its playbook runs `auto` actions and routes `awaiting_approval` ones to an
+    analyst task. Auth uses an XSOAR API key; for XSOAR 8 / Cortex cloud tenants also pass the API key
+    ID, which switches to the `x-xdr-auth-id` header and the `/xsoar/public/v1` API path.
+    """
+
+    def __init__(self, url: str, api_key: str, api_key_id: str | None = None,
+                 incident_type: str = "AI Security Alert", timeout: int = 15, path: str | None = None):
+        if not url.startswith("https://"):
+            raise ValueError("XSOAR URL must be https")
+        if not api_key:
+            raise ValueError("XSOAR API key is required")
+        self.url = url.rstrip("/")
+        self.api_key, self.api_key_id = api_key, api_key_id
+        self.incident_type, self.timeout = incident_type, timeout
+        self.path = path or ("/xsoar/public/v1/incident" if api_key_id else "/incident")
+
+    def headers(self) -> dict[str, str]:
+        h = {"Content-Type": "application/json", "Accept": "application/json",
+             "Authorization": self.api_key}
+        if self.api_key_id:
+            h["x-xdr-auth-id"] = str(self.api_key_id)
+        return h
+
+    def incident(self, alert: Alert, actions: list[PlannedAction]) -> dict[str, Any]:
+        """XSOAR create-incident payload. Labels always survive; CustomFields need the matching
+        incident fields (see integrations/xsoar/README.md)."""
+        plan_rows = [asdict(a) for a in actions]
+        labels = [{"type": "behavior_id", "value": alert.behavior_id},
+                  {"type": "atlas_technique", "value": alert.technique}]
+        labels += [{"type": "atlas_tactic", "value": t} for t in alert.tactics]
+        labels += [{"type": f"context.{k}", "value": str(v)} for k, v in alert.context.items()]
+        labels += [{"type": "planned_action", "value": f"{a.action}:{a.status}"} for a in actions]
+        details = [f"{alert.name}", f"ATLAS {alert.technique} ({', '.join(alert.tactics)})", "Evidence:"]
+        details += [f"- {e}" for e in alert.evidence]
+        payload: dict[str, Any] = {
+            "name": f"[{alert.behavior_id}] {alert.name}",
+            "type": self.incident_type,
+            "severity": XSOAR_SEVERITY.get(alert.severity, 0),
+            "details": "\n".join(details),
+            "labels": labels,
+            "rawJSON": json.dumps({"alert": alert.to_dict(), "response_plan": plan_rows}),
+            "CustomFields": {
+                "abmbehaviorid": alert.behavior_id,
+                "abmatlastechnique": alert.technique,
+                "abmatlastactics": ", ".join(alert.tactics),
+                "abmresponseplan": json.dumps(plan_rows),
+            },
+            "createInvestigation": True,
+        }
+        if alert.window_start:
+            payload["occurred"] = alert.window_start
+        return payload
+
+    def execute_plan(self, alert: Alert, actions: list[PlannedAction]) -> list[PlannedAction]:
+        req = urllib.request.Request(  # noqa: S310 (https enforced in __init__)
+            self.url + self.path, data=json.dumps(self.incident(alert, actions)).encode(),
+            method="POST", headers=self.headers(),
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as r:  # noqa: S310
+                ok = 200 <= r.status < 300
+                ref = json.loads(r.read() or b"{}").get("id", "?") if ok else None
+                outcome = f"xsoar:{ref}" if ok else f"failed({r.status})"
+        except (OSError, ValueError) as e:
+            outcome = f"failed({e.__class__.__name__})"
+        for a in actions:
+            if outcome.startswith("failed"):
+                a.status = outcome
+            else:
+                a.status = f"{'awaiting_approval' if a.status == 'awaiting_approval' else 'delegated'}({outcome})"
+        return actions
+
+    def execute(self, alert: Alert, action: PlannedAction) -> PlannedAction:
+        return self.execute_plan(alert, [action])[0]
+
+
+def run_plan(executor: Executor, alert: Alert, actions: list[PlannedAction]) -> list[PlannedAction]:
+    """Executors that hand the whole plan to another system (XSOAR) get it in one call."""
+    batch = getattr(executor, "execute_plan", None)
+    if batch:
+        return batch(alert, actions)
+    return [executor.execute(alert, a) for a in actions]

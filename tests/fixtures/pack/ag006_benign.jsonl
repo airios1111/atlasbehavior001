@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","tool_name":"sql.execute","session_id":"s-ag1","agent_id":"ops-agent","tool_args":"DELETE FROM sessions WHERE expires_at < now();"}
+{"timestamp":"2026-10-01T14:00:10Z","tool_name":"sql.execute","session_id":"s-ag1","agent_id":"ops-agent","tool_args":"SELECT * FROM orders"}

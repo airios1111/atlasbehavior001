@@ -1,0 +1,4 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-dl","event_type":"artifact_download","artifact_type":"model_weights","size_gb":7.0}
+{"timestamp":"2026-10-01T14:10:00Z","principal_id":"user-dl","event_type":"artifact_download","artifact_type":"model_weights","size_gb":7.0}
+{"timestamp":"2026-10-01T14:20:00Z","principal_id":"user-dl","event_type":"artifact_download","artifact_type":"model_weights","size_gb":7.0}
+{"timestamp":"2026-10-01T14:30:00Z","principal_id":"user-dl","event_type":"artifact_download","artifact_type":"model_weights","size_gb":7.0}

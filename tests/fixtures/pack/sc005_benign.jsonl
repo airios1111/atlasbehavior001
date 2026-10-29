@@ -1,0 +1,1 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"ci-bot","event_type":"container_deploy","workload_type":"inference","image":"registry.example/llm-server:1.8.2","image_signature_status":"valid"}

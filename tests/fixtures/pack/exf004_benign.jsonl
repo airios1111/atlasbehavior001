@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","session_id":"s-e2","agent_id":"ops-agent","tool_name":"http.request","destination_domain":"api.partner.example","destination_allowlisted":true,"request_bytes":48211}
+{"timestamp":"2026-10-01T14:00:05Z","session_id":"s-e2","agent_id":"ops-agent","tool_name":"http.request","destination_domain":"status.vendor.example","destination_allowlisted":false,"request_bytes":310}

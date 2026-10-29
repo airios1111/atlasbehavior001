@@ -351,8 +351,9 @@ def map_cli():
          "loader.load_behaviors -> validator.validate -> engine.run_tests"],
         ["abm test", "Run every behavior's declared fixtures, PASS/FAIL table",
          "engine.run_tests"],
-        ["abm replay --fixture F [--respond]", "Run behaviors over a JSONL file; print alerts (+ response plan)",
-         "engine.Engine.run -> response.plan -> DryRun/WebhookExecutor"],
+        ["abm replay --fixture F [--respond | --xsoar URL]",
+         "Run behaviors over a JSONL file; print alerts (+ response plan, optionally sent to Cortex XSOAR)",
+         "engine.Engine.run -> response.plan -> run_plan(DryRun / Webhook / XsoarExecutor)"],
         ["abm compile --target kql|spl|sigma|all", "Write SIEM rules to dist/&lt;target&gt;/",
          "compilers.TARGETS -> kql/spl/sigma.compile_behavior"],
         ["abm map --behavior ID", "Behavior -> technique/mitigation/response table or JSON",
@@ -783,7 +784,16 @@ def build():
             [", ".join(a for a, s in ACTION_REGISTRY.items() if s.requires_approval),
              ", ".join(a for a, s in ACTION_REGISTRY.items() if not s.requires_approval)],
         ], [200, 304]),
-        Spacer(1, 10),
+        Spacer(1, 8),
+        P("<b>Cortex XSOAR (Palo Alto).</b> <font name='Courier'>--xsoar https://...</font> uses "
+          "<font name='Courier'>XsoarExecutor</font>, which creates one XSOAR incident per alert with labels, "
+          "ABM custom fields and the full plan in <font name='Courier'>rawJSON</font>. Statuses become "
+          "<font name='Courier'>delegated(xsoar:&lt;id&gt;)</font> or "
+          "<font name='Courier'>awaiting_approval(xsoar:&lt;id&gt;)</font> and the XSOAR playbook executes. "
+          "The API key is read from <font name='Courier'>XSOAR_API_KEY</font> (plus "
+          "<font name='Courier'>XSOAR_API_KEY_ID</font> for XSOAR 8). Setup: "
+          "<font name='Courier'>integrations/xsoar/README.md</font>."),
+        Spacer(1, 6),
         P("Live example (run against the repository)", H2),
         code(REPLAY),
     ]
