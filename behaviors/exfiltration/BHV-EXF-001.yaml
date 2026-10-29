@@ -1,0 +1,52 @@
+id: BHV-EXF-001
+name: Membership-inference probing via repeated confidence queries
+status: test
+severity: high
+confidence: low
+description: >
+  A principal repeatedly queries a small set of candidate records while
+  requesting confidence scores / logprobs, consistent with testing whether
+  specific records were in the training set.
+
+atlas:
+  tactics: [AML.TA0010]
+  techniques:
+    - { id: AML.T0024.000, relationship: primary }      # Infer Training Data Membership
+    - { id: AML.T0040, relationship: precondition }
+
+telemetry:
+  required:
+    - source: inference_gateway
+      fields: [timestamp, principal_id, model_id, input_hash, return_confidence]
+
+detection:
+  logic: windowed_threshold
+  window: 1h
+  group_by: [principal_id, model_id]
+  metrics:
+    request_count: count
+    distinct_inputs: dcount(input_hash)
+    confidence_ratio: avg(return_confidence)     # 1 if scores/logprobs requested, else 0
+  conditions:
+    - request_count > 500
+    - distinct_inputs < 50
+    - confidence_ratio > 0.9
+  false_positives:
+    - Calibration / regression test suites re-scoring a fixed golden set
+
+countermeasures:
+  mitigations: [AML.M0002, AML.M0004]
+  response:
+    - action: degrade_output
+      params: { model: "{{model_id}}", mode: label_only_no_scores }
+    - action: rate_limit
+      params: { principal: "{{principal_id}}", limit: 30/min, ttl: 12h }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P3 }
+
+tests:
+  - { fixture: tests/fixtures/exf_membership_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/exf_membership_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0024

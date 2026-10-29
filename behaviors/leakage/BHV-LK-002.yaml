@@ -1,0 +1,50 @@
+id: BHV-LK-002
+name: Sensitive data (PII / secrets) in model completion
+status: stable
+severity: critical
+confidence: medium
+description: >
+  Model output contains high-signal sensitive data patterns: US SSN, payment
+  card numbers, cloud access keys or private key material. Signature floor;
+  production should chain a DLP service with checksum (Luhn) validation.
+
+atlas:
+  tactics: [AML.TA0010]
+  techniques:
+    - { id: AML.T0057, relationship: primary }          # LLM Data Leakage
+
+telemetry:
+  required:
+    - source: llm_gateway
+      fields: [timestamp, principal_id, session_id, model_id, completion]
+
+detection:
+  logic: signature
+  signatures:
+    - field: completion
+      patterns:
+        - '\b\d{3}-\d{2}-\d{4}\b'
+        - '\b(4\d{3}|5[1-5]\d{2}|3[47]\d{2})[ -]?\d{4}[ -]?\d{4}[ -]?\d{3,4}\b'
+        - '\b(AKIA|ASIA)[0-9A-Z]{16}\b'
+        - '-----BEGIN (RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----'
+        - '\bxox[baprs]-[0-9A-Za-z-]{10,}\b'
+  false_positives:
+    - Documented test values (e.g. 4111 1111 1111 1111) in developer-assist sessions
+    - Formatted IDs that resemble SSNs (scope by app)
+
+countermeasures:
+  mitigations: [AML.M0020, AML.M0019]
+  response:
+    - action: redact_output
+      params: { session: "{{session_id}}" }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P1 }
+    - action: notify
+      params: { channel: privacy-office }
+
+tests:
+  - { fixture: tests/fixtures/lk_pii_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/lk_pii_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0057

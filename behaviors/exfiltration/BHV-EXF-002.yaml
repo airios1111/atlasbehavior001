@@ -1,0 +1,54 @@
+id: BHV-EXF-002
+name: Model-inversion probing against a single output class
+status: test
+severity: high
+confidence: low
+description: >
+  High-volume, confidence-returning queries whose predictions concentrate on a
+  single target class while inputs are iteratively perturbed, consistent with
+  reconstructing a representative training input for that class.
+
+atlas:
+  tactics: [AML.TA0010]
+  techniques:
+    - { id: AML.T0024.001, relationship: primary }      # Invert AI Model
+    - { id: AML.T0040, relationship: precondition }
+
+telemetry:
+  required:
+    - source: inference_gateway
+      fields: [timestamp, principal_id, model_id, predicted_class, return_confidence, input_embedding_norm]
+
+detection:
+  logic: windowed_threshold
+  window: 1h
+  group_by: [principal_id, model_id]
+  metrics:
+    request_count: count
+    distinct_classes: dcount(predicted_class)
+    confidence_ratio: avg(return_confidence)
+    input_variance: variance(input_embedding_norm)
+  conditions:
+    - request_count > 1000
+    - distinct_classes <= 1
+    - confidence_ratio > 0.9
+    - input_variance < 0.05
+  false_positives:
+    - Single-class batch scoring jobs (allowlist service principals)
+
+countermeasures:
+  mitigations: [AML.M0002, AML.M0004]
+  response:
+    - action: degrade_output
+      params: { model: "{{model_id}}", mode: label_only_no_scores }
+    - action: rate_limit
+      params: { principal: "{{principal_id}}", limit: 30/min, ttl: 12h }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P2 }
+
+tests:
+  - { fixture: tests/fixtures/exf_inversion_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/exf_inversion_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0024

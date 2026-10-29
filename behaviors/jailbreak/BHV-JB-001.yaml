@@ -1,0 +1,50 @@
+id: BHV-JB-001
+name: Role-play / persona jailbreak attempt in user input
+status: stable
+severity: high
+confidence: medium
+description: >
+  User prompt attempts to bypass model guardrails by assigning an unrestricted
+  persona (DAN, "developer/god mode"), framing a hypothetical that suspends
+  policy, or explicitly asking the model to drop its restrictions.
+
+atlas:
+  tactics: [AML.TA0012, AML.TA0007]     # Privilege Escalation, Defense Evasion
+  techniques:
+    - { id: AML.T0054, relationship: primary }          # LLM Jailbreak
+    - { id: AML.T0040, relationship: precondition }
+
+telemetry:
+  required:
+    - source: llm_gateway
+      fields: [timestamp, principal_id, session_id, model_id, prompt]
+
+detection:
+  logic: signature
+  signatures:
+    - field: prompt
+      patterns:
+        - '\bDAN\b'                                   # case-sensitive: avoid the name Dan
+        - '(?i)\bdo\s+anything\s+now\b'
+        - '(?i)\b(developer|god|unfiltered|evil|jailbreak)\s+mode\b'
+        - '(?i)\b(pretend|act\s+as\s+if|imagine)\s+(you\s+are|you''re|to\s+be)\b.{0,60}\b(no|without|free\s+of)\s+(restrictions|rules|filters|limits|guidelines)\b'
+        - '(?i)\b(hypothetically|in\s+a\s+fictional\s+world)\b.{0,80}\b(no\s+ethic|ignore\s+(your\s+)?(policy|policies|guidelines|safety))'
+        - '(?i)\b(stay\s+in\s+character|never\s+break\s+character)\b.{0,60}\b(no\s+matter|even\s+if)\b'
+  false_positives:
+    - Creative-writing role-play without policy-suspension language
+    - Red-team exercises (scope by principal)
+
+countermeasures:
+  mitigations: [AML.M0020, AML.M0021]
+  response:
+    - action: block_request
+      params: { session: "{{session_id}}" }
+    - action: increment_risk
+      params: { principal: "{{principal_id}}", delta: 20 }
+
+tests:
+  - { fixture: tests/fixtures/jb_persona_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/jb_persona_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0054

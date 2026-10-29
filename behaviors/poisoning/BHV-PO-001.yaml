@@ -1,0 +1,45 @@
+id: BHV-PO-001
+name: Training data distribution shift at ingest
+status: test
+severity: high
+confidence: medium
+description: >
+  A dataset batch entering a training pipeline shows significant distribution
+  shift (PSI) against the reference snapshot, consistent with injected or
+  manipulated training samples.
+
+atlas:
+  tactics: [AML.TA0003, AML.TA0006]     # Resource Development, Persistence
+  techniques:
+    - { id: AML.T0020, relationship: primary }          # Poison Training Data
+
+telemetry:
+  required:
+    - source: training_pipeline
+      fields: [timestamp, event_type, pipeline_id, dataset_id, batch_id, distribution_shift_psi]
+
+detection:
+  logic: field_match
+  filters:
+    event_type: dataset_ingest
+  match:
+    distribution_shift_psi: { gt: 0.25 }
+  false_positives:
+    - Legitimate seasonal or product-driven data drift (correlate with change tickets)
+
+countermeasures:
+  mitigations: [AML.M0007, AML.M0014]
+  response:
+    - action: halt_pipeline
+      params: { pipeline: "{{pipeline_id}}", batch: "{{batch_id}}" }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P2 }
+    - action: notify
+      params: { channel: ml-platform }
+
+tests:
+  - { fixture: tests/fixtures/po_drift_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/po_drift_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0020

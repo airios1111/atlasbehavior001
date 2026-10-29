@@ -166,22 +166,24 @@ references:
 | BHV-PI-001 | Instruction-override pattern in direct user input | AML.T0051.000 LLM Prompt Injection: Direct | AML.M0020, AML.M0015 | Block, log, increment principal risk |
 | BHV-PI-002 | Embedded instructions in retrieved content (RAG / web / email) | AML.T0051.001 LLM Prompt Injection: Indirect | AML.M0020, AML.M0015 | Quarantine source doc, strip, alert |
 | BHV-JB-001 | Role-play / persona jailbreak sequences | AML.T0054 LLM Jailbreak | AML.M0020, AML.M0021 | Refuse, session risk escalation |
-| BHV-LK-001 | System prompt disclosure in completion | AML.T0056 Extract LLM System Prompt | AML.M0020 | Redact output, alert |
+| BHV-LK-001 | System prompt disclosure in completion (canary + phrasing) | AML.T0056 Extract LLM System Prompt | AML.M0020 | Redact output, risk, incident |
 | BHV-LK-002 | Sensitive data / PII in completion | AML.T0057 LLM Data Leakage | AML.M0020, AML.M0019 | DLP redact, incident |
-| BHV-EXF-001 | Membership-inference query patterns | AML.T0024.000 Infer Training Data Membership | AML.M0002, AML.M0004 | Output obfuscation, rate limit |
-| BHV-EXF-002 | Model-inversion query patterns | AML.T0024.001 Invert AI Model | AML.M0002, AML.M0004 | Output obfuscation, rate limit |
+| BHV-EXF-001 | Membership-inference probing (repeated candidates + scores) | AML.T0024.000 Infer Training Data Membership | AML.M0002, AML.M0004 | Label-only output, rate limit |
+| BHV-EXF-002 | Model-inversion probing (single class + scores + perturbation) | AML.T0024.001 Invert AI Model | AML.M0002, AML.M0004 | Label-only output, rate limit |
 | BHV-EXF-003 | Systematic extraction query volume | AML.T0024.002 Extract AI Model | AML.M0004, AML.M0002, AML.M0019 | Rate limit, degrade output, revoke |
-| BHV-EV-001 | Adversarial perturbation in classifier inputs | AML.T0015 Evade AI Model / AML.T0043 Craft Adversarial Data | AML.M0015 | Reject input, flag for review |
-| BHV-PO-001 | Training data distribution shift / label anomaly at ingest | AML.T0020 Poison Training Data | AML.M0007, AML.M0014 | Halt pipeline, quarantine batch |
+| BHV-EV-001 | Adversarial perturbation in classifier inputs | AML.T0015 Evade AI Model / AML.T0043 Craft Adversarial Data | AML.M0015, AML.M0003 | Reject input, flag for review |
+| BHV-PO-001 | Training data distribution shift (PSI) at ingest | AML.T0020 Poison Training Data | AML.M0007, AML.M0014 | Halt pipeline, incident |
 | BHV-SC-001 | Unsigned / hash-mismatched model artifact loaded | AML.T0010.003 AI Supply Chain Compromise: Model | AML.M0014, AML.M0016 | Block deploy, alert |
-| BHV-BD-001 | Trigger-conditioned output anomaly | AML.T0018 Manipulate AI Model | AML.M0014 | Pull model from serving, incident |
+| BHV-BD-001 | Backdoor trigger response in model scan (high ASR) | AML.T0018.000 Poison AI Model / AML.T0043.004 Insert Backdoor Trigger | AML.M0014, AML.M0008 | Block deploy, pull model, incident |
 | BHV-AG-001 | Agent tool call outside declared scope | AML.T0053 AI Agent Tool Invocation | AML.M0019, AML.M0020 | Deny call, kill session |
 | BHV-DOS-001 | Token-exhaustion / sponge inputs | AML.T0029 Denial of AI Service | AML.M0004 | Throttle, cap max tokens |
 | BHV-CH-001 | Abnormal compute spend per principal | AML.T0034 Cost Harvesting | AML.M0004, AML.M0019 | Quota enforce, alert finance + SOC |
 
 > IDs and names are validated against ATLAS 5.6.0 (pinned in `atlas/atlas-data.lock`). If ATLAS renames or restructures a technique, `abm validate` fails and lists the drift.
 >
-> Implemented in the starter codebase: BHV-PI-001, PI-002, EXF-003, SC-001 (stable); AG-001, DOS-001 (test); CH-001 (experimental). The rest are backlog.
+> All 15 are implemented with positive and benign near-miss fixtures. Stable: PI-001, PI-002, JB-001, LK-001, LK-002, EXF-003, SC-001. Test: EXF-001, EXF-002, EV-001, PO-001, BD-001, AG-001, DOS-001. Experimental: CH-001.
+>
+> EV-001, PO-001 and BD-001 consume scores from upstream controls (adversarial-input detector, drift monitor, backdoor scanner); they map and act on those signals rather than compute them. LK-001 requires a system-prompt canary (`ABM-CANARY-<8 hex>`) injected at the gateway.
 
 ---
 
@@ -193,6 +195,11 @@ references:
 │   ├── prompt-injection/
 │   ├── exfiltration/
 │   ├── supply-chain/
+│   ├── jailbreak/
+│   ├── leakage/
+│   ├── evasion/
+│   ├── poisoning/
+│   ├── backdoor/
 │   ├── agentic/
 │   ├── availability/
 │   └── cost/
@@ -385,7 +392,7 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 
 ## Roadmap
 
-- [ ] Seed behavior set across all ATLAS tactics
+- [ ] Seed behavior set across all ATLAS tactics (15 behaviors in; remaining tactics: Reconnaissance, Resource Development, Discovery, Collection, Credential Access, Lateral Movement, C2)
 - [ ] OCSF AI-event extension mapping
 - [ ] Sentinel Content Hub packaging (analytics rules + workbooks + Logic Apps)
 - [ ] Agentic AI telemetry: MCP / tool-call provenance graph

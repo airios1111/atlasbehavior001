@@ -1,0 +1,1 @@
+{"pipeline_id":"pl-fraud-train","dataset_id":"ds-txn","timestamp":"2026-10-01T14:00:00Z","event_type":"dataset_ingest","batch_id":"b-0412","distribution_shift_psi":0.41}

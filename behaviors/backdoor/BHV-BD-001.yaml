@@ -1,0 +1,46 @@
+id: BHV-BD-001
+name: Backdoor trigger response detected in model scan
+status: test
+severity: critical
+confidence: medium
+description: >
+  A pre-deployment or periodic backdoor scan finds that candidate trigger
+  patterns flip predictions to an attacker-chosen class at a high attack
+  success rate (ASR), indicating a trigger-conditioned backdoor.
+
+atlas:
+  tactics: [AML.TA0006, AML.TA0001]     # Persistence, AI Attack Staging
+  techniques:
+    - { id: AML.T0018.000, relationship: primary }      # Manipulate AI Model: Poison AI Model
+    - { id: AML.T0043.004, relationship: secondary }    # Insert Backdoor Trigger
+
+telemetry:
+  required:
+    - source: model_registry
+      fields: [timestamp, event_type, artifact_id, model_id, trigger_asr]
+
+detection:
+  logic: field_match
+  filters:
+    event_type: backdoor_scan
+  match:
+    trigger_asr: { gte: 0.2 }
+  false_positives:
+    - Scanner false positives on models with naturally dominant classes (validate with clean-label holdout)
+
+countermeasures:
+  mitigations: [AML.M0014, AML.M0008]
+  response:
+    - action: block_deploy
+      params: { artifact: "{{artifact_id}}" }
+    - action: pull_model
+      params: { model: "{{model_id}}", rollback_to: last_clean_scan }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P1 }
+
+tests:
+  - { fixture: tests/fixtures/bd_trigger_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/bd_trigger_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0018

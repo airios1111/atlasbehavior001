@@ -1,0 +1,2 @@
+{"principal_id":"user-ev-2","model_id":"malware-clf-v5","timestamp":"2026-10-01T14:00:00Z","request_id":"r-2","adv_detector_score":0.9,"decision_margin":0.41}
+{"principal_id":"user-ev-2","model_id":"malware-clf-v5","timestamp":"2026-10-01T14:00:05Z","request_id":"r-3","adv_detector_score":0.2,"decision_margin":0.01}

@@ -1,0 +1,48 @@
+id: BHV-LK-001
+name: System prompt disclosure in model completion
+status: stable
+severity: high
+confidence: high
+description: >
+  Model output contains the system-prompt canary token or self-disclosing
+  phrasing that reproduces its hidden instructions. Requires embedding a canary
+  (ABM-CANARY-<8 hex>) in every system prompt at the gateway.
+
+atlas:
+  tactics: [AML.TA0010]                 # Exfiltration
+  techniques:
+    - { id: AML.T0056, relationship: primary }          # Extract LLM System Prompt
+    - { id: AML.T0051.000, relationship: precondition }
+
+telemetry:
+  required:
+    - source: llm_gateway
+      fields: [timestamp, principal_id, session_id, model_id, completion]
+
+detection:
+  logic: signature
+  signatures:
+    - field: completion
+      patterns:
+        - '\bABM-CANARY-[0-9a-f]{8}\b'
+        - '(?i)\b(my|the)\s+(system\s+prompt|initial\s+instructions|hidden\s+instructions)\s+(is|are|says|reads)\s*:'
+        - '(?i)\bhere\s+(is|are)\s+(my|the)\s+(full\s+|complete\s+)?(system\s+prompt|instructions\s+i\s+was\s+given)\b'
+  false_positives:
+    - Model explaining the concept of a system prompt without reproducing one (canary absent)
+
+countermeasures:
+  mitigations: [AML.M0020]
+  response:
+    - action: redact_output
+      params: { session: "{{session_id}}" }
+    - action: increment_risk
+      params: { principal: "{{principal_id}}", delta: 30 }
+    - action: open_incident
+      params: { queue: ai-sec, priority: P2 }
+
+tests:
+  - { fixture: tests/fixtures/lk_sysprompt_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/lk_sysprompt_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0056

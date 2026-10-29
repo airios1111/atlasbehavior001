@@ -1,0 +1,45 @@
+id: BHV-EV-001
+name: Adversarially perturbed input to a production classifier
+status: test
+severity: high
+confidence: medium
+description: >
+  An adversarial-input detector scores a classifier input as likely perturbed
+  and the model's decision margin is near the boundary, consistent with a
+  crafted evasion sample.
+
+atlas:
+  tactics: [AML.TA0007]                 # Defense Evasion
+  techniques:
+    - { id: AML.T0015, relationship: primary }          # Evade AI Model
+    - { id: AML.T0043, relationship: secondary }        # Craft Adversarial Data
+
+telemetry:
+  required:
+    - source: inference_gateway
+      fields: [timestamp, principal_id, model_id, request_id, adv_detector_score, decision_margin]
+
+detection:
+  logic: field_match
+  match:
+    adv_detector_score: { gte: 0.85 }
+    decision_margin: { lt: 0.05 }
+  false_positives:
+    - Out-of-distribution but legitimate inputs (sensor noise, new document formats)
+
+countermeasures:
+  mitigations: [AML.M0015, AML.M0003]
+  response:
+    - action: block_request
+      params: { request: "{{request_id}}" }
+    - action: increment_risk
+      params: { principal: "{{principal_id}}", delta: 15 }
+    - action: notify
+      params: { channel: ml-review, request: "{{request_id}}" }
+
+tests:
+  - { fixture: tests/fixtures/ev_adversarial_attack.jsonl, expect: alert }
+  - { fixture: tests/fixtures/ev_adversarial_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0015

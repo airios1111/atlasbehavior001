@@ -75,3 +75,12 @@ def test_atlas_data_import_parses_matrix_layout():
     assert cat.version == "9.9.9"
     assert cat.tactics_for("AML.T0024.002") == ("AML.TA0010",)  # inherited from parent
     assert cat.name("AML.T0024.002") == "Exfil via API: Extract Model"
+
+
+def test_readme_coverage_table_matches_behaviors(root, behaviors):
+    import re
+
+    readme = (root / "README.md").read_text(encoding="utf-8")
+    table = readme[readme.index("## Coverage Snapshot"):readme.index("## Repository Structure")]
+    listed = set(re.findall(r"^\| (BHV-[A-Z]+-\d{3}) \|", table, flags=re.M))
+    assert listed == set(behaviors), f"README-only: {listed - set(behaviors)}; code-only: {set(behaviors) - listed}"
