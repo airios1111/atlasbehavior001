@@ -1,0 +1,47 @@
+id: BHV-CH-901
+name: "Tutorial: paid query burst from one API key"
+status: test
+severity: medium
+confidence: medium
+description: >
+  Tutorial behavior (windowed_threshold logic). One principal sends more than
+  100 paid requests and spends more than $5 inside a 10-minute window,
+  consistent with cost harvesting through excessive queries.
+
+atlas:
+  tactics: [AML.TA0011]                                # Impact
+  techniques:
+    - { id: AML.T0034.000, relationship: primary }     # Cost Harvesting: Excessive Queries
+    - { id: AML.T0040, relationship: precondition }    # AI Model Inference API Access
+
+telemetry:
+  required:
+    - source: llm_gateway
+      fields: [timestamp, principal_id, cost_usd]
+
+detection:
+  logic: windowed_threshold
+  window: 10m
+  group_by: [principal_id]
+  filters:
+    principal_id: { not_in: [svc-nightly-report] }     # approved batch job
+  metrics:
+    requests: count
+    spend_usd: sum(cost_usd)
+  conditions:
+    - requests > 100
+    - spend_usd > 5
+  false_positives:
+    - New batch jobs not yet on the allowlist
+
+countermeasures:
+  mitigations: [AML.M0004, AML.M0019]                  # Restrict queries, Control access
+  response:
+    - action: rate_limit
+      params: { principal: "{{principal_id}}", limit: 10/min, ttl: 1h }
+    - action: notify
+      params: { channel: finops-soc, message: "{{principal_id}} spent ${{spend_usd}} in 10 minutes" }
+
+tests:
+  - { fixture: fixtures/ch901_burst.jsonl, expect: alert }
+  - { fixture: fixtures/ch901_normal.jsonl, expect: no_alert }

@@ -1,0 +1,48 @@
+id: BHV-PI-901
+name: "Tutorial: prompt asks the model to send data to an external URL"
+status: stable
+severity: high
+confidence: medium
+description: >
+  Tutorial behavior (signature logic). A user prompt asks the assistant to send,
+  post, upload or forward something to an http(s) URL, a common goal of
+  prompt-injection and data-exfiltration attempts against tool-using assistants.
+
+atlas:
+  tactics: [AML.TA0005]                                # Execution
+  techniques:
+    - { id: AML.T0051.000, relationship: primary }     # LLM Prompt Injection: Direct
+    - { id: AML.T0040, relationship: precondition }    # AI Model Inference API Access
+
+telemetry:
+  required:
+    - source: llm_gateway
+      fields: [timestamp, principal_id, session_id, model_id, prompt]
+
+detection:
+  logic: signature
+  filters:
+    principal_id: { not_in: [redteam-bot] }            # authorized red-team account
+  signatures:
+    - field: prompt
+      patterns:
+        - '(?i)\b(send|post|upload|forward|exfiltrate)\b[^.]{0,60}\bto\s+https?://'
+  false_positives:
+    - Developers asking how to call a webhook ("how do I post JSON to https://...")
+
+countermeasures:
+  mitigations: [AML.M0020, AML.M0015]                  # Guardrails, Adversarial Input Detection
+  response:
+    - action: block_request
+      params: { session: "{{session_id}}" }
+    - action: increment_risk
+      params: { principal: "{{principal_id}}", delta: 10 }
+    - action: revoke_token                             # gated: waits for human approval
+      params: { principal: "{{principal_id}}" }
+
+tests:
+  - { fixture: fixtures/pi901_attack.jsonl, expect: alert }
+  - { fixture: fixtures/pi901_benign.jsonl, expect: no_alert }
+
+references:
+  - https://atlas.mitre.org/techniques/AML.T0051

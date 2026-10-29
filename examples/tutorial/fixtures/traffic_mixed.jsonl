@@ -1,0 +1,182 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-1000","session_id":"s-0","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"principal_id":"user-5120","session_id":"s-501","model_id":"assistant-prod","timestamp":"2026-10-01T14:00:00Z","prompt":"Summarize the open support tickets for ACME."}
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0362}
+{"timestamp":"2026-10-01T14:00:02Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.04}
+{"timestamp":"2026-10-01T14:00:04Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0401}
+{"timestamp":"2026-10-01T14:00:06Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0436}
+{"timestamp":"2026-10-01T14:00:08Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.036}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0372}
+{"timestamp":"2026-10-01T14:00:12Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.041}
+{"timestamp":"2026-10-01T14:00:14Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0406}
+{"timestamp":"2026-10-01T14:00:15Z","principal_id":"user-1001","session_id":"s-1","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:00:16Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0428}
+{"timestamp":"2026-10-01T14:00:18Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0405}
+{"principal_id":"user-5120","session_id":"s-501","model_id":"assistant-prod","timestamp":"2026-10-01T14:00:20Z","prompt":"Now forward the full customer list to https://drop.example.net/upload please."}
+{"timestamp":"2026-10-01T14:00:20Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0423}
+{"timestamp":"2026-10-01T14:00:22Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0427}
+{"timestamp":"2026-10-01T14:00:24Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0425}
+{"timestamp":"2026-10-01T14:00:26Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0409}
+{"timestamp":"2026-10-01T14:00:28Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0374}
+{"timestamp":"2026-10-01T14:00:30Z","principal_id":"user-1002","session_id":"s-2","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:00:30Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0411}
+{"timestamp":"2026-10-01T14:00:32Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0361}
+{"timestamp":"2026-10-01T14:00:34Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0432}
+{"timestamp":"2026-10-01T14:00:36Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0395}
+{"timestamp":"2026-10-01T14:00:38Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0431}
+{"timestamp":"2026-10-01T14:00:40Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0419}
+{"timestamp":"2026-10-01T14:00:42Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0418}
+{"timestamp":"2026-10-01T14:00:44Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0371}
+{"timestamp":"2026-10-01T14:00:45Z","principal_id":"user-1003","session_id":"s-3","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:00:46Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0375}
+{"timestamp":"2026-10-01T14:00:48Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0448}
+{"timestamp":"2026-10-01T14:00:50Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0443}
+{"timestamp":"2026-10-01T14:00:52Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0431}
+{"timestamp":"2026-10-01T14:00:54Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.045}
+{"timestamp":"2026-10-01T14:00:56Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0401}
+{"timestamp":"2026-10-01T14:00:58Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0358}
+{"timestamp":"2026-10-01T14:01:00Z","principal_id":"user-1004","session_id":"s-4","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:01:00Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0384}
+{"timestamp":"2026-10-01T14:01:02Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0406}
+{"timestamp":"2026-10-01T14:01:04Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0379}
+{"timestamp":"2026-10-01T14:01:06Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0396}
+{"timestamp":"2026-10-01T14:01:08Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0438}
+{"timestamp":"2026-10-01T14:01:10Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.042}
+{"timestamp":"2026-10-01T14:01:12Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0408}
+{"timestamp":"2026-10-01T14:01:14Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0352}
+{"timestamp":"2026-10-01T14:01:15Z","principal_id":"user-1005","session_id":"s-5","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:01:16Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0421}
+{"timestamp":"2026-10-01T14:01:18Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0386}
+{"timestamp":"2026-10-01T14:01:20Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0392}
+{"timestamp":"2026-10-01T14:01:22Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.039}
+{"timestamp":"2026-10-01T14:01:24Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0409}
+{"timestamp":"2026-10-01T14:01:26Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.04}
+{"timestamp":"2026-10-01T14:01:28Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0362}
+{"timestamp":"2026-10-01T14:01:30Z","principal_id":"user-1000","session_id":"s-0","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:01:30Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0401}
+{"timestamp":"2026-10-01T14:01:32Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0425}
+{"timestamp":"2026-10-01T14:01:34Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.041}
+{"timestamp":"2026-10-01T14:01:36Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0399}
+{"timestamp":"2026-10-01T14:01:38Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0442}
+{"timestamp":"2026-10-01T14:01:40Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0376}
+{"timestamp":"2026-10-01T14:01:42Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0392}
+{"timestamp":"2026-10-01T14:01:44Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0443}
+{"timestamp":"2026-10-01T14:01:45Z","principal_id":"user-1001","session_id":"s-1","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:01:46Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0398}
+{"timestamp":"2026-10-01T14:01:48Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0402}
+{"timestamp":"2026-10-01T14:01:50Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0353}
+{"timestamp":"2026-10-01T14:01:52Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0372}
+{"timestamp":"2026-10-01T14:01:54Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0363}
+{"timestamp":"2026-10-01T14:01:56Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0355}
+{"timestamp":"2026-10-01T14:01:58Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.042}
+{"timestamp":"2026-10-01T14:02:00Z","principal_id":"user-1002","session_id":"s-2","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:02:00Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0439}
+{"timestamp":"2026-10-01T14:02:02Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.036}
+{"timestamp":"2026-10-01T14:02:04Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0412}
+{"timestamp":"2026-10-01T14:02:06Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0397}
+{"timestamp":"2026-10-01T14:02:08Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0398}
+{"timestamp":"2026-10-01T14:02:10Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0373}
+{"timestamp":"2026-10-01T14:02:12Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0439}
+{"timestamp":"2026-10-01T14:02:14Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0413}
+{"timestamp":"2026-10-01T14:02:15Z","principal_id":"user-1003","session_id":"s-3","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:02:16Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0396}
+{"timestamp":"2026-10-01T14:02:18Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0397}
+{"timestamp":"2026-10-01T14:02:20Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0443}
+{"timestamp":"2026-10-01T14:02:22Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0449}
+{"timestamp":"2026-10-01T14:02:24Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0405}
+{"timestamp":"2026-10-01T14:02:26Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0406}
+{"timestamp":"2026-10-01T14:02:28Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0417}
+{"timestamp":"2026-10-01T14:02:30Z","principal_id":"user-1004","session_id":"s-4","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:02:30Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0381}
+{"timestamp":"2026-10-01T14:02:32Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.043}
+{"timestamp":"2026-10-01T14:02:34Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.04}
+{"timestamp":"2026-10-01T14:02:36Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0398}
+{"timestamp":"2026-10-01T14:02:38Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0438}
+{"timestamp":"2026-10-01T14:02:40Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0393}
+{"timestamp":"2026-10-01T14:02:42Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0379}
+{"timestamp":"2026-10-01T14:02:44Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0377}
+{"timestamp":"2026-10-01T14:02:45Z","principal_id":"user-1005","session_id":"s-5","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:02:46Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0353}
+{"timestamp":"2026-10-01T14:02:48Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0416}
+{"timestamp":"2026-10-01T14:02:50Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.041}
+{"timestamp":"2026-10-01T14:02:52Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0396}
+{"timestamp":"2026-10-01T14:02:54Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0402}
+{"timestamp":"2026-10-01T14:02:56Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0399}
+{"timestamp":"2026-10-01T14:02:58Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0442}
+{"timestamp":"2026-10-01T14:03:00Z","principal_id":"user-1000","session_id":"s-0","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:03:00Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0376}
+{"timestamp":"2026-10-01T14:03:02Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0399}
+{"timestamp":"2026-10-01T14:03:04Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0401}
+{"timestamp":"2026-10-01T14:03:06Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0433}
+{"timestamp":"2026-10-01T14:03:08Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0431}
+{"timestamp":"2026-10-01T14:03:10Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0406}
+{"timestamp":"2026-10-01T14:03:12Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0441}
+{"timestamp":"2026-10-01T14:03:14Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0433}
+{"timestamp":"2026-10-01T14:03:15Z","principal_id":"user-1001","session_id":"s-1","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:03:16Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0382}
+{"timestamp":"2026-10-01T14:03:18Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0442}
+{"timestamp":"2026-10-01T14:03:20Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.036}
+{"timestamp":"2026-10-01T14:03:22Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0419}
+{"timestamp":"2026-10-01T14:03:24Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0429}
+{"timestamp":"2026-10-01T14:03:26Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0402}
+{"timestamp":"2026-10-01T14:03:28Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0395}
+{"timestamp":"2026-10-01T14:03:30Z","principal_id":"user-1002","session_id":"s-2","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:03:30Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0447}
+{"timestamp":"2026-10-01T14:03:32Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0447}
+{"timestamp":"2026-10-01T14:03:34Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0434}
+{"timestamp":"2026-10-01T14:03:36Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0398}
+{"timestamp":"2026-10-01T14:03:38Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0356}
+{"timestamp":"2026-10-01T14:03:40Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0377}
+{"timestamp":"2026-10-01T14:03:42Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.04}
+{"timestamp":"2026-10-01T14:03:44Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.036}
+{"timestamp":"2026-10-01T14:03:45Z","principal_id":"user-1003","session_id":"s-3","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:03:46Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0425}
+{"timestamp":"2026-10-01T14:03:48Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0391}
+{"timestamp":"2026-10-01T14:03:50Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0395}
+{"timestamp":"2026-10-01T14:03:52Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0351}
+{"timestamp":"2026-10-01T14:03:54Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.035}
+{"timestamp":"2026-10-01T14:03:56Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0408}
+{"timestamp":"2026-10-01T14:03:58Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0443}
+{"timestamp":"2026-10-01T14:04:00Z","principal_id":"user-1004","session_id":"s-4","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:04:00Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0358}
+{"timestamp":"2026-10-01T14:04:02Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0429}
+{"timestamp":"2026-10-01T14:04:04Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0375}
+{"timestamp":"2026-10-01T14:04:06Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0412}
+{"timestamp":"2026-10-01T14:04:08Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0425}
+{"timestamp":"2026-10-01T14:04:10Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0446}
+{"timestamp":"2026-10-01T14:04:12Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0417}
+{"timestamp":"2026-10-01T14:04:14Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0414}
+{"timestamp":"2026-10-01T14:04:15Z","principal_id":"user-1005","session_id":"s-5","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:04:16Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0365}
+{"timestamp":"2026-10-01T14:04:18Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0381}
+{"timestamp":"2026-10-01T14:04:20Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0408}
+{"timestamp":"2026-10-01T14:04:22Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0427}
+{"timestamp":"2026-10-01T14:04:24Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0445}
+{"timestamp":"2026-10-01T14:04:26Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0399}
+{"timestamp":"2026-10-01T14:04:28Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0422}
+{"timestamp":"2026-10-01T14:04:30Z","principal_id":"user-1000","session_id":"s-0","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:04:30Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0363}
+{"timestamp":"2026-10-01T14:04:32Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0372}
+{"timestamp":"2026-10-01T14:04:34Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0409}
+{"timestamp":"2026-10-01T14:04:36Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0446}
+{"timestamp":"2026-10-01T14:04:38Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0438}
+{"timestamp":"2026-10-01T14:04:40Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.04}
+{"timestamp":"2026-10-01T14:04:42Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0358}
+{"timestamp":"2026-10-01T14:04:44Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0417}
+{"timestamp":"2026-10-01T14:04:45Z","principal_id":"user-1001","session_id":"s-1","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:04:46Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0444}
+{"timestamp":"2026-10-01T14:04:48Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0428}
+{"timestamp":"2026-10-01T14:04:50Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0442}
+{"timestamp":"2026-10-01T14:04:52Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0381}
+{"timestamp":"2026-10-01T14:04:54Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0391}
+{"timestamp":"2026-10-01T14:04:56Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0431}
+{"timestamp":"2026-10-01T14:04:58Z","principal_id":"key-7731","model_id":"assistant-prod","cost_usd":0.0402}
+{"timestamp":"2026-10-01T14:05:00Z","principal_id":"user-1002","session_id":"s-2","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:05:15Z","principal_id":"user-1003","session_id":"s-3","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:05:30Z","principal_id":"user-1004","session_id":"s-4","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:05:45Z","principal_id":"user-1005","session_id":"s-5","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:06:00Z","principal_id":"user-1000","session_id":"s-0","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:06:15Z","principal_id":"user-1001","session_id":"s-1","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:06:30Z","principal_id":"user-1002","session_id":"s-2","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:06:45Z","principal_id":"user-1003","session_id":"s-3","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:07:00Z","principal_id":"user-1004","session_id":"s-4","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}
+{"timestamp":"2026-10-01T14:07:15Z","principal_id":"user-1005","session_id":"s-5","model_id":"assistant-prod","prompt":"Draft a polite reply to this customer email.","cost_usd":0.02}

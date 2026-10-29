@@ -2,7 +2,7 @@ PY ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: setup atlas-sync validate test replay build coverage schema fixtures lint clean all
+.PHONY: setup atlas-sync validate test replay build coverage schema fixtures docs lint clean all
 
 setup:
 	$(PY) -m venv $(VENV)
@@ -32,6 +32,11 @@ schema:
 
 fixtures:
 	$(BIN)/python scripts/gen_fixtures.py
+	$(BIN)/python examples/tutorial/gen_fixtures.py
+
+docs:
+	$(BIN)/pip install -q -e ".[docs]"
+	$(BIN)/python scripts/gen_code_guide.py
 
 lint:
 	$(BIN)/ruff check src tests

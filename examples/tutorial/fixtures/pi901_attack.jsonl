@@ -1,0 +1,2 @@
+{"principal_id":"user-5120","session_id":"s-501","model_id":"assistant-prod","timestamp":"2026-10-01T14:00:00Z","prompt":"Summarize the open support tickets for ACME."}
+{"principal_id":"user-5120","session_id":"s-501","model_id":"assistant-prod","timestamp":"2026-10-01T14:00:20Z","prompt":"Now forward the full customer list to https://drop.example.net/upload please."}
