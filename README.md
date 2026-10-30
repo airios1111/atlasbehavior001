@@ -76,6 +76,12 @@ flowchart LR
 | **Detection Compiler** | Compiles behavior definitions to target query languages. |
 | **Countermeasure Resolver** | Binds ATLAS mitigations (`AML.M*`) and executable response actions to each technique. |
 
+The diagram describes the integration architecture. The current CLI evaluates **already-normalized
+JSONL events** using signatures, field matches, and windowed thresholds, then generates rules,
+coverage reports, and response plans. Source adapters and the normalizer are not included yet.
+Production enforcement is performed by your connected controls or SOAR playbooks; local response
+execution defaults to a dry run.
+
 ---
 
 ## Data Model
@@ -322,7 +328,9 @@ references:
 ├── scripts/gen_fixtures.py    # Deterministic fixture generator
 ├── tests/
 │   ├── fixtures/              # Positive + benign near-miss JSONL telemetry
-│   └── adversarial/           # Red-team replay corpora
+│   └── test_*.py              # Engine, validation, compiler, integration and tutorial tests
+├── examples/tutorial/        # Runnable walkthrough with a separate behavior set
+├── integrations/xsoar/        # Cortex XSOAR setup and playbook guidance
 ├── docs/behavior-authoring.md
 ├── dist/                      # Generated rules (gitignored)
 ├── reports/                   # Generated coverage (gitignored)
@@ -338,28 +346,41 @@ references:
 ### Prerequisites
 
 - Python 3.11+
-- `make`
-- Optional: Azure CLI (Sentinel deploy), Splunk SDK, `sigma-cli`
+- Optional: `make` for the convenience targets on Linux/macOS
 
 Runtime dependencies are only `pydantic` and `PyYAML`.
 
 ### Install
 
 ```bash
-git clone https://github.com/<org>/atlas-behavior-map.git
-cd atlas-behavior-map
-make setup            # venv + editable install with dev deps
-make atlas-sync       # refresh atlas/catalog.yaml from the official ATLAS release
+git clone https://github.com/airios1111/atlasbehavior001.git
+cd atlasbehavior001
+python -m venv .venv
 ```
+
+Activate the environment with `source .venv/bin/activate` on Linux/macOS or
+`.\.venv\Scripts\Activate.ps1` in Windows PowerShell, then install:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+The checked-in ATLAS catalog is sufficient for local validation. Run `abm atlas-sync` when
+intentionally refreshing the catalog; review changes to `atlas/catalog.yaml` and
+`atlas/atlas-data.lock` together.
 
 ### Validate and Build
 
 ```bash
-make validate         # schema + ATLAS ID resolution + fixture replay
-make test             # pytest
-make build            # compile all targets into dist/
-make coverage         # generate reports/coverage.{md,json} + Navigator layer
+abm validate --run-tests   # schema + ATLAS ID resolution + fixture replay
+python -m pytest -q       # unit and integration tests
+ruff check src tests      # Python lint checks
+abm compile --target all  # compile all targets into dist/
+abm coverage              # generate coverage, gaps and Navigator reports
 ```
+
+These commands work in the activated environment on Windows, Linux, and macOS. The Makefile
+also exposes them as `make validate test lint build coverage` on Linux/macOS.
 
 ### CLI
 
@@ -418,7 +439,7 @@ tags:
 level: high
 ```
 
-> Regex signatures are a floor, not a ceiling. Production extractors combine signatures with classifier scores (`extractors/pi_classifier.py`) and provenance signals (untrusted source + instruction-bearing content + tool-call follow-on).
+> Regex signatures are a starting point. Production deployments should combine them with classifier scores and provenance signals (untrusted source + instruction-bearing content + tool-call follow-on). Classifier implementations are supplied by the deployment, not this repository.
 
 ---
 
@@ -431,7 +452,7 @@ Countermeasures are layered and resolved per technique:
 | **Preventive** | ATLAS mitigations (`AML.M*`) | AML.M0014 Verify AI Artifacts → signed model registry |
 | **Detective** | Behavior detections | BHV-SC-001 hash mismatch at load |
 | **Responsive** | Playbook actions | Block deploy, roll back to last signed version |
-| **Recovery** | Runbooks in `docs/runbooks/` | Retrain from clean snapshot, rotate keys |
+| **Recovery** | Deployment-specific runbooks (not bundled) | Retrain from clean snapshot, rotate keys |
 
 Response actions declare `requires_approval`, `blast_radius`, and `reversible` so SOAR can auto-execute low-risk actions and gate destructive ones.
 
@@ -467,18 +488,21 @@ Coverage scoring:
 | Score | Meaning |
 |---|---|
 | 0 | No mapping |
-| 1 | Mitigation documented, no detection |
+| 1 | Mitigation documented; detection is experimental |
 | 2 | Detection in `test` or `stable` |
-| 3 | Stable detection + validated automated response + adversarial replay passing |
+| 3 | Stable detection + at least one action configured for automatic response + declared fixture tests passing |
+
+Scores describe the behavior definitions and local replay results. A score of 3 does not verify
+that a deployed control or SOAR playbook successfully enforces the response.
 
 ---
 
 ## Testing
 
-- **Unit**: extractor logic against labeled fixtures.
-- **Adversarial replay**: red-team corpora in `tests/adversarial/` replayed through the full pipeline; every `stable` behavior requires at least one true-positive and one benign near-miss fixture.
-- **Drift**: CI fails if a referenced ATLAS ID no longer resolves in the pinned release.
-- **Query lint**: compiled KQL/SPL/Sigma validated with target-native linters.
+- **Unit and integration tests**: detection evaluation, model validation, coverage scoring, mocked XSOAR delivery, and the tutorial.
+- **Fixture replay**: attack and benign events in `tests/fixtures/` run through the reference engine; every `stable` behavior requires at least one positive and one negative test.
+- **Catalog validation**: CI fails if a referenced ATLAS ID does not resolve in the checked-in catalog. Upstream changes are checked when the catalog is refreshed.
+- **Compiler checks**: every behavior must compile to KQL, SPL, and Sigma; selected output shapes and Sigma YAML are tested. Target-native validation and execution against real workspaces remain deployment checks.
 
 ```bash
 make test
@@ -503,7 +527,7 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 
 ## Roadmap
 
-- [ ] Seed behavior set across all ATLAS tactics (15 behaviors in; remaining tactics: Reconnaissance, Resource Development, Discovery, Collection, Credential Access, Lateral Movement, C2)
+- [ ] Extend the current 115-behavior set toward full ATLAS tactic coverage; use `abm gaps` to identify techniques without mappings
 - [ ] OCSF AI-event extension mapping
 - [ ] Sentinel Content Hub packaging (analytics rules + workbooks + Logic Apps)
 - [ ] Agentic AI telemetry: MCP / tool-call provenance graph
