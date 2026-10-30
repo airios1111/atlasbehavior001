@@ -19,6 +19,7 @@ detections, coverage and response plans are all generated from it.
 
 **signature**: regex per field; any pattern on any signature fires. Patterns must be RE2-compatible
 (no look-around, no backreferences) so they compile to KQL.
+Invalid regex syntax is reported during validation; review RE2 compatibility separately.
 
 ```yaml
 detection:
@@ -29,6 +30,8 @@ detection:
 ```
 
 **windowed_threshold**: tumbling window per `group_by`; every condition must hold.
+The window must be a positive integer followed by `s`, `m`, `h`, or `d` (e.g. `30s`, `15m`, `1h`).
+Zero-length windows are rejected during validation.
 Metrics: `count`, `dcount(f)`, `sum(f)`, `avg(f)`, `variance(f)`, `max(f)`, `min(f)`.
 
 ```yaml

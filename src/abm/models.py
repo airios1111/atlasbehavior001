@@ -122,7 +122,10 @@ class Signature(_Strict):
     @classmethod
     def _compile(cls, v: list[str]) -> list[str]:
         for p in v:
-            re.compile(p)
+            try:
+                re.compile(p)
+            except re.error as e:
+                raise ValueError(f"invalid signature regex {p!r}: {e}") from e
         return v
 
 
@@ -150,6 +153,8 @@ class Detection(_Strict):
         if self.logic == "windowed_threshold":
             if not (self.window and WINDOW_RE.match(self.window)):
                 raise ValueError("windowed_threshold requires 'window' like 1h, 15m")
+            if self.window_seconds == 0:
+                raise ValueError("window must be greater than zero")
             if not self.conditions:
                 raise ValueError("windowed_threshold requires 'conditions'")
             for expr in self.metrics.values():
