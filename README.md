@@ -45,7 +45,7 @@ flowchart LR
     end
 
     subgraph Engine
-        N[Normalizer<br/>OCSF / custom schema]
+        N[Normalizer - planned<br/>OCSF / custom schema]
         B[Behavior Extractors]
         M[ATLAS Mapper]
         D[Detection Compiler]
@@ -70,7 +70,7 @@ flowchart LR
 
 | Component | Responsibility |
 |---|---|
-| **Normalizer** | Maps source events into a common schema (OCSF-aligned, with AI-specific extensions: `prompt`, `completion`, `model_id`, `tool_call`, `token_usage`). |
+| **Normalizer** | *Planned.* Maps source events into a common schema (OCSF-aligned, with AI-specific extensions: `prompt`, `completion`, `model_id`, `tool_call`, `token_usage`). Today `abm replay` expects telemetry already normalized to the field names behaviors declare; OCSF and AWS/GCP adapters are on the roadmap. |
 | **Behavior Extractors** | Stateless and windowed detectors that emit behavior events (e.g., `BHV-PI-001: instruction override pattern in user input`). |
 | **ATLAS Mapper** | Resolves behaviors to ATLAS tactic/technique/sub-technique IDs with a confidence score. |
 | **Detection Compiler** | Compiles behavior definitions to target query languages. |
@@ -527,7 +527,7 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 
 ## Roadmap
 
-- [ ] Extend the current 115-behavior set toward full ATLAS tactic coverage; use `abm gaps` to identify techniques without mappings
+- [ ] Extend the current 115-behavior set toward full ATLAS tactic coverage; use `abm gaps` to identify techniques without mappings (thinnest tactics: AI Model Access (0), Reconnaissance (0), Command and Control (1), Lateral Movement (1), Credential Access (2), Collection (4), Resource Development (5))
 - [ ] OCSF AI-event extension mapping
 - [ ] Sentinel Content Hub packaging (analytics rules + workbooks + Logic Apps)
 - [ ] Agentic AI telemetry: MCP / tool-call provenance graph
