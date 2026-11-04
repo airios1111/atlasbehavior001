@@ -27,6 +27,11 @@ build:
 coverage:
 	$(BIN)/abm coverage
 
+# make calibrate DISPOSITIONS=closed.csv [WRITE=1]
+.PHONY: calibrate
+calibrate:
+	$(BIN)/abm calibrate --dispositions $(DISPOSITIONS) $(if $(WRITE),--write)
+
 schema:
 	$(BIN)/python -c "import json; from abm.models import Behavior; print(json.dumps(Behavior.model_json_schema(), indent=2))" > schemas/behavior.schema.json
 

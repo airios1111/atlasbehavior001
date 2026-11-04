@@ -77,4 +77,5 @@ and say in the description how it is computed (see `inter_arrival_s` in BHV-C2-0
 - [ ] Mapped to the most specific sub-technique
 - [ ] Mitigations bound
 - [ ] Compiled KQL/SPL reviewed against a real workspace
-- [ ] False positives documented
+- [ ] False positives documented (`abm calibrate` lists them next to measured noise)
+- [ ] Confidence calibrated from production dispositions (`abm calibrate --write`, n ≥ 20)
