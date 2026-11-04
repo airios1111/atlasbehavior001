@@ -1,0 +1,11 @@
+{
+  "caption": "ATLAS Technique",
+  "description": "The ATLAS Technique object extends the core <code>technique</code> object with the technique's relationship to the detected behavior.",
+  "extends": "technique",
+  "name": "atlas_technique",
+  "attributes": {
+    "atlas_relationship": {
+      "requirement": "required"
+    }
+  }
+}

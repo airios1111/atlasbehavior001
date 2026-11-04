@@ -1,0 +1,26 @@
+{
+  "caption": "AI Response Action",
+  "description": "The AI Response Action object describes one countermeasure step planned for a finding: the action, its rendered parameters, approval gating and execution status.",
+  "extends": "object",
+  "name": "ai_response_action",
+  "attributes": {
+    "action_name": {
+      "requirement": "required"
+    },
+    "params": {
+      "requirement": "optional"
+    },
+    "requires_approval": {
+      "requirement": "required"
+    },
+    "is_reversible": {
+      "requirement": "optional"
+    },
+    "blast_radius": {
+      "requirement": "optional"
+    },
+    "plan_status": {
+      "requirement": "required"
+    }
+  }
+}

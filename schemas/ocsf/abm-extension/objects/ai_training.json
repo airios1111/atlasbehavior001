@@ -1,0 +1,62 @@
+{
+  "caption": "AI Training",
+  "description": "The AI Training object describes a training, fine-tuning or data-pipeline job and the dataset or batch it processes.",
+  "extends": "object",
+  "name": "ai_training",
+  "attributes": {
+    "job_uid": {
+      "requirement": "optional"
+    },
+    "pipeline_uid": {
+      "requirement": "optional"
+    },
+    "batch_uid": {
+      "requirement": "optional"
+    },
+    "dataset_uid": {
+      "requirement": "optional"
+    },
+    "dataset_sensitivity": {
+      "requirement": "optional"
+    },
+    "dataset_provenance_verified": {
+      "requirement": "optional"
+    },
+    "provenance_signed": {
+      "requirement": "optional"
+    },
+    "checksum_match": {
+      "requirement": "optional"
+    },
+    "record_count": {
+      "requirement": "optional"
+    },
+    "distribution_shift_psi": {
+      "requirement": "optional"
+    },
+    "label_disagreement_rate": {
+      "requirement": "optional"
+    },
+    "contributor_uid": {
+      "requirement": "optional"
+    },
+    "contributor_type": {
+      "requirement": "optional"
+    },
+    "source_external": {
+      "requirement": "optional"
+    },
+    "principal_in_dataset_acl": {
+      "requirement": "optional"
+    },
+    "requested_gpu_hours": {
+      "requirement": "optional"
+    },
+    "budget_approved": {
+      "requirement": "optional"
+    },
+    "target_environment": {
+      "requirement": "optional"
+    }
+  }
+}

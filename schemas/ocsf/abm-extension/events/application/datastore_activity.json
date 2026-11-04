@@ -1,0 +1,12 @@
+{
+  "description": "abm patch: adds AI-security attributes to the core <code>datastore_activity</code> class.",
+  "extends": "datastore_activity",
+  "attributes": {
+    "ai_context_record": {
+      "requirement": "optional"
+    },
+    "ai_guardrail": {
+      "requirement": "optional"
+    }
+  }
+}

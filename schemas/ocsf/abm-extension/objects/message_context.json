@@ -1,0 +1,21 @@
+{
+  "description": "abm patch: adds AI-security attributes to the core <code>message_context</code> object.",
+  "extends": "message_context",
+  "attributes": {
+    "reasoning_tokens": {
+      "requirement": "optional"
+    },
+    "cost_usd": {
+      "requirement": "optional"
+    },
+    "context_utilization": {
+      "requirement": "optional"
+    },
+    "inter_arrival_s": {
+      "requirement": "optional"
+    },
+    "channel": {
+      "requirement": "optional"
+    }
+  }
+}

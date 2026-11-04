@@ -1,0 +1,106 @@
+{
+  "llm_gateway.ocsf.jsonl": {
+    "source": "llm_gateway",
+    "class_uid": 6003,
+    "behavior": "BHV-PI-001",
+    "native_fixture": "tests/fixtures/pi_direct_attack.jsonl",
+    "events": 2,
+    "sha256": "39dc1128d286c9828f4a6d2e216a228d6ae11d991fc4786bcefbb19d8ca47a06"
+  },
+  "inference_gateway.ocsf.jsonl": {
+    "source": "inference_gateway",
+    "class_uid": 6003,
+    "behavior": "BHV-EV-001",
+    "native_fixture": "tests/fixtures/ev_adversarial_attack.jsonl",
+    "events": 1,
+    "sha256": "fa2aade88c909bdf2b6c9895b4db201ccf2ac101a42c62eb9f5584db4b384784"
+  },
+  "inference_gateway.http.ocsf.jsonl": {
+    "source": "inference_gateway",
+    "class_uid": 4002,
+    "behavior": "BHV-EV-001",
+    "native_fixture": "tests/fixtures/ev_adversarial_attack.jsonl",
+    "events": 1,
+    "sha256": "099f78198864e0110d3ff2aa800b8bc040f11c0048fdefd9afe69e30a35cb4e7"
+  },
+  "llm_retrieval.ocsf.jsonl": {
+    "source": "llm_retrieval",
+    "class_uid": 6005,
+    "behavior": "BHV-PI-002",
+    "native_fixture": "tests/fixtures/pi_indirect_attack.jsonl",
+    "events": 1,
+    "sha256": "0894b730de165b73670c74af26ff9c365f937c0007f5019381bfd9366cc51478"
+  },
+  "vector_store.ocsf.jsonl": {
+    "source": "vector_store",
+    "class_uid": 6005,
+    "behavior": "BHV-PO-004",
+    "native_fixture": "tests/fixtures/pack/po004_attack.jsonl",
+    "events": 1,
+    "sha256": "3ff21887d4c0ef6a4d561a22732bcf93a4e8d85b9d11840d983820a34917a211"
+  },
+  "agent_memory.ocsf.jsonl": {
+    "source": "agent_memory",
+    "class_uid": 6005,
+    "behavior": "BHV-PO-006",
+    "native_fixture": "tests/fixtures/pack/po006_attack.jsonl",
+    "events": 1,
+    "sha256": "3cff5afb54fc483d85e841fe9fc48df9b93f1e661598cb9239feb1c04d88e8a1"
+  },
+  "agent_runtime.ocsf.jsonl": {
+    "source": "agent_runtime",
+    "class_uid": 6003,
+    "behavior": "BHV-AG-001",
+    "native_fixture": "tests/fixtures/ag_out_of_scope.jsonl",
+    "events": 2,
+    "sha256": "e359d3f1e8befd09bd3a8b4ab3de925f9456976814aab5cd06e15e0f43fba579"
+  },
+  "mcp_gateway.ocsf.jsonl": {
+    "source": "mcp_gateway",
+    "class_uid": 6003,
+    "behavior": "BHV-LM-001",
+    "native_fixture": "tests/fixtures/pack/lm001_attack.jsonl",
+    "events": 1,
+    "sha256": "a0d064b15833eee38cd900473a71f92fa52ac61cb56db8a960144a580253a17a"
+  },
+  "model_registry.ocsf.jsonl": {
+    "source": "model_registry",
+    "class_uid": 6003,
+    "behavior": "BHV-SC-001",
+    "native_fixture": "tests/fixtures/sc_unsigned_load.jsonl",
+    "events": 1,
+    "sha256": "525e479bc1b228b795d5f0ace354d7633664e56035a25f923bfaa14f5eb6ee7b"
+  },
+  "ml_workspace.ocsf.jsonl": {
+    "source": "ml_workspace",
+    "class_uid": 6003,
+    "behavior": "BHV-SC-004",
+    "native_fixture": "tests/fixtures/pack/sc004_attack.jsonl",
+    "events": 1,
+    "sha256": "87dcc9d61881f3053c8d0adf3acb49750334fa7b2521c0efea500452f51829fc"
+  },
+  "training_pipeline.ocsf.jsonl": {
+    "source": "training_pipeline",
+    "class_uid": 6003,
+    "behavior": "BHV-PO-001",
+    "native_fixture": "tests/fixtures/po_drift_attack.jsonl",
+    "events": 1,
+    "sha256": "b67803bd0da77e1b80b4a92b3c45a4da7ac8358de87a48cb5777dc210a240565"
+  },
+  "cloud_audit.ocsf.jsonl": {
+    "source": "cloud_audit",
+    "class_uid": 6003,
+    "behavior": "BHV-COL-004",
+    "native_fixture": "tests/fixtures/pack/col004_attack.jsonl",
+    "events": 1,
+    "sha256": "26ce81f27995d5addac4177ad623f85c2165f0bfb6d6da3462790e631f3469e7"
+  },
+  "identity.ocsf.jsonl": {
+    "source": "identity",
+    "class_uid": 3002,
+    "behavior": "BHV-LM-002",
+    "native_fixture": "tests/fixtures/pack/lm002_attack.jsonl",
+    "events": 2,
+    "sha256": "a2f9972991d79f4d0227ad8b17bb76dcb20a0bfbffc5cade1f460eed5cd80145"
+  }
+}

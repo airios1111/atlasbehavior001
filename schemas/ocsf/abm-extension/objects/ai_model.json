@@ -1,0 +1,12 @@
+{
+  "description": "abm patch: adds AI-security attributes to the core <code>ai_model</code> object.",
+  "extends": "ai_model",
+  "attributes": {
+    "tier": {
+      "requirement": "optional"
+    },
+    "environment": {
+      "requirement": "optional"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+ocsf-1.8.0-subset.json is derived from the Open Cybersecurity Schema Framework (OCSF) schema,
+version 1.8.0, https://github.com/ocsf/ocsf-schema, licensed under the Apache License 2.0.
+Copyright the OCSF authors. The file is a mechanically reduced form of the compiled schema export
+(https://schema.ocsf.io/1.8.0/export/v2/schema): descriptions and captions are removed, and
+attribute definitions are abbreviated (t = type, o = object type, a = array, r = required,
+e = enum values). See scripts/ocsf_vendor_base.py.

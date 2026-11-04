@@ -1,0 +1,38 @@
+{
+  "caption": "AI Prompt",
+  "description": "The AI Prompt object describes the input sent to a generative AI model and lexical signals an AI gateway computed over it. Token counts are not repeated here: they live on the core <code>message_context</code> object (<code>prompt_tokens</code>, <code>completion_tokens</code>, <code>total_tokens</code>).",
+  "extends": "object",
+  "name": "ai_prompt",
+  "attributes": {
+    "content": {
+      "requirement": "optional"
+    },
+    "prompt_hash": {
+      "requirement": "recommended"
+    },
+    "user_content": {
+      "requirement": "optional"
+    },
+    "dialogue_turns": {
+      "requirement": "optional"
+    },
+    "invisible_char_count": {
+      "requirement": "optional"
+    },
+    "confusable_char_ratio": {
+      "requirement": "optional"
+    },
+    "suffix_perplexity": {
+      "requirement": "optional"
+    },
+    "suffix_token_count": {
+      "requirement": "optional"
+    },
+    "request_param_keys": {
+      "requirement": "optional"
+    },
+    "logprobs_requested": {
+      "requirement": "optional"
+    }
+  }
+}

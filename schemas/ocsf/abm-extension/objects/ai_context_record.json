@@ -1,0 +1,56 @@
+{
+  "caption": "AI Context Record",
+  "description": "The AI Context Record object describes content that enters an AI model's context outside the prompt: a retrieved document (RAG), a vector-store record or an agent memory entry, with its provenance and trust.",
+  "extends": "object",
+  "name": "ai_context_record",
+  "attributes": {
+    "uid": {
+      "requirement": "recommended"
+    },
+    "content": {
+      "requirement": "optional"
+    },
+    "raw_html": {
+      "requirement": "optional"
+    },
+    "url": {
+      "requirement": "optional"
+    },
+    "source_trust": {
+      "requirement": "optional"
+    },
+    "source_type": {
+      "requirement": "optional"
+    },
+    "source_system": {
+      "requirement": "optional"
+    },
+    "source_domain_age_days": {
+      "requirement": "optional"
+    },
+    "doc_sensitivity": {
+      "requirement": "optional"
+    },
+    "caller_clearance": {
+      "requirement": "optional"
+    },
+    "tenant_mismatch": {
+      "requirement": "optional"
+    },
+    "near_duplicate_score": {
+      "requirement": "optional"
+    },
+    "top_k": {
+      "requirement": "optional"
+    },
+    "records_returned": {
+      "requirement": "optional"
+    },
+    "uploader_uid": {
+      "requirement": "optional"
+    },
+    "actor_is_conversation_owner": {
+      "requirement": "optional"
+    }
+  }
+}
