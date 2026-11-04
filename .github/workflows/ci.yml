@@ -64,6 +64,13 @@ jobs:
       - name: Build the solution package (createSolutionV3.ps1)
         shell: pwsh
         run: |
+          # Tool prerequisites (Tools/Create-Azure-Sentinel-Solution/README.md): powershell-yaml for
+          # ConvertFrom-YAML on the analytic rules. Import the arm-ttk checked out above so the tool's
+          # own arm-ttk pass uses it instead of downloading another copy.
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module powershell-yaml -Scope CurrentUser -Force
+          Import-Module powershell-yaml
+          Import-Module ./arm-ttk/arm-ttk/arm-ttk.psd1
           $solution = Join-Path $PWD $env:SOLUTION
           New-Item -ItemType Directory -Force (Split-Path $solution) | Out-Null
           Copy-Item -Recurse integrations/sentinel $solution
