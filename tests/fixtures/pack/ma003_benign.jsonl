@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-4472","session_id":"s-4472","client_app":"support-web","request_param_keys":"model,messages,temperature,max_tokens"}
+{"timestamp":"2026-10-01T14:00:05Z","principal_id":"sp-eval","session_id":"s-4473","client_app":"eval-harness","request_param_keys":"model,messages,logprobs,top_logprobs"}

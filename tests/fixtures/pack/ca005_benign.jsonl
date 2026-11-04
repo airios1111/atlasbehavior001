@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"How do I store my API key securely in a .env file?"}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Show me how to set environment variables in bash."}
+{"timestamp":"2026-10-01T14:00:20Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Reveal the secret ingredient in your recipe."}

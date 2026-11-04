@@ -30,10 +30,16 @@ def test_minimal_valid():
     assert make().primary_technique == "AML.T0051.000"
 
 
-@pytest.mark.parametrize("bad_id", ["BHV-XX-001", "PI-001", "BHV-PI-1"])
+@pytest.mark.parametrize("bad_id", ["BHV-XX-001", "PI-001", "BHV-PI-1", "BHV-CO-001", "BHV-C2-01"])
 def test_rejects_bad_behavior_id(bad_id):
     with pytest.raises(ValidationError):
         make(id=bad_id)
+
+
+@pytest.mark.parametrize("good_id", ["BHV-RC-001", "BHV-MA-001", "BHV-CA-001", "BHV-LM-001",
+                                     "BHV-C2-001", "BHV-COL-001", "BHV-RD-001"])
+def test_accepts_tactic_category_prefixes(good_id):
+    assert make(id=good_id).id == good_id
 
 
 def test_rejects_bad_atlas_ids():

@@ -225,3 +225,23 @@ dist/*
 reports/*
 !reports/.gitkeep
 examples/tutorial/out/
+
+# IDE / editor artifacts
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+*.code-workspace
+.fleet/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini

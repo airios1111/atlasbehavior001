@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","tool_name":"shell.exec","session_id":"s-ag7","agent_id":"ops-agent","tool_output":"PASSWORD_MIN_LENGTH=12\nTOKEN_TTL_SECONDS=3600"}
+{"timestamp":"2026-10-01T14:00:10Z","tool_name":"shell.exec","session_id":"s-ag7","agent_id":"ops-agent","tool_output":"env:\n  GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"}

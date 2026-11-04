@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-01T14:00:00Z","session_id":"s-ag7","agent_id":"ops-agent","server_id":"mcp-ticketing","auth_type":"delegated_token","server_first_seen_for_agent":true,"server_in_agent_manifest":true}
+{"timestamp":"2026-10-01T14:00:05Z","session_id":"s-ag7","agent_id":"ops-agent","server_id":"mcp-kb","auth_type":"delegated_token","server_first_seen_for_agent":false,"server_in_agent_manifest":false}
+{"timestamp":"2026-10-01T14:00:10Z","session_id":"s-ag7","agent_id":"ops-agent","server_id":"mcp-public-weather","auth_type":"none","server_first_seen_for_agent":true,"server_in_agent_manifest":false}

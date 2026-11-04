@@ -7,7 +7,7 @@ detections, coverage and response plans are all generated from it.
 
 | Field | Rule |
 |---|---|
-| `id` | `BHV-<PREFIX>-NNN`; prefix from PI, JB, LK, EXF, EV, PO, SC, BD, AG, DOS, CH |
+| `id` | `BHV-<PREFIX>-NNN`; prefix from PI, JB, LK, EXF, EV, PO, SC, BD, AG, DOS, CH (attack categories) or RC, MA, CA, LM, C2, COL, RD (tactic categories: recon, model access, credential access, lateral movement, command and control, collection, resource development) |
 | `status` | `experimental` → `test` → `stable` (→ `deprecated`) |
 | `atlas.tactics` | `AML.TA####`, at least one |
 | `atlas.techniques` | `AML.T####[.###]`, at least one with `relationship: primary`; use `precondition` for enabling access (e.g. AML.T0040) — preconditions do not count toward coverage |
@@ -62,7 +62,14 @@ step with `requires_approval: true|false`.
 
 Normalized JSONL, one event per line, `timestamp` (ISO-8601 or epoch) required. Every positive
 fixture should have a benign near-miss twin (same shape, should not fire). Generate reproducibly in
-`scripts/gen_fixtures.py`.
+`scripts/gen_fixtures.py` (seed set) or as a spec in `scripts/behavior_pack/` rendered by
+`scripts/gen_behavior_pack.py`, which writes the YAML and both fixtures. Pass `status="experimental"`
+to a spec when the detection only sees a weak downstream proxy of the technique; coverage then
+scores it 1 (mitigation-only).
+
+The engine is stateless. When a detection needs history ("first time this agent used this server",
+"seconds since the previous call"), read a field computed by the normalizer or an enrichment step
+and say in the description how it is computed (see `inter_arrival_s` in BHV-C2-001).
 
 ## Promotion checklist
 

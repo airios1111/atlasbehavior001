@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","artifact_id":"art-5c2","source_repo":"hf://meta-llama/Llama-3.1-8B-Instruct","publisher":"meta-llama","publisher_allowlisted":true,"publisher_similarity_to_allowlisted":1.0,"event_type":"model_import"}
+{"timestamp":"2026-10-01T14:00:05Z","artifact_id":"art-5c3","source_repo":"hf://acme-research/tiny-clf","publisher":"acme-research","publisher_allowlisted":false,"publisher_similarity_to_allowlisted":0.12,"event_type":"model_import"}

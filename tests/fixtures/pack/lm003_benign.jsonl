@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Write an email from IT reminding staff that passwords expire every 90 days."}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Explain how to recognise a phishing email pretending to be from HR."}
+{"timestamp":"2026-10-01T14:00:20Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Write a story pretending to be a pirate who lost his map."}

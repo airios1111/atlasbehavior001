@@ -4,8 +4,9 @@
     python scripts/gen_behavior_pack.py --force    # also overwrite existing pack YAML
 
 Once written, the YAML under behaviors/ is the contract and may be edited by hand. Re-running without
---force keeps those edits and only refreshes fixtures. Every pack behavior ships at status `test`;
-promote to `stable` after reviewing the compiled queries against real telemetry.
+--force keeps those edits and only refreshes fixtures. Pack behaviors ship at status `test` (or
+`experimental` where the spec says so); promote to `stable` after reviewing the compiled queries
+against real telemetry.
 """
 
 from __future__ import annotations
@@ -61,7 +62,7 @@ def render(spec: dict, catalog: AtlasCatalog) -> str:
     parent = ".".join(spec["primary"].split(".")[:2])
     fx = f"tests/fixtures/pack/{stem(spec['id'])}"
     doc: dict = {
-        "id": spec["id"], "name": spec["name"], "status": "test",
+        "id": spec["id"], "name": spec["name"], "status": spec.get("status", "test"),
         "severity": spec["severity"], "confidence": spec["confidence"],
         "description": _Folded(spec["description"]),
         "atlas": {"tactics": tactics, "techniques": spec["techniques"]},

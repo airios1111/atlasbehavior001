@@ -1,0 +1,4 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-2201","token_id":"tok-a01","device_id":"lt-2201","client_asn":8075}
+{"timestamp":"2026-10-01T14:02:00Z","principal_id":"user-2201","token_id":"tok-a01","device_id":"lt-2201","client_asn":7922}
+{"timestamp":"2026-10-01T14:04:00Z","principal_id":"user-2202","token_id":"tok-b02","device_id":"lt-2202","client_asn":8075}
+{"timestamp":"2026-10-01T14:06:00Z","principal_id":"user-2202","token_id":"tok-b02","device_id":"ph-2202","client_asn":8075}
