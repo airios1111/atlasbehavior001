@@ -95,4 +95,18 @@ Only `https://` URLs are accepted. To try it without a tenant, run the same comm
 
 Severity mapping: low → 1, medium → 2, high → 3, critical → 4.
 
+## Closing the loop: confidence calibration
+
+Export closed `AI Security Alert` incidents (for example `POST /incidents/search` → save the response, or a CSV
+export with the *Close Reason* and *ABM Behavior ID* columns) and run:
+
+```
+abm calibrate --dispositions xsoar-closed.json
+```
+
+The behavior comes from `abmbehaviorid`, the `behavior_id` label or the `[BHV-…]` name prefix set above.
+Close reasons map to TP/FP/BP. Default `Resolved` counts as a true positive; if analysts use it for
+everything, pass `--map 'Resolved=exclude'` and add explicit *True Positive* / *Benign Positive* close reasons.
+See [Confidence Calibration](../../README.md#confidence-calibration).
+
 Code: `XsoarExecutor` in `src/abm/response.py`; tests in `tests/test_xsoar.py`.

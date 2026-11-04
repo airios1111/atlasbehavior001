@@ -7,7 +7,7 @@ from typing import Any
 
 import yaml
 
-from abm.compilers.common import header
+from abm.compilers.common import header, not_expressible
 from abm.models import Behavior
 
 _NS = uuid.UUID("8a3c0e1e-6c1f-4b7a-9d42-41b8a7d0a7f1")  # stable namespace for rule ids
@@ -16,6 +16,11 @@ _STATUS = {"experimental": "experimental", "test": "test", "stable": "stable",
            "deprecated": "deprecated"}
 _CMP = {"gt": "gt", "gte": "gte", "lt": "lt", "lte": "lte"}
 _SIGMA_COND = {">": "gt", ">=": "gte", "<": "lt", "<=": "lte", "==": "eq"}
+_PROVENANCE = (
+    "provenance logic follows parent/input edges between the spans of a trace for up to {n} hops. "
+    "Sigma rules match single events and correlation rules group events by field values within a "
+    "timespan; neither can follow span edges or bound the path length."
+)
 
 
 def rule_id(behavior_id: str, suffix: str = "") -> str:
@@ -55,6 +60,8 @@ def _selection(match: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
 
 def compile_behavior(b: Behavior) -> str:
     d = b.detection
+    if d.logic == "provenance" and d.provenance:
+        return not_expressible(b, "sigma", _PROVENANCE.format(n=d.provenance.max_hops), "#")
     detection: dict[str, Any] = {}
     cond_parts: list[str] = []
 

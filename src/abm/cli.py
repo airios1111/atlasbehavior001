@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 from pathlib import Path
 
 from abm import __version__
+from abm import calibration as cal
 from abm.catalog import AtlasCatalog, sync
-from abm.compilers import TARGETS
+from abm.compilers import TARGETS, render
+from abm.compilers.common import KQL_PROFILES, is_stub
 from abm.coverage import SCORE_LABEL, compute, gaps, write_reports
 from abm.engine import Engine, load_events, run_tests
 from abm.loader import find_root, load_behaviors
@@ -21,6 +24,27 @@ from abm.validator import validate
 
 
 # ---------------------------------------------------------------- helpers
+class _StderrHandler(logging.StreamHandler):
+    """Writes to the current sys.stderr (not the one captured at import time)."""
+
+    @property  # type: ignore[override]
+    def stream(self):
+        return sys.stderr
+
+    @stream.setter
+    def stream(self, _value) -> None:
+        pass
+
+
+def _setup_logging() -> None:
+    log = logging.getLogger("abm")
+    if not any(isinstance(h, _StderrHandler) for h in log.handlers):
+        h = _StderrHandler()
+        h.setFormatter(logging.Formatter("[%(levelname)-7s] %(message)s"))
+        log.addHandler(h)
+        log.setLevel(logging.WARNING)
+
+
 def _ctx(args):
     root = Path(args.root).resolve() if args.root else find_root()
     catalog_path = Path(args.catalog) if args.catalog else root / "atlas" / "catalog.yaml"
@@ -71,18 +95,56 @@ def cmd_compile(args) -> int:
     res = _behaviors(root, args.path)
     targets = list(TARGETS) if args.target == "all" else [args.target]
     out_root = Path(args.out) if args.out else root / "dist"
-    n = 0
+    n = stubs = 0
     for t in targets:
-        fn, ext = TARGETS[t]
+        _, ext = TARGETS[t]
         out = out_root / t if (args.target == "all" or not args.out) else out_root
         out.mkdir(parents=True, exist_ok=True)
         for b in res.behaviors:
             if b.status.value == "deprecated" and not args.include_deprecated:
                 continue
-            (out / f"{b.id}{ext}").write_text(fn(b), encoding="utf-8")
+            text = render(t, b, args.profile)
+            (out / f"{b.id}{ext}").write_text(text, encoding="utf-8")
             n += 1
-    print(f"compiled {n} rule(s) -> {out_root}")
+            stubs += is_stub(text)
+    note = f" ({stubs} not-expressible stub(s), see warnings)" if stubs else ""
+    print(f"compiled {n - stubs} rule(s){note} -> {out_root}")
     return 1 if res.errors else 0
+
+
+def cmd_sentinel_build(args) -> int:
+    from abm import sentinel_solution as sol
+
+    root, catalog = _ctx(args)
+    res = _behaviors(root, None)
+    if res.errors:
+        return 1
+    out = Path(args.out) if args.out else root / "integrations" / "sentinel"
+    layer = json.loads(Path(args.layer).read_text(encoding="utf-8")) if args.layer else None
+    files = sol.build(res.behaviors, catalog, root, layer)
+    if args.check:
+        problems = sol.check(files, out)
+        for p in problems:
+            print(p)
+        print(f"{len(files)} file(s) expected, {len(problems)} difference(s) in {out}"
+              + ("" if not problems else ". Run `abm sentinel-build` and commit the result."))
+        return 1 if problems else 0
+    changed = sol.write(files, out)
+    print(f"sentinel solution: {len(files)} file(s), {len(changed)} changed -> {out}")
+    return 0
+
+
+def cmd_sentinel_validate(args) -> int:
+    from abm import sentinel_solution as sol
+
+    root = Path(args.root).resolve() if args.root else find_root()
+    out = Path(args.path) if args.path else root / "integrations" / "sentinel"
+    problems = sol.validate_dir(out)
+    for p in problems:
+        print(p)
+    n = len(list((out / sol.RULES_DIR).glob("*.yaml"))) if (out / sol.RULES_DIR).is_dir() else 0
+    print(f"{n} analytic rule(s), {len(problems)} error(s) in {out}")
+    return 1 if problems else 0
 
 
 def cmd_map(args) -> int:
@@ -236,6 +298,58 @@ def cmd_test(args) -> int:
     return 1 if failed or res.errors else 0
 
 
+def cmd_calibrate(args) -> int:
+    root = Path(args.root).resolve() if args.root else find_root()
+    res = _behaviors(root, args.path)
+    try:
+        since = cal.parse_since(args.since) if args.since else None
+        parsed = cal.load_dispositions([Path(f) for f in args.dispositions], args.source,
+                                       cal.parse_overrides(args.map))
+        rep = cal.calibrate(parsed.records, res.behaviors, min_samples=args.min_samples,
+                            benign=args.benign, noisy_threshold=args.noisy_threshold,
+                            since=since, skipped=parsed.skipped, read=parsed.read, root=root)
+    except ValueError as e:  # DispositionError and bad option values
+        print(f"calibrate: {e}", file=sys.stderr)
+        return 2
+    rep.inputs = list(args.dispositions)
+
+    rows = [[r.behavior_id, r.n, r.tp, r.fp, r.bp,
+             "-" if r.lower_bound is None else f"{r.lower_bound:.3f}", r.current,
+             r.calibrated or "insufficient data",
+             {"raise": "raise", "lower": "lower", "unchanged": "="}.get(r.verdict, "")
+             + (" NOISY" if r.noisy else "")]
+            for r in rep.rows]
+    print(_table(rows, ["BEHAVIOR", "N", "TP", "FP", "BP", "WILSON_LB", "CURRENT", "CALIBRATED", ""])
+          if rows else "no dispositions matched a known behavior")
+    print(f"\n{rep.read} record(s) read, {rep.counted} counted, "
+          f"{sum(r.excluded for r in rep.rows)} excluded, {sum(rep.unknown.values())} unknown behavior, "
+          f"{sum(rep.skipped.values())} skipped; "
+          f"{len(rep.calibrated)} calibrated, {len(rep.insufficient)} insufficient data "
+          f"(n < {rep.min_samples}), {len(rep.changes)} change(s), {len(rep.noisy)} tuning candidate(s)")
+    if rep.unknown:
+        print(f"unknown behavior id(s): {', '.join(rep.unknown)}", file=sys.stderr)
+
+    failed = 0
+    if args.write:
+        for r in rep.changes:
+            path = root / r.source_path if r.source_path else None
+            try:
+                if path is None:
+                    raise cal.WriteError("behavior has no source file")
+                cal.write_confidence(path, r.calibrated)
+            except (OSError, UnicodeDecodeError, cal.WriteError) as e:
+                failed += 1
+                print(f"[ERROR  ] {r.behavior_id}: not updated: {e}", file=sys.stderr)
+                continue
+            print(f"updated {r.behavior_id}: confidence {r.current} -> {r.calibrated} ({path})")
+        if not rep.changes:
+            print("no confidence changes to write")
+
+    for p in cal.write_reports(rep, Path(args.out) if args.out else root / "reports"):
+        print(f"wrote {p}")
+    return 1 if failed else 0
+
+
 def cmd_atlas_sync(args) -> int:
     root, _ = (Path(args.root).resolve() if args.root else find_root()), None
     dest = Path(args.catalog) if args.catalog else root / "atlas" / "catalog.yaml"
@@ -270,7 +384,21 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--out")
     s.add_argument("--path")
     s.add_argument("--include-deprecated", action="store_true")
+    s.add_argument("--profile", choices=list(KQL_PROFILES), default="default",
+                   help="KQL table names: default, or sentinel (custom tables end in _CL). "
+                        "The sentinel target always uses the sentinel profile")
     s.set_defaults(fn=cmd_compile)
+
+    s = sub.add_parser("sentinel-build",
+                       help="generate the Microsoft Sentinel solution (rules, tables/DCRs, workbook, playbook)")
+    s.add_argument("--out", help="solution folder (default: integrations/sentinel)")
+    s.add_argument("--layer", help="Navigator layer JSON for the workbook (default: computed, as abm coverage)")
+    s.add_argument("--check", action="store_true", help="write nothing; exit 1 if the folder is out of date")
+    s.set_defaults(fn=cmd_sentinel_build)
+
+    s = sub.add_parser("sentinel-validate", help="check a Sentinel solution folder before packaging")
+    s.add_argument("path", nargs="?", help="solution folder (default: integrations/sentinel)")
+    s.set_defaults(fn=cmd_sentinel_validate)
 
     s = sub.add_parser("map", help="show behavior -> ATLAS mapping")
     s.add_argument("--behavior")
@@ -315,6 +443,29 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("test", help="run every behavior's declared fixture tests")
     s.set_defaults(fn=cmd_test)
 
+    s = sub.add_parser("calibrate", help="calibrate behavior confidence from alert dispositions")
+    s.add_argument("--dispositions", required=True, action="append", metavar="FILE",
+                   help="CSV / JSON / JSONL export: native (behavior_id, alert_id, disposition, "
+                        "closed_at), XSOAR incidents (closeReason) or Sentinel incidents "
+                        "(classification); repeatable")
+    s.add_argument("--source", choices=["auto", *cal.SOURCES], default="auto",
+                   help="input adapter (default: detect per record)")
+    s.add_argument("--map", action="append", metavar="LABEL=OUTCOME",
+                   help="map a close reason / classification to tp|fp|bp|exclude, "
+                        "e.g. --map 'Resolved=exclude'; repeatable")
+    s.add_argument("--min-samples", type=int, default=cal.DEFAULT_MIN_SAMPLES,
+                   help=f"minimum closed alerts per behavior (default {cal.DEFAULT_MIN_SAMPLES})")
+    s.add_argument("--benign", choices=["noise", "exclude"], default="noise",
+                   help="count benign positives as noise (default) or leave them out")
+    s.add_argument("--since", help="only alerts closed on/after this ISO date or within Nd (e.g. 90d)")
+    s.add_argument("--noisy-threshold", type=float, default=cal.DEFAULT_NOISY_THRESHOLD,
+                   help="FP share that marks a tuning candidate (default 0.5)")
+    s.add_argument("--path", help="behaviors directory (default: behaviors/)")
+    s.add_argument("--out", help="report directory (default: reports/)")
+    s.add_argument("--write", action="store_true",
+                   help="update the confidence: line of each behavior YAML (status is never changed)")
+    s.set_defaults(fn=cmd_calibrate)
+
     s = sub.add_parser("atlas-sync", help="import official ATLAS release into the catalog")
     s.add_argument("--file", help="local ATLAS.yaml instead of downloading")
     s.set_defaults(fn=cmd_atlas_sync)
@@ -322,6 +473,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _setup_logging()
     args = build_parser().parse_args(argv)
     return args.fn(args)
 

@@ -225,6 +225,7 @@ dist/*
 reports/*
 !reports/.gitkeep
 examples/tutorial/out/
+integrations/sentinel/Package/
 
 # IDE / editor artifacts
 .idea/

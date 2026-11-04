@@ -1,13 +1,13 @@
 ATLAS Behavior Map - branch2 verification: OCSF AI-event mapping
 abm 0.1.0 | OCSF 1.8.0 | extension abm 0.1.0
-[PASS] 159 behaviors load without errors
+[PASS] 162 behaviors load without errors
 
 ==============================================================================
 1. Branch file inventory (sha256 over LF-normalized content)
 ==============================================================================
-8cd6af1ece027ebb942a12067ef07acbec07798565d30b6ea9ca3d64902730dd  src/abm/ocsf.py
+3f218f11e1e99061b5bcf607de115eea5925b51f14c251b4ecf4777dbe7dfb37  src/abm/ocsf.py
 5d885034e2211b9c8fdc185186b46fee7143b652e326efdc0e011b4fb1c72ef5  src/abm/ocsf_schema.py
-c26d14ad2b44b18d24fd09c0997bb4c68295fd3b6d30f44bfb49cf5cf11fd5b9  src/abm/cli.py
+be872070de8c12d22583f947ef91fe941a560819b9b64ef0eb6ba39d4e107f55  src/abm/cli.py
 2181cb7b28dc1da0a4b9da132af12fc104ecb7518ef45300a897501300bffa5f  tests/test_ocsf.py
 8498c37e701c3a297922a11bc019ee4c316155802789f17d4135eb5a420e7c1c  scripts/gen_ocsf_fixtures.py
 ab9f687b5ca3852863b2116c84d71b535e8ca19b0cc78e4884b900c411b0f95c  scripts/gen_ocsf_mapping_doc.py
@@ -16,15 +16,15 @@ ebe733f9356ad57fc0c5e8d9d986596cd418f8bf18ef251c3c22eaf0a442082f  scripts/ocsf_v
 0c105bab65d2369d4e251cacd2f982e3557861d1830c992909e0e4b20c3e8c32  scripts/verify_branch2.py
 d792f8bfbd30f5f37db30594ccb455d70b05cec5e0762b13fa178b622b75dc44  scripts/verify_branch2.ps1
 6497519534a7ccc1d53d20cf06af42f60699bb85d1b3ccebfceed811253293b4  scripts/verify_branch2.sh
-6c507d59e7e264c2b6ea2017d9cfa4149515166fb8d301a1cd740696aa05de34  docs/ocsf.md
-76e1c95b3cabe033959137cb85811d8797bdaf6cada3f32041a3323e3667ec2d  docs/ocsf-mapping.md
+50bea3a16e3b6ddce01712a764426730fbd543ee46dc73b274d9864a0c0d0ef3  docs/ocsf.md
+4d4a5ae9524b45a11a00b42956a767c502d58666d77cd59f7aac1fa5524baf4a  docs/ocsf-mapping.md
 553d3c2f8378305d153e87c98dbcf113d7d6f55fe76f3906bb21265ed4e761d7  docs/branches/branch2-ocsf-ai-event-mapping.md
-e01d5228be863179caa74f287d0e17a67ac9b188e807936b832434e41e9132fe  README.md
-948b01928fe72fd5376c2de31dae42b99025585a9112a8c4b04636cdf3ea3e31  Makefile
-56224078ef804ac63acd7e6a15362c68c830d5f3b53daf1f7e091ea080de6f01  .github/workflows/ci.yml
-0fe899440e481aa741cf07a9430bdc7c898f95dc452739f6f9beccc4455bccae  .gitattributes
+873abca84a042114d690645b479be64029ac15487674e41ea33d77df16a9c658  README.md
+55213b7697e2a848f0c7410ccb9a0c0e5977027b139cf226c34e9e693c3bafc2  Makefile
+2dd7b11be6ca0269a32067c162ed4ff22a09f09f75fcc2018dd32f091e49046a  .github/workflows/ci.yml
+bdd438734b3d9eed246a4a46dab45f13794741e9e770d7787a2f724ce991020d  .gitattributes
 cc0f4c0a955d4abf599b7a473ff22a1a676e46d24bc8784f703871690c4d0120  schemas/ocsf/README.md
-cbec3a96a0746e2a5acd67e0fcbfc22bc0e7a08f63bd398b0aa02465d33e543e  schemas/ocsf/abm-extension/dictionary.json
+a87c78341503782bcf50a9c999367f0f55630adda3e4587a48589ce1e6bb5a4d  schemas/ocsf/abm-extension/dictionary.json
 4923e2f565b6a6edcc91cbe41a999793d086ed67df930f2983daf6e12c430610  schemas/ocsf/abm-extension/events/application/api_activity.json
 9d272e29d1cad5ef046764c64fd4b74581c903ccf9c6d5d419f084677b6cb7f3  schemas/ocsf/abm-extension/events/application/datastore_activity.json
 53fe188ad13133b6e5da5818580293747aa424ff8af0a6c7f312ae1ee9b34324  schemas/ocsf/abm-extension/events/findings/detection_finding.json
@@ -38,7 +38,7 @@ cbec3a96a0746e2a5acd67e0fcbfc22bc0e7a08f63bd398b0aa02465d33e543e  schemas/ocsf/a
 6cb8f46379278254cfe49e3099a2f81cd39707b28de378df8a65ce827fac3695  schemas/ocsf/abm-extension/objects/ai_model.json
 f288af366a7a3eb1f0e27441ac7d1182759a9cfd5a39c6e7ee6ad4a90b68fca8  schemas/ocsf/abm-extension/objects/ai_prompt.json
 847bb9880353e50e6c35df47699e2eb28c26ed13fd1bd5e3dda6538cb399a889  schemas/ocsf/abm-extension/objects/ai_response_action.json
-8f50d44b12330dc47f0ce36daa0365546961c65faa032c2dc8db86f7cd0f5046  schemas/ocsf/abm-extension/objects/ai_tool_call.json
+01d5e986df800d8e302447c4257cc4919eccb58811cabb360f6616b16b693db5  schemas/ocsf/abm-extension/objects/ai_tool_call.json
 0074288a581f3173209583f8b63e2d321e904aecbbabab7a4261c239b79e77c8  schemas/ocsf/abm-extension/objects/ai_training.json
 3fc209b0b2acb7e4a690756a5cf0dfade69a37d597b264104c5ad7ac8bf0d519  schemas/ocsf/abm-extension/objects/atlas_mapping.json
 ea7be1195f35358633486797bff1661d2b05d38da7dc26bc035cfaeff38263ae  schemas/ocsf/abm-extension/objects/atlas_technique.json
@@ -69,7 +69,7 @@ abm extension          : abm uid=900 version=0.1.0
 core ai_operation profile present: True
 core ai_model attributes         : ['ai_provider', 'name', 'uid', 'version']
 core message_context attributes  : ['ai_role', 'ai_role_id', 'application', 'completion_tokens', 'name', 'prompt_tokens', 'service', 'total_tokens', 'uid']
-extension dictionary attributes  : 151
+extension dictionary attributes  : 154
 extension new objects            : ['ai_artifact', 'ai_completion', 'ai_context_record', 'ai_guardrail', 'ai_inference', 'ai_prompt', 'ai_response_action', 'ai_tool_call', 'ai_training', 'atlas_mapping', 'atlas_technique']
 extension patches                : ['class:api_activity', 'class:datastore_activity', 'class:detection_finding', 'class:http_activity', 'object:ai_model', 'object:message_context']
 [PASS] extension self-check (no redefined core names, all references resolve)
@@ -85,14 +85,14 @@ inference_gateway  6003/4002                        37    12    25     0     0
 llm_retrieval      6005                             16     4    12     0     0
 vector_store       6005                             10     3     7     0     0
 agent_memory       6005                              6     4     2     0     0
-agent_runtime      6003                             34    10    23     1     0
-mcp_gateway        6003                             14     4    10     0     0
+agent_runtime      6003                             42    14    27     1     0
+mcp_gateway        6003                             19     8    11     0     0
 model_registry     6003                             25     3    22     0     0
 ml_workspace       6003                             11     3     8     0     0
 training_pipeline  6003                             20     2    18     0     0
 cloud_audit        6003                             12     7     3     2     0
 identity           3002                             13    10     0     2     1
-TOTAL                                              241    76   158     6     1
+TOTAL                                              254    84   163     6     1
 [PASS] every mapping path resolves in OCSF 1.8.0 + abm extension
 [PASS] every field declared in behavior telemetry has an OCSF path
 
@@ -169,7 +169,7 @@ TOTAL                                              241    76   158     6     1
 ==============================================================================
 5. Full corpus round trip: native -> OCSF -> normalized, every behavior fixture
 ==============================================================================
-[PASS] 159 behaviors, 316 fixtures, 29632 events: identical alerts, test expectations hold
+[PASS] 162 behaviors, 322 fixtures, 29660 events: identical alerts, test expectations hold
 
 ==============================================================================
 6. CLI (abm replay --input-format / --output-format ocsf)
@@ -258,14 +258,56 @@ $ python scripts/gen_ocsf_mapping_doc.py --check
 ==============================================================================
 8. abm validate --run-tests / abm test
 ==============================================================================
-    159 behavior(s), 0 error(s), 0 warning(s)
+    162 behavior(s), 0 error(s), 0 warning(s)
 [PASS] abm validate --run-tests
-    316/316 passed
+    322/322 passed
 [PASS] abm test
 
 ==============================================================================
 9. pytest (per-test outcome, sorted)
 ==============================================================================
+PASSED  tests/test_calibration.py::test_bad_close_times_do_not_abort_the_run
+PASSED  tests/test_calibration.py::test_band_edges[0.0-low]
+PASSED  tests/test_calibration.py::test_band_edges[0.4999-low]
+PASSED  tests/test_calibration.py::test_band_edges[0.5-medium]
+PASSED  tests/test_calibration.py::test_band_edges[0.7999-medium]
+PASSED  tests/test_calibration.py::test_band_edges[0.8-high]
+PASSED  tests/test_calibration.py::test_band_edges[0.9499-high]
+PASSED  tests/test_calibration.py::test_band_edges[0.95-critical]
+PASSED  tests/test_calibration.py::test_band_edges[1.0-critical]
+PASSED  tests/test_calibration.py::test_below_min_samples_reports_insufficient_data_not_a_number
+PASSED  tests/test_calibration.py::test_benign_positive_counts_as_noise_by_default_or_can_be_excluded
+PASSED  tests/test_calibration.py::test_cli_bad_input_exits_2
+PASSED  tests/test_calibration.py::test_cli_reports_without_write_leave_yaml_untouched
+PASSED  tests/test_calibration.py::test_cli_write_changes_only_the_confidence_line
+PASSED  tests/test_calibration.py::test_cli_write_refuses_ambiguous_file_and_exits_1
+PASSED  tests/test_calibration.py::test_dedupe_keeps_latest_disposition_per_alert
+PASSED  tests/test_calibration.py::test_deeply_nested_json_is_a_clean_error
+PASSED  tests/test_calibration.py::test_exactly_min_samples_is_calibrated
+PASSED  tests/test_calibration.py::test_excel_exports_semicolon_utf16_and_non_utf8
+PASSED  tests/test_calibration.py::test_excluded_outcomes_do_not_count_toward_n
+PASSED  tests/test_calibration.py::test_insufficient_data_is_never_flagged_noisy
+PASSED  tests/test_calibration.py::test_long_custom_close_reasons_still_map
+PASSED  tests/test_calibration.py::test_min_samples_is_configurable
+PASSED  tests/test_calibration.py::test_native_jsonl_and_bad_input
+PASSED  tests/test_calibration.py::test_noisy_behavior_listed_with_false_positive_notes
+PASSED  tests/test_calibration.py::test_sentinel_rest_json_and_portal_csv
+PASSED  tests/test_calibration.py::test_set_confidence_is_a_single_line_edit
+PASSED  tests/test_calibration.py::test_since_filters_by_closed_at
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[14-20-low]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[15-20-medium]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[19-20-medium]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[20-20-high]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[72-72-high]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[73-73-critical]
+PASSED  tests/test_calibration.py::test_unknown_behavior_ids_reported_not_calibrated
+PASSED  tests/test_calibration.py::test_untrusted_text_cannot_inject_markup_or_terminal_escapes
+PASSED  tests/test_calibration.py::test_verdict_relative_to_current_confidence
+PASSED  tests/test_calibration.py::test_wilson_lower_bound_known_values
+PASSED  tests/test_calibration.py::test_write_never_changes_status_even_when_lowering
+PASSED  tests/test_calibration.py::test_write_verification_rejects_any_other_change
+PASSED  tests/test_calibration.py::test_xsoar_adapter
+PASSED  tests/test_calibration.py::test_zero_true_positives_gives_exactly_zero
 PASSED  tests/test_compilers_coverage.py::test_atlas_data_import_parses_matrix_layout
 PASSED  tests/test_compilers_coverage.py::test_coverage_scores
 PASSED  tests/test_compilers_coverage.py::test_drift_detected_against_catalog_without_technique
@@ -412,6 +454,89 @@ PASSED  tests/test_ocsf.py::test_source_override_and_unknown_class
 PASSED  tests/test_ocsf.py::test_sources_cover_every_siem_table
 PASSED  tests/test_ocsf.py::test_time_only_ocsf_events_raise_the_same_alerts
 PASSED  tests/test_ocsf.py::test_unmapped_and_null_fields
+PASSED  tests/test_provenance.py::test_any_value_decoding
+PASSED  tests/test_provenance.py::test_benign_twin_has_the_same_shape[ag018]
+PASSED  tests/test_provenance.py::test_benign_twin_has_the_same_shape[exf014]
+PASSED  tests/test_provenance.py::test_benign_twin_has_the_same_shape[sc013]
+PASSED  tests/test_provenance.py::test_cli_compile_reports_stubs
+PASSED  tests/test_provenance.py::test_contract_violation_is_reported
+PASSED  tests/test_provenance.py::test_events_without_trace_fields_are_ignored_and_traces_are_isolated
+PASSED  tests/test_provenance.py::test_filters_scope_the_graph
+PASSED  tests/test_provenance.py::test_graph_edges_parent_and_input
+PASSED  tests/test_provenance.py::test_graph_reports_missing_self_duplicate_and_cycle
+PASSED  tests/test_provenance.py::test_kql_drops_self_referencing_edges
+PASSED  tests/test_provenance.py::test_kql_source_and_sink_conditions
+PASSED  tests/test_provenance.py::test_kql_unrolls_joins_to_max_hops[BHV-AG-018]
+PASSED  tests/test_provenance.py::test_kql_unrolls_joins_to_max_hops[BHV-EXF-014]
+PASSED  tests/test_provenance.py::test_load_events_mixes_normalized_and_otlp_lines
+PASSED  tests/test_provenance.py::test_max_hops_boundary[10-8-0]
+PASSED  tests/test_provenance.py::test_max_hops_boundary[2-1-1]
+PASSED  tests/test_provenance.py::test_max_hops_boundary[4-2-0]
+PASSED  tests/test_provenance.py::test_max_hops_boundary[4-3-1]
+PASSED  tests/test_provenance.py::test_max_hops_boundary[9-8-1]
+PASSED  tests/test_provenance.py::test_nested_sinks_fold_into_outermost
+PASSED  tests/test_provenance.py::test_otlp_fixtures_alert_and_benign_twin_does_not
+PASSED  tests/test_provenance.py::test_otlp_links_and_extension_attributes
+PASSED  tests/test_provenance.py::test_otlp_mapping_and_why_context_edges_exist
+PASSED  tests/test_provenance.py::test_provenance_alert_context_and_evidence
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection0-requires 'provenance']
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection1-requires logic: provenance]
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection2-'window' does not apply]
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection3-unknown operator]
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection4-invalid regex]
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection5-takes a list]
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection6-at least 1]
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection7-greater than or equal to 1]
+PASSED  tests/test_provenance.py::test_provenance_model_rejects[detection8-less than or equal to 8]
+PASSED  tests/test_provenance.py::test_provenance_model_valid
+PASSED  tests/test_provenance.py::test_shortest_path_wins
+PASSED  tests/test_provenance.py::test_source_does_not_taint_itself_but_other_sources_do
+PASSED  tests/test_provenance.py::test_spl_and_sigma_emit_stub_and_warn[BHV-AG-018-sigma]
+PASSED  tests/test_provenance.py::test_spl_and_sigma_emit_stub_and_warn[BHV-AG-018-spl]
+PASSED  tests/test_provenance.py::test_spl_and_sigma_emit_stub_and_warn[BHV-EXF-014-sigma]
+PASSED  tests/test_provenance.py::test_spl_and_sigma_emit_stub_and_warn[BHV-EXF-014-spl]
+PASSED  tests/test_provenance.py::test_spl_header_comments_are_closed
+PASSED  tests/test_provenance.py::test_trace_fixtures_follow_the_contract[ag018]
+PASSED  tests/test_provenance.py::test_trace_fixtures_follow_the_contract[exf014]
+PASSED  tests/test_provenance.py::test_trace_fixtures_follow_the_contract[sc013]
+PASSED  tests/test_provenance.py::test_validator_requires_graph_fields
+PASSED  tests/test_sentinel.py::test_atlas_ids_travel_in_custom_details_and_description
+PASSED  tests/test_sentinel.py::test_attack_bridge_drives_sentinel_tactics_and_techniques
+PASSED  tests/test_sentinel.py::test_check_and_write_detect_drift_stale_files_and_ignore_crlf
+PASSED  tests/test_sentinel.py::test_check_arm_rejects_common_arm_ttk_failures
+PASSED  tests/test_sentinel.py::test_check_rule_rejects_invalid_rules
+PASSED  tests/test_sentinel.py::test_cli_compile_sentinel_target_and_profile
+PASSED  tests/test_sentinel.py::test_cli_sentinel_build_check_and_validate
+PASSED  tests/test_sentinel.py::test_column_types_follow_fixtures_and_detection_logic
+PASSED  tests/test_sentinel.py::test_committed_solution_is_current_and_valid
+PASSED  tests/test_sentinel.py::test_conflicting_field_types_fail_the_build
+PASSED  tests/test_sentinel.py::test_dcr_maps_stream_onto_table
+PASSED  tests/test_sentinel.py::test_entity_mappings_from_group_by
+PASSED  tests/test_sentinel.py::test_every_behavior_compiles_to_a_valid_sentinel_rule
+PASSED  tests/test_sentinel.py::test_plan_param_values_bind_templates_to_columns
+PASSED  tests/test_sentinel.py::test_playbook_routes_every_registry_action_and_gates_approvals
+PASSED  tests/test_sentinel.py::test_provenance_rules_read_every_span_table
+PASSED  tests/test_sentinel.py::test_query_period_and_frequency_come_from_window
+PASSED  tests/test_sentinel.py::test_response_plan_column_matches_abm_plan
+PASSED  tests/test_sentinel.py::test_rule_id_is_uuid5_of_behavior_id_and_stable
+PASSED  tests/test_sentinel.py::test_sentinel_period[0-1h]
+PASSED  tests/test_sentinel.py::test_sentinel_period[1800-30m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[2592000-14d]
+PASSED  tests/test_sentinel.py::test_sentinel_period[300-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[3600-1h]
+PASSED  tests/test_sentinel.py::test_sentinel_period[3601-61m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[60-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[600-10m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[86400-1d]
+PASSED  tests/test_sentinel.py::test_sentinel_period[90-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[900-15m]
+PASSED  tests/test_sentinel.py::test_sentinel_profile_uses_custom_tables_and_default_is_unchanged
+PASSED  tests/test_sentinel.py::test_severity_and_status_mapping
+PASSED  tests/test_sentinel.py::test_solution_data_lists_shipped_rules
+PASSED  tests/test_sentinel.py::test_solution_folder_matches_data_file_name
+PASSED  tests/test_sentinel.py::test_tables_cover_every_column_the_queries_read
+PASSED  tests/test_sentinel.py::test_undeclared_detection_fields_still_get_columns
+PASSED  tests/test_sentinel.py::test_workbook_alert_views_and_navigator_coverage
 PASSED  tests/test_tutorial.py::test_tutorial_behaviors_validate_and_pass_fixtures
 PASSED  tests/test_tutorial.py::test_tutorial_mixed_traffic_replay
 PASSED  tests/test_xsoar.py::test_cli_replay_to_xsoar_reads_key_from_env
@@ -421,7 +546,9 @@ PASSED  tests/test_xsoar.py::test_one_incident_per_alert_and_statuses
 PASSED  tests/test_xsoar.py::test_payload_carries_atlas_context_and_plan
 PASSED  tests/test_xsoar.py::test_rejects_plain_http_and_missing_key
 PASSED  tests/test_xsoar.py::test_xsoar6_vs_xsoar8_endpoints_and_headers
-summary: 155 passed, 0 failed, 0 errors, 0 skipped
+SKIPPED tests/test_calibration.py::test_write_keeps_file_permissions
+SKIPPED tests/test_calibration.py::test_write_refuses_symlinks
+summary: 280 passed, 0 failed, 0 errors, 2 skipped
 [PASS] pytest
 
 ==============================================================================
