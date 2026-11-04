@@ -7,7 +7,7 @@ abm 0.1.0 | OCSF 1.8.0 | extension abm 0.1.0
 ==============================================================================
 8cd6af1ece027ebb942a12067ef07acbec07798565d30b6ea9ca3d64902730dd  src/abm/ocsf.py
 5d885034e2211b9c8fdc185186b46fee7143b652e326efdc0e011b4fb1c72ef5  src/abm/ocsf_schema.py
-c26d14ad2b44b18d24fd09c0997bb4c68295fd3b6d30f44bfb49cf5cf11fd5b9  src/abm/cli.py
+91b104603b8087d495951265f51db7f3b004abbafaee8966b34397fc0381b132  src/abm/cli.py
 2181cb7b28dc1da0a4b9da132af12fc104ecb7518ef45300a897501300bffa5f  tests/test_ocsf.py
 8498c37e701c3a297922a11bc019ee4c316155802789f17d4135eb5a420e7c1c  scripts/gen_ocsf_fixtures.py
 ab9f687b5ca3852863b2116c84d71b535e8ca19b0cc78e4884b900c411b0f95c  scripts/gen_ocsf_mapping_doc.py
@@ -19,8 +19,8 @@ d792f8bfbd30f5f37db30594ccb455d70b05cec5e0762b13fa178b622b75dc44  scripts/verify
 6c507d59e7e264c2b6ea2017d9cfa4149515166fb8d301a1cd740696aa05de34  docs/ocsf.md
 76e1c95b3cabe033959137cb85811d8797bdaf6cada3f32041a3323e3667ec2d  docs/ocsf-mapping.md
 553d3c2f8378305d153e87c98dbcf113d7d6f55fe76f3906bb21265ed4e761d7  docs/branches/branch2-ocsf-ai-event-mapping.md
-e01d5228be863179caa74f287d0e17a67ac9b188e807936b832434e41e9132fe  README.md
-948b01928fe72fd5376c2de31dae42b99025585a9112a8c4b04636cdf3ea3e31  Makefile
+1b9d0924de8c1c539342f707494d9e92452c678e51f88d5dd4560eae8a3128bf  README.md
+c94e8242efc11fe120f4353bf2b449e4be8284261425939237bee9a16c17b697  Makefile
 56224078ef804ac63acd7e6a15362c68c830d5f3b53daf1f7e091ea080de6f01  .github/workflows/ci.yml
 0fe899440e481aa741cf07a9430bdc7c898f95dc452739f6f9beccc4455bccae  .gitattributes
 cc0f4c0a955d4abf599b7a473ff22a1a676e46d24bc8784f703871690c4d0120  schemas/ocsf/README.md
@@ -266,6 +266,48 @@ $ python scripts/gen_ocsf_mapping_doc.py --check
 ==============================================================================
 9. pytest (per-test outcome, sorted)
 ==============================================================================
+PASSED  tests/test_calibration.py::test_bad_close_times_do_not_abort_the_run
+PASSED  tests/test_calibration.py::test_band_edges[0.0-low]
+PASSED  tests/test_calibration.py::test_band_edges[0.4999-low]
+PASSED  tests/test_calibration.py::test_band_edges[0.5-medium]
+PASSED  tests/test_calibration.py::test_band_edges[0.7999-medium]
+PASSED  tests/test_calibration.py::test_band_edges[0.8-high]
+PASSED  tests/test_calibration.py::test_band_edges[0.9499-high]
+PASSED  tests/test_calibration.py::test_band_edges[0.95-critical]
+PASSED  tests/test_calibration.py::test_band_edges[1.0-critical]
+PASSED  tests/test_calibration.py::test_below_min_samples_reports_insufficient_data_not_a_number
+PASSED  tests/test_calibration.py::test_benign_positive_counts_as_noise_by_default_or_can_be_excluded
+PASSED  tests/test_calibration.py::test_cli_bad_input_exits_2
+PASSED  tests/test_calibration.py::test_cli_reports_without_write_leave_yaml_untouched
+PASSED  tests/test_calibration.py::test_cli_write_changes_only_the_confidence_line
+PASSED  tests/test_calibration.py::test_cli_write_refuses_ambiguous_file_and_exits_1
+PASSED  tests/test_calibration.py::test_dedupe_keeps_latest_disposition_per_alert
+PASSED  tests/test_calibration.py::test_deeply_nested_json_is_a_clean_error
+PASSED  tests/test_calibration.py::test_exactly_min_samples_is_calibrated
+PASSED  tests/test_calibration.py::test_excel_exports_semicolon_utf16_and_non_utf8
+PASSED  tests/test_calibration.py::test_excluded_outcomes_do_not_count_toward_n
+PASSED  tests/test_calibration.py::test_insufficient_data_is_never_flagged_noisy
+PASSED  tests/test_calibration.py::test_long_custom_close_reasons_still_map
+PASSED  tests/test_calibration.py::test_min_samples_is_configurable
+PASSED  tests/test_calibration.py::test_native_jsonl_and_bad_input
+PASSED  tests/test_calibration.py::test_noisy_behavior_listed_with_false_positive_notes
+PASSED  tests/test_calibration.py::test_sentinel_rest_json_and_portal_csv
+PASSED  tests/test_calibration.py::test_set_confidence_is_a_single_line_edit
+PASSED  tests/test_calibration.py::test_since_filters_by_closed_at
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[14-20-low]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[15-20-medium]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[19-20-medium]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[20-20-high]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[72-72-high]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[73-73-critical]
+PASSED  tests/test_calibration.py::test_unknown_behavior_ids_reported_not_calibrated
+PASSED  tests/test_calibration.py::test_untrusted_text_cannot_inject_markup_or_terminal_escapes
+PASSED  tests/test_calibration.py::test_verdict_relative_to_current_confidence
+PASSED  tests/test_calibration.py::test_wilson_lower_bound_known_values
+PASSED  tests/test_calibration.py::test_write_never_changes_status_even_when_lowering
+PASSED  tests/test_calibration.py::test_write_verification_rejects_any_other_change
+PASSED  tests/test_calibration.py::test_xsoar_adapter
+PASSED  tests/test_calibration.py::test_zero_true_positives_gives_exactly_zero
 PASSED  tests/test_compilers_coverage.py::test_atlas_data_import_parses_matrix_layout
 PASSED  tests/test_compilers_coverage.py::test_coverage_scores
 PASSED  tests/test_compilers_coverage.py::test_drift_detected_against_catalog_without_technique
@@ -421,7 +463,9 @@ PASSED  tests/test_xsoar.py::test_one_incident_per_alert_and_statuses
 PASSED  tests/test_xsoar.py::test_payload_carries_atlas_context_and_plan
 PASSED  tests/test_xsoar.py::test_rejects_plain_http_and_missing_key
 PASSED  tests/test_xsoar.py::test_xsoar6_vs_xsoar8_endpoints_and_headers
-summary: 155 passed, 0 failed, 0 errors, 0 skipped
+SKIPPED tests/test_calibration.py::test_write_keeps_file_permissions
+SKIPPED tests/test_calibration.py::test_write_refuses_symlinks
+summary: 197 passed, 0 failed, 0 errors, 2 skipped
 [PASS] pytest
 
 ==============================================================================
