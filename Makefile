@@ -29,9 +29,11 @@ coverage:
 
 schema:
 	$(BIN)/python -c "import json; from abm.models import Behavior; print(json.dumps(Behavior.model_json_schema(), indent=2))" > schemas/behavior.schema.json
+	$(BIN)/python -c "import json; from abm.telemetry import AgentSpan; print(json.dumps(AgentSpan.model_json_schema(), indent=2))" > schemas/agent-span.schema.json
 
 fixtures:
 	$(BIN)/python scripts/gen_fixtures.py
+	$(BIN)/python scripts/gen_otel_fixtures.py
 	$(BIN)/python examples/tutorial/gen_fixtures.py
 
 docs:

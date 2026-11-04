@@ -12,7 +12,7 @@ detections, coverage and response plans are all generated from it.
 | `atlas.tactics` | `AML.TA####`, at least one |
 | `atlas.techniques` | `AML.T####[.###]`, at least one with `relationship: primary`; use `precondition` for enabling access (e.g. AML.T0040) — preconditions do not count toward coverage |
 | `telemetry.required[0].source` | Drives the SIEM table/index mapping in `src/abm/compilers/common.py` |
-| `detection.logic` | `signature` \| `windowed_threshold` \| `field_match` |
+| `detection.logic` | `signature` \| `windowed_threshold` \| `field_match` \| `provenance` |
 | `tests` | `stable` requires at least one `alert` and one `no_alert` fixture |
 
 ## Detection logic
@@ -45,6 +45,28 @@ detection:
 
 **field_match**: all keys must match.
 
+**provenance**: taint over the per-trace span graph of traced agent telemetry
+([agent-telemetry.md](agent-telemetry.md)). Spans matching `source` taint everything reachable
+along `parent_span_id` and `input_span_ids` edges. A span matching `sink` alerts when it is reached
+within `max_hops` edges (1 to 8). `source` and `sink` take the match operators below, and unknown
+operators are rejected. `telemetry.required` must declare `trace_id`, `span_id` and
+`parent_span_id`; list every source whose spans take part (e.g. `agent_runtime` and `mcp_gateway`),
+because the KQL rule unions their tables. `window` does not apply.
+
+```yaml
+detection:
+  logic: provenance
+  provenance:
+    source: { tool_class: secret_read }
+    sink: { tool_class: egress, destination_allowlisted: false }
+    max_hops: 4
+```
+
+Provenance compiles to KQL (unrolled joins). Sigma and SPL cannot express it: they get a stub file
+with no rule, and `abm compile` logs a warning. Fixtures are whole runs (one trace, every event a
+span). Pair each attack trace with a benign trace of the same shape that differs only in the
+property the detection depends on.
+
 ## Match / filter operators
 
 Used by `detection.match` and `detection.filters` (filters scope events before evaluation):
@@ -60,7 +82,8 @@ step with `requires_approval: true|false`.
 
 ## Fixtures
 
-Normalized JSONL, one event per line, `timestamp` (ISO-8601 or epoch) required. Every positive
+Normalized JSONL, one event per line, `timestamp` (ISO-8601 or epoch) required. OTLP/JSON
+trace exports are also accepted and converted on load (see agent-telemetry.md). Every positive
 fixture should have a benign near-miss twin (same shape, should not fire). Generate reproducibly in
 `scripts/gen_fixtures.py` (seed set) or as a spec in `scripts/behavior_pack/` rendered by
 `scripts/gen_behavior_pack.py`, which writes the YAML and both fixtures. Pass `status="experimental"`

@@ -69,7 +69,8 @@ def render(spec: dict, catalog: AtlasCatalog) -> str:
     }
     if spec["attack_bridge"]:
         doc["attack_bridge"] = spec["attack_bridge"]
-    doc["telemetry"] = {"required": [{"source": spec["source"], "fields": spec["fields"]}]}
+    doc["telemetry"] = {"required": [{"source": spec["source"], "fields": spec["fields"]},
+                                      *({"source": s, "fields": f} for s, f in spec["also"].items())]}
     doc["detection"] = spec["detection"]
     doc["countermeasures"] = {"mitigations": spec["mitigations"], "response": spec["response"]}
     doc["tests"] = [{"fixture": f"{fx}_attack.jsonl", "expect": "alert"},

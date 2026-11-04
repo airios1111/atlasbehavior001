@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from abm import otel, provenance
 from abm.catalog import AtlasCatalog
 from abm.models import Behavior, Metric
 from abm.response import Alert
@@ -30,16 +31,28 @@ OPS = {
 
 
 def load_events(path: Path) -> list[Event]:
-    events = []
-    for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
+    """Normalized JSONL, one event per line. OTLP/JSON trace exports (one document per file, or one
+    per line as written by the OpenTelemetry Collector file exporter) are converted to normalized
+    span events; both kinds may be mixed in one file."""
+    text = path.read_text(encoding="utf-8")
+    objs: list[Any] = []
+    if text.lstrip().startswith("{"):
         try:
-            events.append(json.loads(line))
-        except json.JSONDecodeError as e:
-            raise ValueError(f"{path}:{n}: invalid JSON: {e}") from e
-    return events
+            objs = [json.loads(text)]  # a single (possibly pretty-printed) JSON document
+        except json.JSONDecodeError:
+            objs = []
+    if not objs:
+        for n, line in enumerate(text.splitlines(), 1):
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            try:
+                objs.append(json.loads(line))
+            except json.JSONDecodeError as e:
+                raise ValueError(f"{path}:{n}: invalid JSON: {e}") from e
+    events = [o for o in objs if not otel.is_otlp(o)]
+    traces = [o for o in objs if otel.is_otlp(o)]
+    return events + otel.from_otlp(traces) if traces else events
 
 
 def _ts(ev: Event) -> float:
@@ -135,6 +148,9 @@ class Engine:
                             break
             return alerts
 
+        if d.logic == "provenance":
+            return self._provenance(b, evs)
+
         if d.logic == "field_match":
             return [
                 self._alert(b, context=_ctx(e, b), evidence=[f"field_match {d.match}"],
@@ -166,6 +182,28 @@ class Engine:
                 ))
         return alerts
 
+    def _provenance(self, b: Behavior, evs: list[Event]) -> list[Alert]:
+        spec = b.detection.provenance
+        if spec is None:  # unreachable for validated behaviors (Detection._shape)
+            raise ValueError(f"{b.id}: provenance logic without a provenance block")
+        findings = provenance.find(
+            evs,
+            is_source=lambda e: _passes(e, spec.source),
+            is_sink=lambda e: _passes(e, spec.sink),
+            max_hops=spec.max_hops,
+        )
+        alerts = []
+        for f in findings:
+            ctx = _ctx(f.sink, b)
+            ctx.update(trace_id=f.graph.trace_id, span_id=f.sink_id, source_span_id=f.reach.source,
+                       hops=f.reach.hops)
+            alerts.append(self._alert(
+                b, context=ctx, metrics={"hops": f.reach.hops},
+                evidence=[f"path {f.describe()}", *[f"graph: {i}" for i in f.graph.issues[:3]]],
+                window_start=f.sink.get("timestamp"),
+            ))
+        return alerts
+
     def run(self, events: list[Event]) -> list[Alert]:
         out: list[Alert] = []
         for b in self.behaviors:
@@ -175,7 +213,8 @@ class Engine:
 
 def _ctx(e: Event, b: Behavior) -> dict[str, Any]:
     keep = {f for src in b.telemetry.required for f in src.fields}
-    keep |= {"principal_id", "session_id", "model_id", "source_uri", "tool_name", "artifact_id"}
+    keep |= {"principal_id", "session_id", "model_id", "source_uri", "tool_name", "artifact_id",
+             "trace_id", "span_id"}
     return {k: e[k] for k in keep if k in e and not isinstance(e[k], (list, dict))}
 
 
