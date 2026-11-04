@@ -2,7 +2,7 @@ PY ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: setup atlas-sync validate test replay build coverage schema fixtures docs lint clean all
+.PHONY: setup atlas-sync validate test replay build coverage schema fixtures docs lint clean all ocsf-fixtures ocsf-docs ocsf-check verify-branch2
 
 setup:
 	$(PY) -m venv $(VENV)
@@ -40,6 +40,18 @@ docs:
 
 lint:
 	$(BIN)/ruff check src tests
+
+ocsf-fixtures:
+	$(BIN)/python scripts/gen_ocsf_fixtures.py
+
+ocsf-docs:
+	$(BIN)/python scripts/gen_ocsf_mapping_doc.py
+
+ocsf-check:
+	$(BIN)/python scripts/ocsf_check_upstream.py
+
+verify-branch2:
+	$(BIN)/python scripts/verify_branch2.py
 
 clean:
 	rm -rf dist/* reports/* .pytest_cache build *.egg-info src/*.egg-info

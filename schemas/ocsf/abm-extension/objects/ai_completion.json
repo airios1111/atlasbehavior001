@@ -1,0 +1,23 @@
+{
+  "caption": "AI Completion",
+  "description": "The AI Completion object describes the output a generative AI model returned and signals computed over it.",
+  "extends": "object",
+  "name": "ai_completion",
+  "attributes": {
+    "content": {
+      "requirement": "optional"
+    },
+    "refused": {
+      "requirement": "optional"
+    },
+    "has_citations": {
+      "requirement": "optional"
+    },
+    "cited_unretrieved_sources": {
+      "requirement": "optional"
+    },
+    "memorization_score": {
+      "requirement": "optional"
+    }
+  }
+}

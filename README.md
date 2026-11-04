@@ -70,15 +70,16 @@ flowchart LR
 
 | Component | Responsibility |
 |---|---|
-| **Normalizer** | *Planned.* Maps source events into a common schema (OCSF-aligned, with AI-specific extensions: `prompt`, `completion`, `model_id`, `tool_call`, `token_usage`). Today `abm replay` expects telemetry already normalized to the field names behaviors declare; OCSF and AWS/GCP adapters are on the roadmap. |
+| **Normalizer** | OCSF 1.8.0 adapter (`abm replay --input-format ocsf`). It maps API, HTTP, Datastore Activity and Authentication events for all 12 telemetry sources to the field names behaviors declare. It builds on the OCSF `ai_operation` profile (`ai_model`, `message_context`) plus the `abm` extension. See [`docs/ocsf.md`](docs/ocsf.md). Native normalized JSONL remains the default input; AWS/GCP adapters are on the roadmap. |
 | **Behavior Extractors** | Stateless and windowed detectors that emit behavior events (e.g., `BHV-PI-001: instruction override pattern in user input`). |
 | **ATLAS Mapper** | Resolves behaviors to ATLAS tactic/technique/sub-technique IDs with a confidence score. |
 | **Detection Compiler** | Compiles behavior definitions to target query languages. |
 | **Countermeasure Resolver** | Binds ATLAS mitigations (`AML.M*`) and executable response actions to each technique. |
 
-The diagram describes the integration architecture. The current CLI evaluates **already-normalized
-JSONL events** using signatures, field matches, and windowed thresholds, then generates rules,
-coverage reports, and response plans. Source adapters and the normalizer are not included yet.
+The diagram describes the integration architecture. The current CLI evaluates **normalized JSONL
+events** or **OCSF 1.8.0 events** using signatures, field matches and windowed thresholds. It then
+generates rules, coverage reports, response plans and, optionally, OCSF Detection Findings.
+Vendor-specific source adapters are not included yet.
 Production enforcement is performed by your connected controls or SOAR playbooks; local response
 execution defaults to a dry run.
 
@@ -380,16 +381,21 @@ references:
 │   ├── response.py            # Action registry, response planner, executors
 │   ├── coverage.py            # Scoring, gaps, Navigator layer
 │   ├── compilers/             # kql.py, sigma.py, spl.py
+│   ├── ocsf.py                # OCSF 1.8.0 inbound mapping (12 sources) + Detection Finding output
+│   ├── ocsf_schema.py         # OCSF base + abm extension model and validator
 │   └── cli.py                 # `abm` CLI
 ├── schemas/behavior.schema.json   # Generated from the model (make schema)
+├── schemas/ocsf/              # OCSF 1.8.0 base subset + abm OCSF extension (AI objects, ATLAS mapping)
 ├── scripts/gen_fixtures.py    # Deterministic fixture generator (seed set)
 ├── scripts/gen_behavior_pack.py  # Renders scripts/behavior_pack/ specs to behaviors/ + fixtures
 ├── tests/
 │   ├── fixtures/              # Positive + benign near-miss JSONL telemetry
+│   │   └── ocsf/              # One OCSF fixture per telemetry source (+ MANIFEST.json)
 │   └── test_*.py              # Engine, validation, compiler, integration and tutorial tests
 ├── examples/tutorial/        # Runnable walkthrough with a separate behavior set
 ├── integrations/xsoar/        # Cortex XSOAR setup and playbook guidance
 ├── docs/behavior-authoring.md
+├── docs/ocsf.md, docs/ocsf-mapping.md   # OCSF design + generated per-source mapping tables
 ├── dist/                      # Generated rules (gitignored)
 ├── reports/                   # Generated coverage (gitignored)
 ├── .github/workflows/ci.yml
@@ -450,6 +456,9 @@ abm map --behavior BHV-EXF-003 --format table
 abm coverage --matrix atlas --layer reports/atlas-layer.json
 abm replay --fixture tests/fixtures/extraction_burst.jsonl --respond --expect alert
 abm replay --fixture tests/fixtures/extraction_burst.jsonl --xsoar https://xsoar.example.com   # Cortex XSOAR incident
+abm replay --fixture tests/fixtures/ocsf/llm_gateway.ocsf.jsonl --input-format ocsf      # OCSF 1.8.0 input
+abm replay --fixture tests/fixtures/extraction_burst.jsonl --output-format ocsf          # OCSF Detection Findings
+abm replay --fixture events.ocsf.jsonl --input-format ocsf --output-format ocsf --validate-ocsf
 abm test                                   # run every behavior's declared fixtures
 abm gaps --tactic AML.TA0010
 abm atlas-sync [--file ATLAS.yaml]         # online or offline catalog refresh
@@ -560,6 +569,7 @@ that a deployed control or SOAR playbook successfully enforces the response.
 - **Unit and integration tests**: detection evaluation, model validation, coverage scoring, mocked XSOAR delivery, and the tutorial.
 - **Fixture replay**: attack and benign events in `tests/fixtures/` run through the reference engine; every `stable` behavior requires at least one positive and one negative test.
 - **Catalog validation**: CI fails if a referenced ATLAS ID does not resolve in the checked-in catalog. Upstream changes are checked when the catalog is refreshed.
+- **OCSF round trip**: one OCSF fixture per telemetry source must validate against OCSF 1.8.0 + the abm extension and raise the same alerts as its native JSONL fixture; every behavior fixture is also replayed through native → OCSF → normalized with identical alerts.
 - **Compiler checks**: every behavior must compile to KQL, SPL, and Sigma; selected output shapes and Sigma YAML are tested. Target-native validation and execution against real workspaces remain deployment checks.
 
 ```bash
@@ -586,7 +596,8 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 ## Roadmap
 
 - [ ] Extend the current 159-behavior set toward full ATLAS technique coverage; every tactic now has at least one declared detection (score ≥ 2). Use `abm gaps --below 2` for remaining technique gaps; Resource Development is mostly outside this telemetry and is covered by experimental, mitigation-only behaviors
-- [ ] OCSF AI-event extension mapping
+- [x] OCSF AI-event extension mapping (OCSF 1.8.0 `ai_operation` + `abm` extension; [`docs/ocsf.md`](docs/ocsf.md))
+- [ ] Process Activity (EDR) mapping for agent shell tools; compile rules against OCSF tables (Security Lake, ASIM)
 - [ ] Sentinel Content Hub packaging (analytics rules + workbooks + Logic Apps)
 - [ ] Agentic AI telemetry: MCP / tool-call provenance graph
 - [ ] Confidence calibration from production alert dispositions
@@ -602,6 +613,7 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 - MITRE ATT&CK — https://attack.mitre.org
 - OWASP Top 10 for LLM Applications — https://genai.owasp.org
 - NIST AI 100-2 Adversarial Machine Learning taxonomy — https://csrc.nist.gov
+- Open Cybersecurity Schema Framework (OCSF) — https://schema.ocsf.io
 
 ---
 

@@ -1,0 +1,725 @@
+{
+  "caption": "ATLAS Behavior Map AI Attribute Dictionary",
+  "description": "Attributes added by the abm extension. Attributes already defined by the OCSF core dictionary (uid, name, desc, url, version, tactics, technique, classification, ...) are referenced, not redefined.",
+  "name": "dictionary",
+  "attributes": {
+    "accuracy_drop_pct": {
+      "caption": "Accuracy Drop (%)",
+      "description": "Accuracy drop against the canary/validation set, in percentage points.",
+      "type": "float_t"
+    },
+    "acting_above_user_privilege": {
+      "caption": "Acting Above User Privilege",
+      "description": "The agent's credential for this call holds privileges the requesting user does not.",
+      "type": "boolean_t"
+    },
+    "action_name": {
+      "caption": "Action Name",
+      "description": "Response action from the abm action registry. For example: <code>block_request</code>, <code>revoke_token</code>.",
+      "type": "string_t"
+    },
+    "actor_is_conversation_owner": {
+      "caption": "Actor Is Conversation Owner",
+      "description": "The principal writing the memory entry owns the conversation it is attached to.",
+      "type": "boolean_t"
+    },
+    "adv_detector_score": {
+      "caption": "Adversarial Detector Score",
+      "description": "Score (0-1) from an adversarial-input detector.",
+      "type": "float_t"
+    },
+    "ai_artifact": {
+      "caption": "AI Artifact",
+      "description": "Model, dataset, package or container image involved in the activity.",
+      "type": "ai_artifact"
+    },
+    "ai_completion": {
+      "caption": "AI Completion",
+      "description": "The model output and signals computed over it.",
+      "type": "ai_completion"
+    },
+    "ai_context_record": {
+      "caption": "AI Context Record",
+      "description": "Retrieved document, vector-store record or agent memory entry.",
+      "type": "ai_context_record"
+    },
+    "ai_guardrail": {
+      "caption": "AI Guardrail",
+      "description": "Verdicts and scores from AI security controls that inspected the request.",
+      "type": "ai_guardrail"
+    },
+    "ai_inference": {
+      "caption": "AI Inference",
+      "description": "Inference request characteristics and result.",
+      "type": "ai_inference"
+    },
+    "ai_prompt": {
+      "caption": "AI Prompt",
+      "description": "The prompt sent to a generative AI model and lexical signals computed over it.",
+      "type": "ai_prompt"
+    },
+    "ai_tool_call": {
+      "caption": "AI Tool Call",
+      "description": "An AI agent tool, function or MCP operation.",
+      "type": "ai_tool_call"
+    },
+    "ai_training": {
+      "caption": "AI Training",
+      "description": "Training, fine-tuning or data-pipeline job context.",
+      "type": "ai_training"
+    },
+    "architecture_hash_match": {
+      "caption": "Architecture Hash Match",
+      "description": "The model graph/architecture hash matches the registered architecture.",
+      "type": "boolean_t"
+    },
+    "artifact_type": {
+      "caption": "Artifact Type",
+      "description": "Kind of AI artifact. For example: <code>model_weights</code>, <code>dataset</code>, <code>package</code>, <code>container_image</code>.",
+      "type": "string_t"
+    },
+    "atlas_mapping": {
+      "caption": "ATLAS Mapping",
+      "description": "MITRE ATLAS tactics, techniques and mitigations for this finding, pinned to an ATLAS data version. Carried in the extension because <code>attacks[]</code> has no field for the technique relationship or the matrix version of mixed ATT&amp;CK/ATLAS lists.",
+      "type": "atlas_mapping"
+    },
+    "atlas_relationship": {
+      "caption": "ATLAS Relationship",
+      "description": "How the technique relates to the detected behavior: <code>primary</code>, <code>secondary</code> or <code>precondition</code>.",
+      "type": "string_t"
+    },
+    "attachment_count": {
+      "caption": "Attachment Count",
+      "description": "Number of attachments in a message the agent sent.",
+      "type": "integer_t"
+    },
+    "backdoor_anomaly_index": {
+      "caption": "Backdoor Anomaly Index",
+      "description": "Anomaly index reported by a backdoor scanner (for example Neural Cleanse).",
+      "type": "float_t"
+    },
+    "batch_uid": {
+      "caption": "Batch UID",
+      "description": "Identifier of the ingested data batch.",
+      "type": "string_t"
+    },
+    "blast_radius": {
+      "caption": "Blast Radius",
+      "description": "Scope the action affects. For example: <code>request</code>, <code>session</code>, <code>principal</code>, <code>model</code>.",
+      "type": "string_t"
+    },
+    "budget_approved": {
+      "caption": "Budget Approved",
+      "description": "The job's compute budget was approved.",
+      "type": "boolean_t"
+    },
+    "caller_clearance": {
+      "caption": "Caller Clearance",
+      "description": "Highest sensitivity label the calling principal is cleared for.",
+      "type": "string_t"
+    },
+    "change_target": {
+      "caption": "Change Target",
+      "description": "Agent configuration element that was changed. For example: <code>system_prompt</code>, <code>tools</code>.",
+      "type": "string_t"
+    },
+    "channel": {
+      "caption": "Channel",
+      "description": "Interaction channel the message arrived through. For example: <code>chat</code>, <code>api</code>, <code>email</code>, <code>support_ticket</code>.",
+      "type": "string_t"
+    },
+    "check_type": {
+      "caption": "Check Type",
+      "description": "Kind of biometric or verification check performed. For example: <code>liveness</code>.",
+      "type": "string_t"
+    },
+    "checksum_match": {
+      "caption": "Checksum Match",
+      "description": "The dataset checksum matches the published checksum.",
+      "type": "boolean_t"
+    },
+    "cited_unretrieved_sources": {
+      "caption": "Cited Unretrieved Sources",
+      "description": "Number of sources cited in the completion that were not part of the retrieved context (fabricated citations).",
+      "type": "integer_t"
+    },
+    "cloud_api": {
+      "caption": "Cloud API",
+      "description": "Cloud control-plane API the agent called through the tool.",
+      "type": "string_t"
+    },
+    "confusable_char_ratio": {
+      "caption": "Confusable Character Ratio",
+      "description": "Fraction (0-1) of prompt characters that are Unicode confusables (homoglyphs) of ASCII characters.",
+      "type": "float_t"
+    },
+    "content": {
+      "caption": "Content",
+      "description": "Text content. For <code>ai_prompt</code> the full prompt sent to the model, for <code>ai_completion</code> the model output, for <code>ai_context_record</code> the retrieved document, vector record or memory entry. See specific usage.",
+      "type": "string_t"
+    },
+    "context_has_untrusted_content": {
+      "caption": "Context Has Untrusted Content",
+      "description": "Untrusted content (web page, email, retrieved document) was in the agent's context when it chose this call.",
+      "type": "boolean_t"
+    },
+    "context_utilization": {
+      "caption": "Context Utilization",
+      "description": "Fraction (0-1) of the model's context window consumed by the request.",
+      "type": "float_t"
+    },
+    "contributor_type": {
+      "caption": "Contributor Type",
+      "description": "Kind of contributor. For example: <code>internal</code>, <code>external</code>.",
+      "type": "string_t"
+    },
+    "contributor_uid": {
+      "caption": "Contributor UID",
+      "description": "Identifier of the contributor of the data.",
+      "type": "string_t"
+    },
+    "cost_usd": {
+      "caption": "Cost (USD)",
+      "description": "Billed or estimated cost of this message or tool step in US dollars, as reported by the AI gateway or agent runtime.",
+      "type": "float_t"
+    },
+    "dataset_provenance_verified": {
+      "caption": "Dataset Provenance Verified",
+      "description": "The dataset's provenance was verified.",
+      "type": "boolean_t"
+    },
+    "dataset_sensitivity": {
+      "caption": "Dataset Sensitivity",
+      "description": "Sensitivity label of the dataset.",
+      "type": "string_t"
+    },
+    "dataset_uid": {
+      "caption": "Dataset UID",
+      "description": "Identifier of the dataset.",
+      "type": "string_t"
+    },
+    "decision_margin": {
+      "caption": "Decision Margin",
+      "description": "Margin between the top-1 and top-2 class scores.",
+      "type": "float_t"
+    },
+    "decompression_ratio": {
+      "caption": "Decompression Ratio",
+      "description": "Decompressed-to-compressed size ratio of the input (decompression-bomb indicator).",
+      "type": "float_t"
+    },
+    "deepfake_score": {
+      "caption": "Deepfake Score",
+      "description": "Score (0-1) from a synthetic-media (deepfake) detector.",
+      "type": "float_t"
+    },
+    "destination_allowlisted": {
+      "caption": "Destination Allowlisted",
+      "description": "The network destination of the call is on the agent egress allowlist.",
+      "type": "boolean_t"
+    },
+    "dialogue_turns": {
+      "caption": "Dialogue Turns",
+      "description": "Number of dialogue turns embedded in a single prompt (many-shot or fake-conversation indicator).",
+      "type": "integer_t"
+    },
+    "digest_match": {
+      "caption": "Digest Match",
+      "description": "The artifact digest matches the digest recorded at publication.",
+      "type": "boolean_t"
+    },
+    "distribution_shift_psi": {
+      "caption": "Distribution Shift (PSI)",
+      "description": "Population stability index of the batch against the reference distribution.",
+      "type": "float_t"
+    },
+    "doc_sensitivity": {
+      "caption": "Document Sensitivity",
+      "description": "Sensitivity label of the retrieved document.",
+      "type": "string_t"
+    },
+    "environment": {
+      "caption": "Environment",
+      "description": "Deployment or workspace environment the activity ran in. For example: <code>prod</code>, <code>dev</code>, <code>sandbox</code>, or a notebook/workspace name. See specific usage.",
+      "type": "string_t"
+    },
+    "file_path": {
+      "caption": "File Path",
+      "description": "File system path the tool read or wrote.",
+      "type": "string_t"
+    },
+    "file_sha256": {
+      "caption": "File SHA-256",
+      "description": "SHA-256 of the file submitted for inference.",
+      "type": "string_t"
+    },
+    "fuzzy_hash_cluster": {
+      "caption": "Fuzzy Hash Cluster",
+      "description": "Cluster label of the input's fuzzy hash (near-duplicate probing indicator).",
+      "type": "string_t"
+    },
+    "guardrail_verdict": {
+      "caption": "Guardrail Verdict",
+      "description": "Verdict of the prompt guardrail. For example: <code>pass</code>, <code>prompt_injection</code>, <code>jailbreak</code>.",
+      "type": "string_t"
+    },
+    "harm_score": {
+      "caption": "Harm Score",
+      "description": "Harmful-content score (0-1) from the moderation layer.",
+      "type": "float_t"
+    },
+    "has_citations": {
+      "caption": "Has Citations",
+      "description": "The completion contains citations to sources.",
+      "type": "boolean_t"
+    },
+    "human_approved": {
+      "caption": "Human Approved",
+      "description": "A human approved this tool call before it ran.",
+      "type": "boolean_t"
+    },
+    "initiated_by_user": {
+      "caption": "Initiated By User",
+      "description": "The tool call was directly requested by the user rather than chosen autonomously by the agent.",
+      "type": "boolean_t"
+    },
+    "input_embedding_norm": {
+      "caption": "Input Embedding Norm",
+      "description": "L2 norm of the input embedding.",
+      "type": "float_t"
+    },
+    "input_hash": {
+      "caption": "Input Hash",
+      "description": "Hash of the inference input.",
+      "type": "string_t"
+    },
+    "input_modality": {
+      "caption": "Input Modality",
+      "description": "Modality of the input. For example: <code>text</code>, <code>image</code>, <code>audio</code>.",
+      "type": "string_t"
+    },
+    "input_quality_score": {
+      "caption": "Input Quality Score",
+      "description": "Quality score (0-1) of the input, for example image sharpness or audio SNR.",
+      "type": "float_t"
+    },
+    "input_similarity_to_prev": {
+      "caption": "Input Similarity To Previous",
+      "description": "Similarity (0-1) between this input and the caller's previous input (systematic-probing indicator).",
+      "type": "float_t"
+    },
+    "inter_arrival_s": {
+      "caption": "Inter-arrival Seconds",
+      "description": "Seconds since the previous message from the same caller in the same message context. Computed by an enrichment step; absent for the first message.",
+      "type": "float_t"
+    },
+    "invisible_char_count": {
+      "caption": "Invisible Character Count",
+      "description": "Number of zero-width, tag or other non-rendering Unicode characters in the prompt.",
+      "type": "integer_t"
+    },
+    "is_external_egress": {
+      "caption": "External Egress",
+      "description": "1 when the call sent data outside the organization, otherwise 0. Integer so it can be summed.",
+      "type": "integer_t"
+    },
+    "is_reversible": {
+      "caption": "Reversible",
+      "description": "The action can be undone.",
+      "type": "boolean_t"
+    },
+    "is_secret_read": {
+      "caption": "Secret Read",
+      "description": "1 when the call read a secret or credential store, otherwise 0. Integer so it can be summed.",
+      "type": "integer_t"
+    },
+    "is_timeout": {
+      "caption": "Timeout",
+      "description": "1 when the inference request timed out, otherwise 0. Integer so it can be summed.",
+      "type": "integer_t"
+    },
+    "jailbreak_corpus_match": {
+      "caption": "Jailbreak Corpus Match",
+      "description": "The prompt matched an entry in a known-jailbreak corpus.",
+      "type": "boolean_t"
+    },
+    "job_uid": {
+      "caption": "Job UID",
+      "description": "Identifier of the training or fine-tuning job.",
+      "type": "string_t"
+    },
+    "label_disagreement_rate": {
+      "caption": "Label Disagreement Rate",
+      "description": "Fraction (0-1) of labels that disagree with a reference labeler.",
+      "type": "float_t"
+    },
+    "logprobs_requested": {
+      "caption": "Log-probabilities Requested",
+      "description": "The request asked the model to return token log-probabilities.",
+      "type": "boolean_t"
+    },
+    "malware_signature_hits": {
+      "caption": "Malware Signature Hits",
+      "description": "Number of malware signatures matched by the artifact scanner.",
+      "type": "integer_t"
+    },
+    "manifest_hash_approved": {
+      "caption": "Manifest Hash Approved",
+      "description": "The hash of the tool/server manifest matches an approved version.",
+      "type": "boolean_t"
+    },
+    "memorization_score": {
+      "caption": "Memorization Score",
+      "description": "Score (0-1) from a memorization detector estimating that the completion reproduces training data verbatim.",
+      "type": "float_t"
+    },
+    "mitigations": {
+      "caption": "Mitigations",
+      "description": "The MITRE ATLAS mitigations (<code>AML.M*</code>) bound to the detected behavior.",
+      "type": "mitigation",
+      "is_array": true
+    },
+    "moderation_verdict": {
+      "caption": "Moderation Verdict",
+      "description": "Verdict of the content moderation layer. For example: <code>allow</code>, <code>block</code>.",
+      "type": "string_t"
+    },
+    "name_similarity_to_approved": {
+      "caption": "Name Similarity To Approved",
+      "description": "Similarity (0-1) between the tool name and the closest approved tool name (typosquat indicator).",
+      "type": "float_t"
+    },
+    "near_duplicate_score": {
+      "caption": "Near-duplicate Score",
+      "description": "Similarity (0-1) of the record to existing records in the collection (bulk-poisoning indicator).",
+      "type": "float_t"
+    },
+    "package_age_days": {
+      "caption": "Package Age (days)",
+      "description": "Days since the package, tool or server version was first published.",
+      "type": "integer_t"
+    },
+    "page_trust": {
+      "caption": "Page Trust",
+      "description": "Trust level of the web page a browsing agent acted on. For example: <code>trusted</code>, <code>untrusted</code>.",
+      "type": "string_t"
+    },
+    "params": {
+      "caption": "Parameters",
+      "description": "Rendered action parameters.",
+      "type": "json_t"
+    },
+    "patch_detector_score": {
+      "caption": "Patch Detector Score",
+      "description": "Score (0-1) from an adversarial-patch detector on image inputs.",
+      "type": "float_t"
+    },
+    "pipeline_uid": {
+      "caption": "Pipeline UID",
+      "description": "Identifier of the data or training pipeline.",
+      "type": "string_t"
+    },
+    "plan_status": {
+      "caption": "Plan Status",
+      "description": "Execution status of the action. For example: <code>auto</code>, <code>awaiting_approval</code>, <code>executed(dry-run)</code>.",
+      "type": "string_t"
+    },
+    "predicted_class": {
+      "caption": "Predicted Class",
+      "description": "Class the model predicted.",
+      "type": "string_t"
+    },
+    "predicted_label": {
+      "caption": "Predicted Label",
+      "description": "Label the model returned to the caller.",
+      "type": "string_t"
+    },
+    "prediction_changed_by_trigger": {
+      "caption": "Prediction Changed By Trigger",
+      "description": "Removing the suspected trigger from the input changes the prediction.",
+      "type": "boolean_t"
+    },
+    "principal_in_dataset_acl": {
+      "caption": "Principal In Dataset ACL",
+      "description": "The acting principal is on the dataset's access list.",
+      "type": "boolean_t"
+    },
+    "prompt_hash": {
+      "caption": "Prompt Hash",
+      "description": "Hash or fingerprint of the normalized prompt. Lets detections correlate repeated prompts without storing prompt text.",
+      "type": "string_t"
+    },
+    "provenance_signed": {
+      "caption": "Provenance Signed",
+      "description": "The batch carries a signed provenance attestation.",
+      "type": "boolean_t"
+    },
+    "publisher": {
+      "caption": "Publisher",
+      "description": "Publisher or namespace of the artifact on its hub. For example: <code>meta-llama</code>.",
+      "type": "string_t"
+    },
+    "publisher_allowlisted": {
+      "caption": "Publisher Allowlisted",
+      "description": "The publisher is on the organization's allowlist.",
+      "type": "boolean_t"
+    },
+    "publisher_similarity_to_allowlisted": {
+      "caption": "Publisher Similarity To Allowlisted",
+      "description": "Similarity (0-1) between the publisher and the closest allowlisted publisher (namespace-squatting indicator).",
+      "type": "float_t"
+    },
+    "publisher_verified": {
+      "caption": "Publisher Verified",
+      "description": "The tool or server publisher identity is verified.",
+      "type": "boolean_t"
+    },
+    "raw_html": {
+      "caption": "Raw HTML",
+      "description": "Raw HTML of a retrieved web page before text extraction (hidden-instruction carrier).",
+      "type": "string_t"
+    },
+    "reasoning_tokens": {
+      "caption": "Reasoning Tokens",
+      "description": "Number of hidden reasoning tokens the model spent on this message. Reasoning models report these separately from <code>completion_tokens</code>.",
+      "type": "integer_t"
+    },
+    "recipient_external": {
+      "caption": "Recipient External",
+      "description": "A recipient of the message the agent sent is outside the organization.",
+      "type": "boolean_t"
+    },
+    "record_count": {
+      "caption": "Record Count",
+      "description": "Number of records in the batch or dataset.",
+      "type": "integer_t"
+    },
+    "records_returned": {
+      "caption": "Records Returned",
+      "description": "Number of records the operation returned.",
+      "type": "integer_t"
+    },
+    "refused": {
+      "caption": "Refused",
+      "description": "1 when the model refused the request, otherwise 0. Integer so detections can sum refusals over a window.",
+      "type": "integer_t"
+    },
+    "request_param_keys": {
+      "caption": "Request Parameter Keys",
+      "description": "Comma-separated names of the generation parameters set on the request. For example: <code>temperature,logprobs,logit_bias</code>.",
+      "type": "string_t"
+    },
+    "requested_gpu_hours": {
+      "caption": "Requested GPU Hours",
+      "description": "GPU hours requested by the job.",
+      "type": "float_t"
+    },
+    "requires_approval": {
+      "caption": "Requires Approval",
+      "description": "A human must approve the action before it runs.",
+      "type": "boolean_t"
+    },
+    "response_plan": {
+      "caption": "Response Plan",
+      "description": "Countermeasure actions planned for this finding, with approval gating and execution status.",
+      "type": "ai_response_action",
+      "is_array": true
+    },
+    "return_confidence": {
+      "caption": "Return Confidence",
+      "description": "1 when confidence scores were returned to the caller, otherwise 0.",
+      "type": "integer_t"
+    },
+    "server_auth_type": {
+      "caption": "Server Auth Type",
+      "description": "How the agent authenticated to the MCP server or tool backend. For example: <code>delegated_token</code>, <code>none</code>.",
+      "type": "string_t"
+    },
+    "server_first_seen_for_agent": {
+      "caption": "Server First Seen For Agent",
+      "description": "First time this agent contacted this MCP server (enrichment).",
+      "type": "boolean_t"
+    },
+    "server_in_agent_manifest": {
+      "caption": "Server In Agent Manifest",
+      "description": "The MCP server is declared in the agent's manifest.",
+      "type": "boolean_t"
+    },
+    "signature_status": {
+      "caption": "Signature Status",
+      "description": "Signature verification result. For example: <code>valid</code>, <code>unsigned</code>, <code>invalid</code>, <code>missing</code>.",
+      "type": "string_t"
+    },
+    "size_gb": {
+      "caption": "Size (GB)",
+      "description": "Artifact size in gigabytes.",
+      "type": "float_t"
+    },
+    "source_domain_age_days": {
+      "caption": "Source Domain Age (days)",
+      "description": "Days since the source domain was registered (enrichment).",
+      "type": "integer_t"
+    },
+    "source_external": {
+      "caption": "Source External",
+      "description": "The data came from outside the organization.",
+      "type": "boolean_t"
+    },
+    "source_hub": {
+      "caption": "Source Hub",
+      "description": "Model or package hub the artifact came from. For example: <code>huggingface</code>, <code>pypi</code>.",
+      "type": "string_t"
+    },
+    "source_repo": {
+      "caption": "Source Repository",
+      "description": "Repository the artifact came from.",
+      "type": "string_t"
+    },
+    "source_system": {
+      "caption": "Source System",
+      "description": "System of record the content was retrieved from. For example: <code>sharepoint</code>, <code>confluence</code>.",
+      "type": "string_t"
+    },
+    "source_trust": {
+      "caption": "Source Trust",
+      "description": "Trust level of the record's source. For example: <code>trusted</code>, <code>untrusted</code>.",
+      "type": "string_t"
+    },
+    "source_type": {
+      "caption": "Source Type",
+      "description": "Kind of source the record came from. For example: <code>web</code>, <code>email</code>, <code>kb</code>.",
+      "type": "string_t"
+    },
+    "speaker_consent_on_file": {
+      "caption": "Speaker Consent On File",
+      "description": "Consent from the voice owner is on file for this synthesis request.",
+      "type": "boolean_t"
+    },
+    "speaker_is_protected_person": {
+      "caption": "Speaker Is Protected Person",
+      "description": "The target voice belongs to a protected person (executive, public figure).",
+      "type": "boolean_t"
+    },
+    "suffix_perplexity": {
+      "caption": "Suffix Perplexity",
+      "description": "Perplexity of the prompt suffix under a reference language model. High values indicate optimized adversarial suffixes.",
+      "type": "float_t"
+    },
+    "suffix_token_count": {
+      "caption": "Suffix Token Count",
+      "description": "Number of tokens in the high-perplexity prompt suffix.",
+      "type": "integer_t"
+    },
+    "suggested_by_llm": {
+      "caption": "Suggested By LLM",
+      "description": "The package was suggested by an AI coding assistant (slopsquatting indicator).",
+      "type": "boolean_t"
+    },
+    "target_category": {
+      "caption": "Target Category",
+      "description": "Category of the element a browsing agent clicked. For example: <code>link</code>, <code>file_download</code>, <code>oauth_consent</code>.",
+      "type": "string_t"
+    },
+    "target_environment": {
+      "caption": "Target Environment",
+      "description": "Environment the job's output is destined for.",
+      "type": "string_t"
+    },
+    "task": {
+      "caption": "Task",
+      "description": "Task requested from the model endpoint. For example: <code>classify</code>, <code>tts</code>, <code>voice_clone</code>.",
+      "type": "string_t"
+    },
+    "techniques": {
+      "caption": "ATLAS Techniques",
+      "description": "The MITRE ATLAS techniques mapped to the detection, each with its relationship to the behavior.",
+      "type": "atlas_technique",
+      "is_array": true
+    },
+    "tenant_mismatch": {
+      "caption": "Tenant Mismatch",
+      "description": "The record belongs to a different tenant than the caller.",
+      "type": "boolean_t"
+    },
+    "tier": {
+      "caption": "Model Tier",
+      "description": "Capability or pricing tier of the model. For example: <code>frontier</code>, <code>standard</code>, <code>mini</code>.",
+      "type": "string_t"
+    },
+    "tool_args": {
+      "caption": "Tool Arguments",
+      "description": "Arguments of the tool invocation, serialized as the agent runtime logged them.",
+      "type": "string_t"
+    },
+    "tool_category": {
+      "caption": "Tool Category",
+      "description": "Functional category of the tool. For example: <code>data_read</code>, <code>shell</code>, <code>browser</code>, <code>email</code>.",
+      "type": "string_t"
+    },
+    "tool_in_scope": {
+      "caption": "Tool In Scope",
+      "description": "The tool is in the agent's declared tool scope for this task.",
+      "type": "boolean_t"
+    },
+    "tool_name": {
+      "caption": "Tool Name",
+      "description": "Name of the tool, function or MCP tool the agent invoked or registered. For example: <code>shell.exec</code>, <code>payments.transfer</code>.",
+      "type": "string_t"
+    },
+    "tool_output": {
+      "caption": "Tool Output",
+      "description": "Output the tool returned to the agent.",
+      "type": "string_t"
+    },
+    "tool_risk": {
+      "caption": "Tool Risk",
+      "description": "Risk rating of the tool in the agent's tool registry. For example: <code>low</code>, <code>high</code>.",
+      "type": "string_t"
+    },
+    "top_k": {
+      "caption": "Top K",
+      "description": "Number of nearest neighbours requested by the vector query.",
+      "type": "integer_t"
+    },
+    "trigger_asr": {
+      "caption": "Trigger Attack Success Rate",
+      "description": "Attack success rate (0-1) of the strongest reconstructed backdoor trigger.",
+      "type": "float_t"
+    },
+    "trigger_detector_score": {
+      "caption": "Trigger Detector Score",
+      "description": "Score (0-1) from a backdoor-trigger detector on the input.",
+      "type": "float_t"
+    },
+    "typosquat_score": {
+      "caption": "Typosquat Score",
+      "description": "Score (0-1) that the package name typosquats a popular package.",
+      "type": "float_t"
+    },
+    "unsafe_opcode_count": {
+      "caption": "Unsafe Opcode Count",
+      "description": "Number of unsafe deserialization opcodes (for example pickle GLOBAL/REDUCE) found by the model scanner.",
+      "type": "integer_t"
+    },
+    "uploader_uid": {
+      "caption": "Uploader UID",
+      "description": "Identifier of the principal that uploaded the record.",
+      "type": "string_t"
+    },
+    "user_content": {
+      "caption": "User Content",
+      "description": "The end-user supplied portion of the prompt, separated from system and template text by the gateway.",
+      "type": "string_t"
+    },
+    "via_app_gateway": {
+      "caption": "Via App Gateway",
+      "description": "The request came through the application tier rather than directly to the model endpoint.",
+      "type": "boolean_t"
+    },
+    "workload_type": {
+      "caption": "Workload Type",
+      "description": "Kind of workload the artifact is deployed as. For example: <code>inference</code>, <code>training</code>, <code>agent</code>.",
+      "type": "string_t"
+    }
+  }
+}

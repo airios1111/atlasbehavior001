@@ -1,0 +1,23 @@
+{
+  "caption": "ATLAS Mapping",
+  "description": "The ATLAS Mapping object records the MITRE ATLAS tactics, techniques and mitigations of a detection, pinned to the ATLAS data version it was validated against. <code>technique</code> is the primary technique.",
+  "extends": "object",
+  "name": "atlas_mapping",
+  "attributes": {
+    "version": {
+      "requirement": "recommended"
+    },
+    "tactics": {
+      "requirement": "recommended"
+    },
+    "technique": {
+      "requirement": "required"
+    },
+    "techniques": {
+      "requirement": "required"
+    },
+    "mitigations": {
+      "requirement": "optional"
+    }
+  }
+}

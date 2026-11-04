@@ -1,0 +1,7 @@
+{
+  "caption": "ATLAS Behavior Map",
+  "description": "AI-security attributes for detecting adversarial activity against AI/ML systems and mapping it to MITRE ATLAS. Builds on the OCSF 1.8.0 ai_operation profile (ai_model, message_context) instead of redefining it.",
+  "name": "abm",
+  "uid": 900,
+  "version": "0.1.0"
+}

@@ -1,0 +1,27 @@
+{
+  "description": "abm patch: adds AI-security attributes to the core <code>api_activity</code> class.",
+  "extends": "api_activity",
+  "attributes": {
+    "ai_prompt": {
+      "requirement": "optional"
+    },
+    "ai_completion": {
+      "requirement": "optional"
+    },
+    "ai_guardrail": {
+      "requirement": "optional"
+    },
+    "ai_tool_call": {
+      "requirement": "optional"
+    },
+    "ai_artifact": {
+      "requirement": "optional"
+    },
+    "ai_inference": {
+      "requirement": "optional"
+    },
+    "ai_training": {
+      "requirement": "optional"
+    }
+  }
+}

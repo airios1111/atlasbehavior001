@@ -1,0 +1,15 @@
+{
+  "description": "abm patch: adds AI-security attributes to the core <code>detection_finding</code> class.",
+  "extends": "detection_finding",
+  "attributes": {
+    "atlas_mapping": {
+      "requirement": "recommended"
+    },
+    "response_plan": {
+      "requirement": "optional"
+    },
+    "ai_model": {
+      "requirement": "optional"
+    }
+  }
+}

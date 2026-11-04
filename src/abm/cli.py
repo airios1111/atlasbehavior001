@@ -14,6 +14,8 @@ from abm.compilers import TARGETS
 from abm.coverage import SCORE_LABEL, compute, gaps, write_reports
 from abm.engine import Engine, load_events, run_tests
 from abm.loader import find_root, load_behaviors
+from abm.ocsf import SOURCES as OCSF_SOURCES
+from abm.ocsf import OcsfMappingError, normalize, read_ocsf, to_detection_finding
 from abm.response import DryRunExecutor, WebhookExecutor, XsoarExecutor, plan, run_plan
 from abm.validator import validate
 
@@ -146,11 +148,47 @@ def _executor(args):
     return WebhookExecutor(args.webhook) if args.webhook else DryRunExecutor()
 
 
+def _ocsf_schema(root: Path):
+    from abm.ocsf_schema import OcsfSchema  # only needed with --validate-ocsf
+
+    try:
+        return OcsfSchema.load(root)
+    except OSError as e:
+        raise ValueError(f"cannot load OCSF schema files under {root}/schemas/ocsf: {e}") from e
+
+
+def _load_replay_events(args, schema) -> tuple[list[dict], int]:
+    """Returns (normalized events, number of OCSF validation errors in the input)."""
+    path = Path(args.fixture)
+    if args.input_format == "native":
+        return load_events(path), 0
+    try:
+        raw = read_ocsf(path)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"{path}: invalid JSON: {e}") from e
+    events, invalid = [], 0
+    for i, ev in enumerate(raw, 1):
+        if schema is not None:
+            for err in schema.validate_event(ev):
+                invalid += 1
+                print(f"[OCSF   ] {path.name} event {i}: {err}", file=sys.stderr)
+        try:
+            events.append(normalize(ev, args.ocsf_source))
+        except OcsfMappingError as e:
+            raise OcsfMappingError(f"{path}: event {i}: {e}") from e
+    return events, invalid
+
+
 def cmd_replay(args) -> int:
     root, catalog = _ctx(args)
     res = _behaviors(root, None)
     bs = [b for b in res.behaviors if not args.behavior or b.id == args.behavior]
-    events = load_events(Path(args.fixture))
+    try:
+        schema = _ocsf_schema(root) if args.validate_ocsf else None
+        events, invalid = _load_replay_events(args, schema)
+    except (OcsfMappingError, ValueError) as e:
+        print(f"replay: {e}", file=sys.stderr)
+        return 2
     alerts = Engine(bs, catalog).run(events)
     try:
         executor = _executor(args)
@@ -159,11 +197,24 @@ def cmd_replay(args) -> int:
         return 2
     by_id = {b.id: b for b in bs}
     for a in alerts:
-        rec = a.to_dict()
-        if executor:
-            rec["response"] = [vars(p) for p in run_plan(executor, a, plan(by_id[a.behavior_id], a))]
+        actions = run_plan(executor, a, plan(by_id[a.behavior_id], a)) if executor else None
+        if args.output_format == "ocsf":
+            rec = to_detection_finding(a, by_id[a.behavior_id], catalog, response=actions,
+                                       atlas_in_attacks=args.ocsf_atlas_in_attacks)
+            for err in schema.validate_event(rec) if schema is not None else []:
+                invalid += 1
+                print(f"[OCSF   ] finding {a.behavior_id}: {err}", file=sys.stderr)
+        else:
+            rec = a.to_dict()
+            if actions is not None:
+                rec["response"] = [vars(p) for p in actions]
         print(json.dumps(rec))
-    print(f"# {len(alerts)} alert(s) from {len(events)} event(s)", file=sys.stderr)
+    fmt = "" if args.input_format == args.output_format == "native" else \
+        f" ({args.input_format} -> {args.output_format})"
+    print(f"# {len(alerts)} alert(s) from {len(events)} event(s){fmt}", file=sys.stderr)
+    if invalid:
+        print(f"# {invalid} OCSF validation error(s)", file=sys.stderr)
+        return 2
     if args.expect:
         ok = (len(alerts) > 0) == (args.expect == "alert")
         print(f"# expect={args.expect}: {'PASS' if ok else 'FAIL'}", file=sys.stderr)
@@ -248,6 +299,17 @@ def build_parser() -> argparse.ArgumentParser:
                    help="create a Cortex XSOAR incident per alert (implies --respond); "
                         "reads XSOAR_API_KEY and, for XSOAR 8, XSOAR_API_KEY_ID from the environment")
     s.add_argument("--xsoar-incident-type", default="AI Security Alert", help="XSOAR incident type")
+    s.add_argument("--input-format", choices=["native", "ocsf"], default="native",
+                   help="native: normalized JSONL (default); ocsf: OCSF 1.8.0 events (JSONL or JSON array)")
+    s.add_argument("--output-format", choices=["native", "ocsf"], default="native",
+                   help="native: abm alert JSON (default); ocsf: OCSF Detection Finding per alert")
+    s.add_argument("--ocsf-source", choices=sorted(OCSF_SOURCES),
+                   help="force the source mapping for OCSF input (default: metadata.log_name, "
+                        "else best match on the event's attributes)")
+    s.add_argument("--ocsf-atlas-in-attacks", action="store_true",
+                   help="also list ATLAS techniques in the finding's attacks[] (ATT&CK bridge only by default)")
+    s.add_argument("--validate-ocsf", action="store_true",
+                   help="check OCSF input and output against the vendored OCSF 1.8.0 schema + abm extension")
     s.set_defaults(fn=cmd_replay)
 
     s = sub.add_parser("test", help="run every behavior's declared fixture tests")

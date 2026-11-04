@@ -1,0 +1,434 @@
+ATLAS Behavior Map - branch2 verification: OCSF AI-event mapping
+abm 0.1.0 | OCSF 1.8.0 | extension abm 0.1.0
+[PASS] 143 behaviors load without errors
+
+==============================================================================
+1. Branch file inventory (sha256 over LF-normalized content)
+==============================================================================
+8aeec390487a9b598c1301259d339fc433dc53fb0742c15dcb6f2f8d63703bf0  src/abm/ocsf.py
+5d885034e2211b9c8fdc185186b46fee7143b652e326efdc0e011b4fb1c72ef5  src/abm/ocsf_schema.py
+c26d14ad2b44b18d24fd09c0997bb4c68295fd3b6d30f44bfb49cf5cf11fd5b9  src/abm/cli.py
+2181cb7b28dc1da0a4b9da132af12fc104ecb7518ef45300a897501300bffa5f  tests/test_ocsf.py
+8498c37e701c3a297922a11bc019ee4c316155802789f17d4135eb5a420e7c1c  scripts/gen_ocsf_fixtures.py
+ab9f687b5ca3852863b2116c84d71b535e8ca19b0cc78e4884b900c411b0f95c  scripts/gen_ocsf_mapping_doc.py
+ebe733f9356ad57fc0c5e8d9d986596cd418f8bf18ef251c3c22eaf0a442082f  scripts/ocsf_vendor_base.py
+3150d6e4e3ce27f010cecc0359bf4c5cb6bc9effe27c5b616c840b67f0108752  scripts/ocsf_check_upstream.py
+0c105bab65d2369d4e251cacd2f982e3557861d1830c992909e0e4b20c3e8c32  scripts/verify_branch2.py
+d792f8bfbd30f5f37db30594ccb455d70b05cec5e0762b13fa178b622b75dc44  scripts/verify_branch2.ps1
+6497519534a7ccc1d53d20cf06af42f60699bb85d1b3ccebfceed811253293b4  scripts/verify_branch2.sh
+f739c809d1491f7ef248e228273235313bfa702fb70332f880d826b8eafd5f7b  docs/ocsf.md
+513447d620b446d6e4262be1f14fd48cbdb3bb219852531a61a9e0564fc74903  docs/ocsf-mapping.md
+553d3c2f8378305d153e87c98dbcf113d7d6f55fe76f3906bb21265ed4e761d7  docs/branches/branch2-ocsf-ai-event-mapping.md
+c400ba9c90ba0ce010b79ae24c9e50199622acff15f0633c9cc9e661f991bc49  README.md
+948b01928fe72fd5376c2de31dae42b99025585a9112a8c4b04636cdf3ea3e31  Makefile
+56224078ef804ac63acd7e6a15362c68c830d5f3b53daf1f7e091ea080de6f01  .github/workflows/ci.yml
+0fe899440e481aa741cf07a9430bdc7c898f95dc452739f6f9beccc4455bccae  .gitattributes
+cc0f4c0a955d4abf599b7a473ff22a1a676e46d24bc8784f703871690c4d0120  schemas/ocsf/README.md
+47308216b856aa65fc5048999514241e6af72f7e6e0947fdeb605908bc1d8c08  schemas/ocsf/abm-extension/dictionary.json
+4923e2f565b6a6edcc91cbe41a999793d086ed67df930f2983daf6e12c430610  schemas/ocsf/abm-extension/events/application/api_activity.json
+9d272e29d1cad5ef046764c64fd4b74581c903ccf9c6d5d419f084677b6cb7f3  schemas/ocsf/abm-extension/events/application/datastore_activity.json
+53fe188ad13133b6e5da5818580293747aa424ff8af0a6c7f312ae1ee9b34324  schemas/ocsf/abm-extension/events/findings/detection_finding.json
+1bf87c12f76e4cd800b6ebe332de36ffab99c97dc23d9a2922165879393e7779  schemas/ocsf/abm-extension/events/network/http_activity.json
+8a5f75ffab4688e65e48e008d554c8fb824236c95692aa867c93212bbe2e63a1  schemas/ocsf/abm-extension/extension.json
+7e8998f0f36dd12dc371f02e961c64be7626953aea31ad23dc5c09303fc88847  schemas/ocsf/abm-extension/objects/ai_artifact.json
+cf423796927e94653c315842385fd97247eb319ddbdefb2f3601b49b6400d7a7  schemas/ocsf/abm-extension/objects/ai_completion.json
+0dd16f411a020a812a936e7244c920bb0c21aa2a2da9d2bb64714d2053d3397c  schemas/ocsf/abm-extension/objects/ai_context_record.json
+3801622f83b466cbb315fb2d24f4451daf777e2b76963926950aa1d294f3798e  schemas/ocsf/abm-extension/objects/ai_guardrail.json
+0bf80d3c921ef92da22d74fdce2531cd9ff988726779ac4ee8a84cb0d13e91c2  schemas/ocsf/abm-extension/objects/ai_inference.json
+6cb8f46379278254cfe49e3099a2f81cd39707b28de378df8a65ce827fac3695  schemas/ocsf/abm-extension/objects/ai_model.json
+f288af366a7a3eb1f0e27441ac7d1182759a9cfd5a39c6e7ee6ad4a90b68fca8  schemas/ocsf/abm-extension/objects/ai_prompt.json
+847bb9880353e50e6c35df47699e2eb28c26ed13fd1bd5e3dda6538cb399a889  schemas/ocsf/abm-extension/objects/ai_response_action.json
+92f43377341bbb8dfae950d4fcfdfd8294e73f8310c5a2a43f63fa8c7f23d258  schemas/ocsf/abm-extension/objects/ai_tool_call.json
+0074288a581f3173209583f8b63e2d321e904aecbbabab7a4261c239b79e77c8  schemas/ocsf/abm-extension/objects/ai_training.json
+3fc209b0b2acb7e4a690756a5cf0dfade69a37d597b264104c5ad7ac8bf0d519  schemas/ocsf/abm-extension/objects/atlas_mapping.json
+ea7be1195f35358633486797bff1661d2b05d38da7dc26bc035cfaeff38263ae  schemas/ocsf/abm-extension/objects/atlas_technique.json
+a30c64b7cbec069319c22502a126941f144ce2696ddc841b008b47f677c59855  schemas/ocsf/abm-extension/objects/message_context.json
+c57a86f027d7b1cbf19305036209b7482dfb551de44f6de63c87c814b2a28387  schemas/ocsf/base/NOTICE
+6b026a5a14c8ce8128c111afa3b74f6bebd5808d551ba060361c3ca84a13a7eb  schemas/ocsf/base/ocsf-1.8.0-subset.json
+2abd897c09eb0379c9dcf3bad38676502ea446d52157f3347c7bc81a333fa3d0  tests/fixtures/ocsf/MANIFEST.json
+3cff5afb54fc483d85e841fe9fc48df9b93f1e661598cb9239feb1c04d88e8a1  tests/fixtures/ocsf/agent_memory.ocsf.jsonl
+e359d3f1e8befd09bd3a8b4ab3de925f9456976814aab5cd06e15e0f43fba579  tests/fixtures/ocsf/agent_runtime.ocsf.jsonl
+26ce81f27995d5addac4177ad623f85c2165f0bfb6d6da3462790e631f3469e7  tests/fixtures/ocsf/cloud_audit.ocsf.jsonl
+a2f9972991d79f4d0227ad8b17bb76dcb20a0bfbffc5cade1f460eed5cd80145  tests/fixtures/ocsf/identity.ocsf.jsonl
+099f78198864e0110d3ff2aa800b8bc040f11c0048fdefd9afe69e30a35cb4e7  tests/fixtures/ocsf/inference_gateway.http.ocsf.jsonl
+fa2aade88c909bdf2b6c9895b4db201ccf2ac101a42c62eb9f5584db4b384784  tests/fixtures/ocsf/inference_gateway.ocsf.jsonl
+39dc1128d286c9828f4a6d2e216a228d6ae11d991fc4786bcefbb19d8ca47a06  tests/fixtures/ocsf/llm_gateway.ocsf.jsonl
+0894b730de165b73670c74af26ff9c365f937c0007f5019381bfd9366cc51478  tests/fixtures/ocsf/llm_retrieval.ocsf.jsonl
+a0d064b15833eee38cd900473a71f92fa52ac61cb56db8a960144a580253a17a  tests/fixtures/ocsf/mcp_gateway.ocsf.jsonl
+87dcc9d61881f3053c8d0adf3acb49750334fa7b2521c0efea500452f51829fc  tests/fixtures/ocsf/ml_workspace.ocsf.jsonl
+525e479bc1b228b795d5f0ace354d7633664e56035a25f923bfaa14f5eb6ee7b  tests/fixtures/ocsf/model_registry.ocsf.jsonl
+b67803bd0da77e1b80b4a92b3c45a4da7ac8358de87a48cb5777dc210a240565  tests/fixtures/ocsf/training_pipeline.ocsf.jsonl
+3ff21887d4c0ef6a4d561a22732bcf93a4e8d85b9d11840d983820a34917a211  tests/fixtures/ocsf/vector_store.ocsf.jsonl
+
+==============================================================================
+2. OCSF base + abm extension
+==============================================================================
+OCSF base version      : 1.8.0
+OCSF base export sha256: 221b43d05787aa68d03233589f0eabdab192531d3e4740b856b2e0a4d6d91f82
+abm extension          : abm uid=900 version=0.1.0
+core ai_operation profile present: True
+core ai_model attributes         : ['ai_provider', 'name', 'uid', 'version']
+core message_context attributes  : ['ai_role', 'ai_role_id', 'application', 'completion_tokens', 'name', 'prompt_tokens', 'service', 'total_tokens', 'uid']
+extension dictionary attributes  : 143
+extension new objects            : ['ai_artifact', 'ai_completion', 'ai_context_record', 'ai_guardrail', 'ai_inference', 'ai_prompt', 'ai_response_action', 'ai_tool_call', 'ai_training', 'atlas_mapping', 'atlas_technique']
+extension patches                : ['class:api_activity', 'class:datastore_activity', 'class:detection_finding', 'class:http_activity', 'object:ai_model', 'object:message_context']
+[PASS] extension self-check (no redefined core names, all references resolve)
+[PASS] vendored base matches OCSF_VERSION 1.8.0
+
+==============================================================================
+3. Inbound mapping tables (all 12 KQL_TABLES sources)
+==============================================================================
+[PASS] SOURCES == KQL_TABLES (12 sources)
+source             class                        fields  core   abm unmap alias
+llm_gateway        6003/4002                        40    14    25     1     0
+inference_gateway  6003/4002                        35    11    24     0     0
+llm_retrieval      6005                             16     4    12     0     0
+vector_store       6005                             10     3     7     0     0
+agent_memory       6005                              6     4     2     0     0
+agent_runtime      6003                             31     8    23     0     0
+mcp_gateway        6003                             13     4     9     0     0
+model_registry     6003                             21     3    18     0     0
+ml_workspace       6003                             10     3     7     0     0
+training_pipeline  6003                             20     2    18     0     0
+cloud_audit        6003                             10     5     3     2     0
+identity           3002                             13    10     0     2     1
+TOTAL                                              225    71   148     5     1
+[PASS] every mapping path resolves in OCSF 1.8.0 + abm extension
+[PASS] every field declared in behavior telemetry has an OCSF path
+
+==============================================================================
+4. OCSF fixtures: validity, normalization, same alerts as native JSONL
+==============================================================================
+[PASS] one OCSF fixture per source
+- agent_memory.ocsf.jsonl  source=agent_memory class=6005 events=1 native=tests/fixtures/pack/po006_attack.jsonl
+[PASS] agent_memory.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] agent_memory.ocsf.jsonl: source detected without log_name -> ['agent_memory']
+[PASS] agent_memory.ocsf.jsonl: normalize() == native events
+[PASS] agent_memory.ocsf.jsonl: alerts ['BHV-PO-006'] == native ['BHV-PO-006'] (expects BHV-PO-006)
+- agent_runtime.ocsf.jsonl  source=agent_runtime class=6003 events=2 native=tests/fixtures/ag_out_of_scope.jsonl
+[PASS] agent_runtime.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] agent_runtime.ocsf.jsonl: source detected without log_name -> ['agent_runtime']
+[PASS] agent_runtime.ocsf.jsonl: normalize() == native events
+[PASS] agent_runtime.ocsf.jsonl: alerts ['BHV-AG-001'] == native ['BHV-AG-001'] (expects BHV-AG-001)
+- cloud_audit.ocsf.jsonl  source=cloud_audit class=6003 events=1 native=tests/fixtures/pack/col004_attack.jsonl
+[PASS] cloud_audit.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] cloud_audit.ocsf.jsonl: source detected without log_name -> ['cloud_audit']
+[PASS] cloud_audit.ocsf.jsonl: normalize() == native events
+[PASS] cloud_audit.ocsf.jsonl: alerts ['BHV-COL-004'] == native ['BHV-COL-004'] (expects BHV-COL-004)
+- identity.ocsf.jsonl  source=identity class=3002 events=2 native=tests/fixtures/pack/lm002_attack.jsonl
+[PASS] identity.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] identity.ocsf.jsonl: source detected without log_name -> ['identity']
+[PASS] identity.ocsf.jsonl: normalize() == native events
+[PASS] identity.ocsf.jsonl: alerts ['BHV-LM-002'] == native ['BHV-LM-002'] (expects BHV-LM-002)
+- inference_gateway.http.ocsf.jsonl  source=inference_gateway class=4002 events=1 native=tests/fixtures/ev_adversarial_attack.jsonl
+[PASS] inference_gateway.http.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] inference_gateway.http.ocsf.jsonl: source detected without log_name -> ['inference_gateway']
+[PASS] inference_gateway.http.ocsf.jsonl: normalize() == native events
+[PASS] inference_gateway.http.ocsf.jsonl: alerts ['BHV-EV-001'] == native ['BHV-EV-001'] (expects BHV-EV-001)
+- inference_gateway.ocsf.jsonl  source=inference_gateway class=6003 events=1 native=tests/fixtures/ev_adversarial_attack.jsonl
+[PASS] inference_gateway.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] inference_gateway.ocsf.jsonl: source detected without log_name -> ['inference_gateway']
+[PASS] inference_gateway.ocsf.jsonl: normalize() == native events
+[PASS] inference_gateway.ocsf.jsonl: alerts ['BHV-EV-001'] == native ['BHV-EV-001'] (expects BHV-EV-001)
+- llm_gateway.ocsf.jsonl  source=llm_gateway class=6003 events=2 native=tests/fixtures/pi_direct_attack.jsonl
+[PASS] llm_gateway.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] llm_gateway.ocsf.jsonl: source detected without log_name -> ['llm_gateway']
+[PASS] llm_gateway.ocsf.jsonl: normalize() == native events
+[PASS] llm_gateway.ocsf.jsonl: alerts ['BHV-LK-003', 'BHV-PI-001'] == native ['BHV-LK-003', 'BHV-PI-001'] (expects BHV-PI-001)
+- llm_retrieval.ocsf.jsonl  source=llm_retrieval class=6005 events=1 native=tests/fixtures/pi_indirect_attack.jsonl
+[PASS] llm_retrieval.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] llm_retrieval.ocsf.jsonl: source detected without log_name -> ['llm_retrieval']
+[PASS] llm_retrieval.ocsf.jsonl: normalize() == native events
+[PASS] llm_retrieval.ocsf.jsonl: alerts ['BHV-PI-002'] == native ['BHV-PI-002'] (expects BHV-PI-002)
+- mcp_gateway.ocsf.jsonl  source=mcp_gateway class=6003 events=1 native=tests/fixtures/pack/lm001_attack.jsonl
+[PASS] mcp_gateway.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] mcp_gateway.ocsf.jsonl: source detected without log_name -> ['mcp_gateway']
+[PASS] mcp_gateway.ocsf.jsonl: normalize() == native events
+[PASS] mcp_gateway.ocsf.jsonl: alerts ['BHV-LM-001'] == native ['BHV-LM-001'] (expects BHV-LM-001)
+- ml_workspace.ocsf.jsonl  source=ml_workspace class=6003 events=1 native=tests/fixtures/pack/sc004_attack.jsonl
+[PASS] ml_workspace.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] ml_workspace.ocsf.jsonl: source detected without log_name -> ['ml_workspace']
+[PASS] ml_workspace.ocsf.jsonl: normalize() == native events
+[PASS] ml_workspace.ocsf.jsonl: alerts ['BHV-SC-004'] == native ['BHV-SC-004'] (expects BHV-SC-004)
+- model_registry.ocsf.jsonl  source=model_registry class=6003 events=1 native=tests/fixtures/sc_unsigned_load.jsonl
+[PASS] model_registry.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] model_registry.ocsf.jsonl: source detected without log_name -> ['model_registry']
+[PASS] model_registry.ocsf.jsonl: normalize() == native events
+[PASS] model_registry.ocsf.jsonl: alerts ['BHV-SC-001'] == native ['BHV-SC-001'] (expects BHV-SC-001)
+- training_pipeline.ocsf.jsonl  source=training_pipeline class=6003 events=1 native=tests/fixtures/po_drift_attack.jsonl
+[PASS] training_pipeline.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] training_pipeline.ocsf.jsonl: source detected without log_name -> ['training_pipeline']
+[PASS] training_pipeline.ocsf.jsonl: normalize() == native events
+[PASS] training_pipeline.ocsf.jsonl: alerts ['BHV-PO-001'] == native ['BHV-PO-001'] (expects BHV-PO-001)
+- vector_store.ocsf.jsonl  source=vector_store class=6005 events=1 native=tests/fixtures/pack/po004_attack.jsonl
+[PASS] vector_store.ocsf.jsonl: valid OCSF 1.8.0 + abm
+[PASS] vector_store.ocsf.jsonl: source detected without log_name -> ['vector_store']
+[PASS] vector_store.ocsf.jsonl: normalize() == native events
+[PASS] vector_store.ocsf.jsonl: alerts ['BHV-PO-004'] == native ['BHV-PO-004'] (expects BHV-PO-004)
+
+==============================================================================
+5. Full corpus round trip: native -> OCSF -> normalized, every behavior fixture
+==============================================================================
+[PASS] 143 behaviors, 284 fixtures, 29290 events: identical alerts, test expectations hold
+
+==============================================================================
+6. CLI (abm replay --input-format / --output-format ocsf)
+==============================================================================
+[PASS] `abm` entry point installed
+$ abm replay --fixture tests/fixtures/ocsf/agent_memory.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] agent_memory.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/pack/po006_attack.jsonl
+[PASS] agent_memory.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0080.000']
+$ abm replay --fixture tests/fixtures/ocsf/agent_runtime.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 2 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] agent_runtime.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/ag_out_of_scope.jsonl
+[PASS] agent_runtime.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0053']
+$ abm replay --fixture tests/fixtures/ocsf/cloud_audit.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] cloud_audit.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/pack/col004_attack.jsonl
+[PASS] cloud_audit.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0085']
+$ abm replay --fixture tests/fixtures/ocsf/identity.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 2 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] identity.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/pack/lm002_attack.jsonl
+[PASS] identity.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0091.000']
+$ abm replay --fixture tests/fixtures/ocsf/inference_gateway.http.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] inference_gateway.http.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/ev_adversarial_attack.jsonl
+[PASS] inference_gateway.http.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0015']
+$ abm replay --fixture tests/fixtures/ocsf/inference_gateway.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] inference_gateway.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/ev_adversarial_attack.jsonl
+[PASS] inference_gateway.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0015']
+$ abm replay --fixture tests/fixtures/ocsf/llm_gateway.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 2 alert(s) from 2 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] llm_gateway.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/pi_direct_attack.jsonl
+[PASS] llm_gateway.ocsf.jsonl: 2 Detection Finding(s), valid OCSF, ATLAS ['AML.T0069.002', 'AML.T0051.000']
+$ abm replay --fixture tests/fixtures/ocsf/llm_retrieval.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] llm_retrieval.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/pi_indirect_attack.jsonl
+[PASS] llm_retrieval.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0051.001']
+$ abm replay --fixture tests/fixtures/ocsf/mcp_gateway.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] mcp_gateway.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/pack/lm001_attack.jsonl
+[PASS] mcp_gateway.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0091.000']
+$ abm replay --fixture tests/fixtures/ocsf/ml_workspace.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] ml_workspace.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/pack/sc004_attack.jsonl
+[PASS] ml_workspace.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0011.001']
+$ abm replay --fixture tests/fixtures/ocsf/model_registry.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] model_registry.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/sc_unsigned_load.jsonl
+[PASS] model_registry.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0010.003']
+$ abm replay --fixture tests/fixtures/ocsf/training_pipeline.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] training_pipeline.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/po_drift_attack.jsonl
+[PASS] training_pipeline.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0020']
+$ abm replay --fixture tests/fixtures/ocsf/vector_store.ocsf.jsonl --input-format ocsf --validate-ocsf --expect alert
+    # 1 alert(s) from 1 event(s) (ocsf -> native)
+    # expect=alert: PASS
+[PASS] vector_store.ocsf.jsonl: exit 0, stdout == native replay of tests/fixtures/pack/po004_attack.jsonl
+[PASS] vector_store.ocsf.jsonl: 1 Detection Finding(s), valid OCSF, ATLAS ['AML.T0070']
+$ abm replay --fixture tests/fixtures/extraction_burst.jsonl --output-format ocsf --validate-ocsf --expect alert
+    # 6 alert(s) from 5200 event(s) (native -> ocsf)
+    # expect=alert: PASS
+[PASS] native input -> OCSF output
+
+==============================================================================
+7. Generated files are current
+==============================================================================
+$ python scripts/gen_ocsf_fixtures.py --check
+    OCSF fixtures up to date
+[PASS] gen_ocsf_fixtures.py --check
+$ python scripts/gen_ocsf_mapping_doc.py --check
+    docs/ocsf-mapping.md up to date
+[PASS] gen_ocsf_mapping_doc.py --check
+
+==============================================================================
+8. abm validate --run-tests / abm test
+==============================================================================
+    143 behavior(s), 0 error(s), 0 warning(s)
+[PASS] abm validate --run-tests
+    284/284 passed
+[PASS] abm test
+
+==============================================================================
+9. pytest (per-test outcome, sorted)
+==============================================================================
+PASSED  tests/test_compilers_coverage.py::test_atlas_data_import_parses_matrix_layout
+PASSED  tests/test_compilers_coverage.py::test_coverage_scores
+PASSED  tests/test_compilers_coverage.py::test_drift_detected_against_catalog_without_technique
+PASSED  tests/test_compilers_coverage.py::test_every_behavior_compiles_to_every_target
+PASSED  tests/test_compilers_coverage.py::test_every_tactic_has_a_declared_detection
+PASSED  tests/test_compilers_coverage.py::test_kql_threshold_shape
+PASSED  tests/test_compilers_coverage.py::test_navigator_layer
+PASSED  tests/test_compilers_coverage.py::test_precondition_refs_do_not_count
+PASSED  tests/test_compilers_coverage.py::test_readme_coverage_table_matches_behaviors
+PASSED  tests/test_compilers_coverage.py::test_seed_repo_validates_clean
+PASSED  tests/test_compilers_coverage.py::test_sigma_is_valid_yaml_with_atlas_tags
+PASSED  tests/test_engine.py::test_all_declared_fixture_tests_pass
+PASSED  tests/test_engine.py::test_allowlist_filter_suppresses
+PASSED  tests/test_engine.py::test_extraction_alert_context_and_metrics
+PASSED  tests/test_engine.py::test_match_value[5-spec4-True]
+PASSED  tests/test_engine.py::test_match_value[5-spec6-False]
+PASSED  tests/test_engine.py::test_match_value[None-spec3-False]
+PASSED  tests/test_engine.py::test_match_value[a-a-True]
+PASSED  tests/test_engine.py::test_match_value[a-spec1-True]
+PASSED  tests/test_engine.py::test_match_value[abc-spec5-True]
+PASSED  tests/test_engine.py::test_match_value[c-spec2-True]
+PASSED  tests/test_engine.py::test_response_plan_templating_and_gating
+PASSED  tests/test_engine.py::test_untrusted_scope_filter
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-C2-001]
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-CA-001]
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-COL-001]
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-LM-001]
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-MA-001]
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-RC-001]
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-RD-001]
+PASSED  tests/test_models.py::test_cli_reports_invalid_detection_and_continues[detection0-invalid signature regex]
+PASSED  tests/test_models.py::test_cli_reports_invalid_detection_and_continues[detection1-window must be greater than zero]
+PASSED  tests/test_models.py::test_condition_and_metric_parsing
+PASSED  tests/test_models.py::test_invalid_signature_is_a_validation_error[(]
+PASSED  tests/test_models.py::test_invalid_signature_is_a_validation_error[[unterminated]
+PASSED  tests/test_models.py::test_minimal_valid
+PASSED  tests/test_models.py::test_positive_threshold_windows_remain_valid[15m-900]
+PASSED  tests/test_models.py::test_positive_threshold_windows_remain_valid[1h-3600]
+PASSED  tests/test_models.py::test_positive_threshold_windows_remain_valid[1s-1]
+PASSED  tests/test_models.py::test_positive_threshold_windows_remain_valid[2d-172800]
+PASSED  tests/test_models.py::test_rejects_bad_atlas_ids
+PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-C2-01]
+PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-CO-001]
+PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-PI-1]
+PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-XX-001]
+PASSED  tests/test_models.py::test_rejects_bad_behavior_id[PI-001]
+PASSED  tests/test_models.py::test_requires_primary_technique
+PASSED  tests/test_models.py::test_stable_requires_positive_and_negative_tests
+PASSED  tests/test_models.py::test_threshold_condition_must_reference_metric
+PASSED  tests/test_models.py::test_threshold_window_must_be_positive[00h]
+PASSED  tests/test_models.py::test_threshold_window_must_be_positive[0d]
+PASSED  tests/test_models.py::test_threshold_window_must_be_positive[0h]
+PASSED  tests/test_models.py::test_threshold_window_must_be_positive[0m]
+PASSED  tests/test_models.py::test_threshold_window_must_be_positive[0s]
+PASSED  tests/test_models.py::test_unknown_field_rejected
+PASSED  tests/test_ocsf.py::test_atlas_in_attacks_is_opt_in
+PASSED  tests/test_ocsf.py::test_base_schema_is_the_pinned_ocsf_release
+PASSED  tests/test_ocsf.py::test_boolean_stored_as_ocsf_enum
+PASSED  tests/test_ocsf.py::test_cli_ocsf_input_matches_native_input[identity.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_cli_ocsf_input_matches_native_input[inference_gateway.http.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_cli_ocsf_input_matches_native_input[llm_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_cli_ocsf_output_is_valid
+PASSED  tests/test_ocsf.py::test_cli_rejects_unmappable_and_invalid_ocsf
+PASSED  tests/test_ocsf.py::test_core_ai_objects_carry_model_session_and_tokens
+PASSED  tests/test_ocsf.py::test_detection_finding_is_valid_and_carries_atlas_in_the_extension
+PASSED  tests/test_ocsf.py::test_every_behavior_fixture_round_trips_through_ocsf
+PASSED  tests/test_ocsf.py::test_every_declared_telemetry_field_has_an_ocsf_home
+PASSED  tests/test_ocsf.py::test_extension_extends_the_core_ai_objects_instead_of_redefining_them
+PASSED  tests/test_ocsf.py::test_extension_is_internally_consistent
+PASSED  tests/test_ocsf.py::test_finding_round_trips_to_the_alert
+PASSED  tests/test_ocsf.py::test_finding_with_response_plan_and_minimal_inputs
+PASSED  tests/test_ocsf.py::test_json_array_input
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[agent_memory]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[agent_runtime]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[cloud_audit]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[identity]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[inference_gateway]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[llm_gateway]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[llm_retrieval]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[mcp_gateway]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[ml_workspace]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[model_registry]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[training_pipeline]
+PASSED  tests/test_ocsf.py::test_mapping_paths_resolve_in_ocsf_plus_extension[vector_store]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[agent_memory.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[agent_runtime.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[cloud_audit.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[identity.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[inference_gateway.http.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[inference_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[llm_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[llm_retrieval.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[mcp_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[ml_workspace.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[model_registry.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[training_pipeline.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_is_valid_ocsf[vector_store.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[agent_memory.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[agent_runtime.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[cloud_audit.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[identity.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[inference_gateway.http.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[inference_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[llm_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[llm_retrieval.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[mcp_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[ml_workspace.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[model_registry.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[training_pipeline.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_normalizes_to_the_native_fixture[vector_store.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[agent_memory.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[agent_runtime.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[cloud_audit.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[identity.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[inference_gateway.http.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[inference_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[llm_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[llm_retrieval.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[mcp_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[ml_workspace.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[model_registry.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[training_pipeline.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixture_raises_the_same_alert_as_the_native_fixture[vector_store.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_ocsf_fixtures_are_current
+PASSED  tests/test_ocsf.py::test_one_ocsf_fixture_per_source
+PASSED  tests/test_ocsf.py::test_placeholders_are_not_read_back
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[agent_memory.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[agent_runtime.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[cloud_audit.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[identity.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[inference_gateway.http.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[inference_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[llm_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[llm_retrieval.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[mcp_gateway.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[ml_workspace.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[model_registry.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[training_pipeline.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_is_detected_without_log_name[vector_store.ocsf.jsonl]
+PASSED  tests/test_ocsf.py::test_source_override_and_unknown_class
+PASSED  tests/test_ocsf.py::test_sources_cover_every_siem_table
+PASSED  tests/test_ocsf.py::test_time_only_ocsf_events_raise_the_same_alerts
+PASSED  tests/test_ocsf.py::test_unmapped_and_null_fields
+PASSED  tests/test_tutorial.py::test_tutorial_behaviors_validate_and_pass_fixtures
+PASSED  tests/test_tutorial.py::test_tutorial_mixed_traffic_replay
+PASSED  tests/test_xsoar.py::test_cli_replay_to_xsoar_reads_key_from_env
+PASSED  tests/test_xsoar.py::test_cli_replay_to_xsoar_without_key_fails_cleanly
+PASSED  tests/test_xsoar.py::test_http_failure_marks_actions_failed
+PASSED  tests/test_xsoar.py::test_one_incident_per_alert_and_statuses
+PASSED  tests/test_xsoar.py::test_payload_carries_atlas_context_and_plan
+PASSED  tests/test_xsoar.py::test_rejects_plain_http_and_missing_key
+PASSED  tests/test_xsoar.py::test_xsoar6_vs_xsoar8_endpoints_and_headers
+summary: 152 passed, 0 failed, 0 errors, 0 skipped
+[PASS] pytest
+
+==============================================================================
+10. ruff check src tests
+==============================================================================
+    All checks passed!
+[PASS] ruff check src tests
+
+==============================================================================
+RESULT
+==============================================================================
+checks failed: 0
+OVERALL: PASS

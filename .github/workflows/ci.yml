@@ -23,6 +23,9 @@ jobs:
       - run: ruff check src tests
       - run: abm validate --run-tests
       - run: pytest -q
+      - run: python scripts/gen_ocsf_fixtures.py --check
+      - run: python scripts/gen_ocsf_mapping_doc.py --check
+      - run: abm replay --fixture tests/fixtures/ocsf/llm_gateway.ocsf.jsonl --input-format ocsf --output-format ocsf --validate-ocsf --expect alert
       - run: abm compile --target all
       - run: abm coverage
       - uses: actions/upload-artifact@v4

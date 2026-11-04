@@ -1,0 +1,77 @@
+{
+  "caption": "AI Artifact",
+  "description": "The AI Artifact object describes a model, dataset, package or container image that an AI system consumes or produces, with its provenance, integrity and scan results.",
+  "extends": "object",
+  "name": "ai_artifact",
+  "attributes": {
+    "uid": {
+      "requirement": "recommended"
+    },
+    "name": {
+      "requirement": "recommended"
+    },
+    "artifact_type": {
+      "requirement": "optional"
+    },
+    "classification": {
+      "requirement": "optional"
+    },
+    "environment": {
+      "requirement": "optional"
+    },
+    "digest_match": {
+      "requirement": "optional"
+    },
+    "signature_status": {
+      "requirement": "optional"
+    },
+    "publisher": {
+      "requirement": "optional"
+    },
+    "publisher_allowlisted": {
+      "requirement": "optional"
+    },
+    "publisher_similarity_to_allowlisted": {
+      "requirement": "optional"
+    },
+    "source_hub": {
+      "requirement": "optional"
+    },
+    "source_repo": {
+      "requirement": "optional"
+    },
+    "size_gb": {
+      "requirement": "optional"
+    },
+    "unsafe_opcode_count": {
+      "requirement": "optional"
+    },
+    "malware_signature_hits": {
+      "requirement": "optional"
+    },
+    "architecture_hash_match": {
+      "requirement": "optional"
+    },
+    "backdoor_anomaly_index": {
+      "requirement": "optional"
+    },
+    "trigger_asr": {
+      "requirement": "optional"
+    },
+    "accuracy_drop_pct": {
+      "requirement": "optional"
+    },
+    "package_age_days": {
+      "requirement": "optional"
+    },
+    "typosquat_score": {
+      "requirement": "optional"
+    },
+    "suggested_by_llm": {
+      "requirement": "optional"
+    },
+    "workload_type": {
+      "requirement": "optional"
+    }
+  }
+}

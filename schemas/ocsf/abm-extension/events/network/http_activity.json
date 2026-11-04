@@ -1,0 +1,24 @@
+{
+  "description": "abm patch: adds AI-security attributes to the core <code>http_activity</code> class.",
+  "extends": "http_activity",
+  "attributes": {
+    "ai_model": {
+      "requirement": "optional"
+    },
+    "message_context": {
+      "requirement": "optional"
+    },
+    "ai_prompt": {
+      "requirement": "optional"
+    },
+    "ai_completion": {
+      "requirement": "optional"
+    },
+    "ai_guardrail": {
+      "requirement": "optional"
+    },
+    "ai_inference": {
+      "requirement": "optional"
+    }
+  }
+}

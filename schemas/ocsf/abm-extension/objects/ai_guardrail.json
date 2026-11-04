@@ -1,0 +1,32 @@
+{
+  "caption": "AI Guardrail",
+  "description": "The AI Guardrail object carries the verdicts and scores of AI security controls (prompt guardrails, content moderation, adversarial-input, backdoor-trigger and deepfake detectors) that inspected a request. abm maps and acts on these signals; it does not compute them.",
+  "extends": "object",
+  "name": "ai_guardrail",
+  "attributes": {
+    "guardrail_verdict": {
+      "requirement": "optional"
+    },
+    "moderation_verdict": {
+      "requirement": "optional"
+    },
+    "harm_score": {
+      "requirement": "optional"
+    },
+    "jailbreak_corpus_match": {
+      "requirement": "optional"
+    },
+    "adv_detector_score": {
+      "requirement": "optional"
+    },
+    "patch_detector_score": {
+      "requirement": "optional"
+    },
+    "trigger_detector_score": {
+      "requirement": "optional"
+    },
+    "deepfake_score": {
+      "requirement": "optional"
+    }
+  }
+}

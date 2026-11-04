@@ -1,0 +1,95 @@
+{
+  "caption": "AI Tool Call",
+  "description": "The AI Tool Call object describes an AI agent's invocation or registration of a tool, function or MCP server operation, together with the authorization context and enrichment facts agentic detections rely on. The agent itself is <code>message_context.application</code> and the MCP server is <code>message_context.service</code>.",
+  "extends": "object",
+  "name": "ai_tool_call",
+  "attributes": {
+    "tool_name": {
+      "requirement": "recommended"
+    },
+    "tool_args": {
+      "requirement": "optional"
+    },
+    "tool_output": {
+      "requirement": "optional"
+    },
+    "tool_category": {
+      "requirement": "optional"
+    },
+    "tool_risk": {
+      "requirement": "optional"
+    },
+    "tool_in_scope": {
+      "requirement": "optional"
+    },
+    "desc": {
+      "requirement": "optional"
+    },
+    "human_approved": {
+      "requirement": "optional"
+    },
+    "initiated_by_user": {
+      "requirement": "optional"
+    },
+    "acting_above_user_privilege": {
+      "requirement": "optional"
+    },
+    "context_has_untrusted_content": {
+      "requirement": "optional"
+    },
+    "is_secret_read": {
+      "requirement": "optional"
+    },
+    "is_external_egress": {
+      "requirement": "optional"
+    },
+    "records_returned": {
+      "requirement": "optional"
+    },
+    "attachment_count": {
+      "requirement": "optional"
+    },
+    "recipient_external": {
+      "requirement": "optional"
+    },
+    "destination_allowlisted": {
+      "requirement": "optional"
+    },
+    "page_trust": {
+      "requirement": "optional"
+    },
+    "target_category": {
+      "requirement": "optional"
+    },
+    "change_target": {
+      "requirement": "optional"
+    },
+    "cloud_api": {
+      "requirement": "optional"
+    },
+    "file_path": {
+      "requirement": "optional"
+    },
+    "server_auth_type": {
+      "requirement": "optional"
+    },
+    "server_in_agent_manifest": {
+      "requirement": "optional"
+    },
+    "server_first_seen_for_agent": {
+      "requirement": "optional"
+    },
+    "manifest_hash_approved": {
+      "requirement": "optional"
+    },
+    "name_similarity_to_approved": {
+      "requirement": "optional"
+    },
+    "publisher_verified": {
+      "requirement": "optional"
+    },
+    "package_age_days": {
+      "requirement": "optional"
+    }
+  }
+}

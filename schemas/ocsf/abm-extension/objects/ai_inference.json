@@ -1,0 +1,65 @@
+{
+  "caption": "AI Inference",
+  "description": "The AI Inference object describes one inference request to a predictive or multimodal model endpoint and its result. Generative exchanges use <code>ai_prompt</code> and <code>ai_completion</code> instead.",
+  "extends": "object",
+  "name": "ai_inference",
+  "attributes": {
+    "input_hash": {
+      "requirement": "optional"
+    },
+    "input_modality": {
+      "requirement": "optional"
+    },
+    "input_embedding_norm": {
+      "requirement": "optional"
+    },
+    "input_similarity_to_prev": {
+      "requirement": "optional"
+    },
+    "input_quality_score": {
+      "requirement": "optional"
+    },
+    "decision_margin": {
+      "requirement": "optional"
+    },
+    "predicted_class": {
+      "requirement": "optional"
+    },
+    "predicted_label": {
+      "requirement": "optional"
+    },
+    "return_confidence": {
+      "requirement": "optional"
+    },
+    "prediction_changed_by_trigger": {
+      "requirement": "optional"
+    },
+    "decompression_ratio": {
+      "requirement": "optional"
+    },
+    "fuzzy_hash_cluster": {
+      "requirement": "optional"
+    },
+    "is_timeout": {
+      "requirement": "optional"
+    },
+    "task": {
+      "requirement": "optional"
+    },
+    "check_type": {
+      "requirement": "optional"
+    },
+    "speaker_consent_on_file": {
+      "requirement": "optional"
+    },
+    "speaker_is_protected_person": {
+      "requirement": "optional"
+    },
+    "file_sha256": {
+      "requirement": "optional"
+    },
+    "via_app_gateway": {
+      "requirement": "optional"
+    }
+  }
+}
