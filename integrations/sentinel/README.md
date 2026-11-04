@@ -188,7 +188,8 @@ lists exactly the rules present, and that the playbook routes exactly the `ACTIO
 it runs a few arm-ttk rules (unused parameters/variables, location parameter, blank values, hardcoded endpoints).
 Those are only for fast feedback; the **sentinel-package** CI job runs the real tools:
 
-1. Copies this folder to `Azure-Sentinel/Solutions/ATLASBehaviorMap/`.
+1. Copies this folder to `Azure-Sentinel/Solutions/ATLAS Behavior Map/` (the packaging tool requires the folder
+   name to equal the solution `Name` in the data file).
 2. Runs Microsoft's packaging tool (`Tools/Create-Azure-Sentinel-Solution/V3/createSolutionV3.ps1`) on `Data/`,
    which builds `Package/mainTemplate.json` and `createUiDefinition.json`.
 3. Runs **arm-ttk** (`Test-AzTemplate`) on the package, the playbook and the DataCollection templates.

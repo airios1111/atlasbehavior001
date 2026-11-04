@@ -173,7 +173,7 @@
   "Playbooks": [
     "Playbooks/ABM-ResponsePlan/azuredeploy.json"
   ],
-  "BasePath": "C:\\GitHub\\Azure-Sentinel\\Solutions\\ATLASBehaviorMap",
+  "BasePath": "C:\\GitHub\\Azure-Sentinel\\Solutions\\ATLAS Behavior Map",
   "Version": "3.0.0",
   "Metadata": "SolutionMetadata.json",
   "TemplateSpec": true,

@@ -44,7 +44,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
-      SOLUTION: Azure-Sentinel/Solutions/ATLASBehaviorMap
+      SOLUTION: Azure-Sentinel/Solutions/ATLAS Behavior Map  # must equal the data file Name
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4

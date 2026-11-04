@@ -358,3 +358,11 @@ def test_cli_sentinel_build_check_and_validate(root, tmp_path, capsys):
     (tmp_path / "sol" / sol.WORKBOOK_PATH).unlink()
     assert main(["--root", str(root), "sentinel-validate", out]) == 1
     assert f"{sol.WORKBOOK_PATH}: missing" in capsys.readouterr().out
+
+
+def test_solution_folder_matches_data_file_name(built):
+    """createSolutionV3.ps1 resolves Solutions/<Name>/ from the data file's Name (CI failed when the
+    folder was ATLASBehaviorMap and the Name 'ATLAS Behavior Map')."""
+    data = json.loads(built["Data/Solution_ABM.json"])
+    assert sol.SOLUTION_FOLDER == data["Name"]
+    assert data["BasePath"].replace("\\", "/").endswith(f"/Solutions/{data['Name']}")

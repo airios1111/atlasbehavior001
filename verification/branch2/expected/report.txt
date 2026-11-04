@@ -21,7 +21,7 @@ d792f8bfbd30f5f37db30594ccb455d70b05cec5e0762b13fa178b622b75dc44  scripts/verify
 553d3c2f8378305d153e87c98dbcf113d7d6f55fe76f3906bb21265ed4e761d7  docs/branches/branch2-ocsf-ai-event-mapping.md
 873abca84a042114d690645b479be64029ac15487674e41ea33d77df16a9c658  README.md
 55213b7697e2a848f0c7410ccb9a0c0e5977027b139cf226c34e9e693c3bafc2  Makefile
-218d18532cc07b52758b6405d500a91d4aa110f883bf7fd2d3836f5985f0659d  .github/workflows/ci.yml
+2dd7b11be6ca0269a32067c162ed4ff22a09f09f75fcc2018dd32f091e49046a  .github/workflows/ci.yml
 bdd438734b3d9eed246a4a46dab45f13794741e9e770d7787a2f724ce991020d  .gitattributes
 cc0f4c0a955d4abf599b7a473ff22a1a676e46d24bc8784f703871690c4d0120  schemas/ocsf/README.md
 a87c78341503782bcf50a9c999367f0f55630adda3e4587a48589ce1e6bb5a4d  schemas/ocsf/abm-extension/dictionary.json
@@ -533,6 +533,7 @@ PASSED  tests/test_sentinel.py::test_sentinel_period[900-15m]
 PASSED  tests/test_sentinel.py::test_sentinel_profile_uses_custom_tables_and_default_is_unchanged
 PASSED  tests/test_sentinel.py::test_severity_and_status_mapping
 PASSED  tests/test_sentinel.py::test_solution_data_lists_shipped_rules
+PASSED  tests/test_sentinel.py::test_solution_folder_matches_data_file_name
 PASSED  tests/test_sentinel.py::test_tables_cover_every_column_the_queries_read
 PASSED  tests/test_sentinel.py::test_undeclared_detection_fields_still_get_columns
 PASSED  tests/test_sentinel.py::test_workbook_alert_views_and_navigator_coverage
@@ -547,7 +548,7 @@ PASSED  tests/test_xsoar.py::test_rejects_plain_http_and_missing_key
 PASSED  tests/test_xsoar.py::test_xsoar6_vs_xsoar8_endpoints_and_headers
 SKIPPED tests/test_calibration.py::test_write_keeps_file_permissions
 SKIPPED tests/test_calibration.py::test_write_refuses_symlinks
-summary: 279 passed, 0 failed, 0 errors, 2 skipped
+summary: 280 passed, 0 failed, 0 errors, 2 skipped
 [PASS] pytest
 
 ==============================================================================

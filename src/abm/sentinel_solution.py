@@ -35,7 +35,9 @@ from abm.models import Behavior, Status
 from abm.response import ACTION_REGISTRY
 
 SOLUTION_NAME = "ATLAS Behavior Map"
-SOLUTION_FOLDER = "ATLASBehaviorMap"  # folder name under Azure-Sentinel/Solutions/
+# Folder under Azure-Sentinel/Solutions/. createSolutionV3.ps1 resolves the solution folder from the
+# data file's Name, so the two must be identical (as in Microsoft's own solutions).
+SOLUTION_FOLDER = SOLUTION_NAME
 SOLUTION_VERSION = "3.0.0"
 AUTHOR = "Andres Rios"
 SUPPORT_LINK = "https://github.com/airios1111/atlasbehavior001/issues"
