@@ -89,15 +89,18 @@ def act(action: str, **params: Any) -> dict:
 def B(id: str, category: str, name: str, severity: str, confidence: str, description: str,
       primary: str, *, source: str, fields: list[str], detection: dict, mitigations: list[str],
       response: list[dict], attack: list[dict], benign: list[dict], secondary: tuple[str, ...] = (),
-      pre: bool = False, tactics: list[str] | None = None, attack_bridge: tuple[str, ...] = ()) -> dict:
+      pre: bool = False, tactics: list[str] | None = None, attack_bridge: tuple[str, ...] = (),
+      status: str = "test") -> dict:
     """One behavior. `pre` adds AML.T0040 (inference API access) as a precondition.
-    `tactics` defaults to the primary technique's tactics in the pinned ATLAS catalog."""
+    `tactics` defaults to the primary technique's tactics in the pinned ATLAS catalog.
+    `status` is `test` for pack behaviors; use `experimental` where the detection only sees a weak
+    downstream proxy of the technique (coverage then scores it as mitigation-only)."""
     techniques = [{"id": primary, "relationship": "primary"}]
     techniques += [{"id": s, "relationship": "secondary"} for s in secondary]
     if pre:
         techniques.append({"id": "AML.T0040", "relationship": "precondition"})
     return {
-        "id": f"BHV-{id}", "category": category, "name": name, "severity": severity,
+        "id": f"BHV-{id}", "category": category, "name": name, "status": status, "severity": severity,
         "confidence": confidence, "description": description, "primary": primary,
         "techniques": techniques, "tactics": tactics, "attack_bridge": list(attack_bridge),
         "source": source, "fields": ["timestamp", *fields], "detection": detection,

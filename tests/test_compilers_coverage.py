@@ -7,6 +7,7 @@ from abm.compilers import TARGETS
 from abm.compilers.sigma import rule_id
 from abm.coverage import compute, gaps, navigator_layer
 from abm.loader import load_behaviors
+from abm.models import TechniqueRef
 from abm.validator import validate
 
 
@@ -48,15 +49,52 @@ def test_coverage_scores(behaviors, catalog, root):
     assert cov["AML.T0024.002"].score == 3   # stable + auto response + replay passing
     assert cov["AML.T0053"].score == 2       # test status
     assert cov["AML.T0034"].score == 1       # experimental w/ mitigations
-    assert cov["AML.T0040"].score == 0       # precondition-only refs do not count
+    assert cov["AML.T0040"].score == 2       # BHV-MA-001/-002 map it as primary
     assert all(g.score == 0 for g in gaps(cov))
 
 
+def _precondition_probe(behaviors, catalog):
+    """A test-status behavior whose only ref to an otherwise unmapped technique is a precondition.
+    Built synthetically because every precondition in the repo is also mapped as primary elsewhere."""
+    mapped = {t.id for b in behaviors.values() for t in b.atlas.techniques}
+    unmapped = sorted(t for t in catalog.techniques if t not in mapped)[0]
+    base = behaviors["BHV-AG-008"]  # status test, field_match, no fixtures needed for scoring
+    atlas = base.atlas.model_copy(update={"techniques": [
+        *base.atlas.techniques, TechniqueRef(id=unmapped, relationship="precondition")]})
+    return base.model_copy(update={"id": "BHV-AG-999", "atlas": atlas, "tests": []}), unmapped
+
+
+def test_precondition_refs_do_not_count(behaviors, catalog, root):
+    probe, unmapped = _precondition_probe(behaviors, catalog)
+    cov = compute([*behaviors.values(), probe], catalog, root)
+    assert cov[unmapped].score == 0 and cov[unmapped].behaviors == []
+    assert "BHV-AG-999" in cov[probe.primary_technique].behaviors   # primary still counts
+
+
+def test_every_tactic_has_a_declared_detection(behaviors, catalog, root):
+    """Each ATLAS tactic needs a behavior that declares it, whose primary technique belongs to it,
+    at score >= 2. Stricter than `abm gaps`, which also credits a technique to a tactic through
+    secondary mappings on behaviors filed under other tactics."""
+    from abm.coverage import _behavior_score
+
+    scores = {b.id: _behavior_score(b, root)[0] for b in behaviors.values()}
+    missing = [
+        f"{tac} {entry.name}" for tac, entry in catalog.tactics.items()
+        if not any(
+            tac in b.atlas.tactics and tac in catalog.tactics_for(b.primary_technique)
+            and scores[b.id] >= 2
+            for b in behaviors.values()
+        )
+    ]
+    assert not missing, f"tactics without a declared detection: {missing}"
+
+
 def test_navigator_layer(behaviors, catalog, root):
-    layer = navigator_layer(compute(list(behaviors.values()), catalog, root), catalog)
+    probe, unmapped = _precondition_probe(behaviors, catalog)
+    layer = navigator_layer(compute([*behaviors.values(), probe], catalog, root), catalog)
     json.dumps(layer)
     ids = {t["techniqueID"] for t in layer["techniques"]}
-    assert "AML.T0051.000" in ids and "AML.T0040" not in ids
+    assert "AML.T0051.000" in ids and unmapped not in ids
 
 
 def test_atlas_data_import_parses_matrix_layout():
@@ -82,5 +120,5 @@ def test_readme_coverage_table_matches_behaviors(root, behaviors):
 
     readme = (root / "README.md").read_text(encoding="utf-8")
     table = readme[readme.index("## Coverage Snapshot"):readme.index("## Repository Structure")]
-    listed = set(re.findall(r"^\| (BHV-[A-Z]+-\d{3}) \|", table, flags=re.M))
+    listed = set(re.findall(r"^\| (BHV-[A-Z0-9]+-\d{3}) \|", table, flags=re.M))  # C2 has a digit
     assert listed == set(behaviors), f"README-only: {listed - set(behaviors)}; code-only: {set(behaviors) - listed}"

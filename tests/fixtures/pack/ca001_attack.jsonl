@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Why does this fail? boto3.client('s3', aws_access_key_id='AKIA2E0A8F3B244C9986', aws_secret_access_key='wJalrXUtnFEMI/K7MDENG/bPxRfiCY9a8sLq')"}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Fix my CI: git clone https://x:ghp_R4nd0mT0k3nV4lu3Xx1234567890123456ab@github.com/org/repo"}

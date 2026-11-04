@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"List all documents I need for a mortgage application."}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"What documents do I need to renew my passport?"}
+{"timestamp":"2026-10-01T14:00:20Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Summarize the sources cited in this report."}

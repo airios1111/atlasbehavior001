@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"comms-team","model_id":"voice-clone-v2","task":"voice_clone","speaker_is_protected_person":true,"speaker_consent_on_file":true}
+{"timestamp":"2026-10-01T14:00:05Z","principal_id":"user-5522","model_id":"voice-clone-v2","task":"voice_clone","speaker_is_protected_person":false,"speaker_consent_on_file":false}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-5521","model_id":"tts-v3","task":"tts","speaker_is_protected_person":true,"speaker_consent_on_file":false}

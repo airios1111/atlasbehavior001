@@ -9,7 +9,12 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-BEHAVIOR_ID_RE = re.compile(r"^BHV-(PI|JB|LK|EXF|EV|PO|SC|BD|AG|DOS|CH)-\d{3}$")
+# Category prefixes. The first group is attack-type categories; the second is tactic-named
+# categories for behaviors that sit outside them (RC recon, MA model access, CA credential access,
+# LM lateral movement, C2 command and control, COL collection, RD resource development).
+BEHAVIOR_PREFIXES = ("PI", "JB", "LK", "EXF", "EV", "PO", "SC", "BD", "AG", "DOS", "CH",
+                     "RC", "MA", "CA", "LM", "C2", "COL", "RD")
+BEHAVIOR_ID_RE = re.compile(rf"^BHV-({'|'.join(BEHAVIOR_PREFIXES)})-\d{{3}}$")
 ATLAS_TACTIC_RE = re.compile(r"^AML\.TA\d{4}$")
 ATLAS_TECHNIQUE_RE = re.compile(r"^AML\.T\d{4}(\.\d{3})?$")
 ATLAS_MITIGATION_RE = re.compile(r"^AML\.M\d{4}$")

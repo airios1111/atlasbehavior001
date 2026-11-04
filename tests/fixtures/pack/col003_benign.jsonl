@@ -1,0 +1,5 @@
+{"timestamp":"2026-10-01T14:00:00Z","session_id":"s-ag7","agent_id":"ops-agent","tool_name":"email.search","tool_category":"data_read","records_returned":40}
+{"timestamp":"2026-10-01T14:00:30Z","session_id":"s-ag7","agent_id":"ops-agent","tool_name":"crm.lookup","tool_category":"data_read","records_returned":12}
+{"timestamp":"2026-10-01T14:01:00Z","session_id":"s-ag7","agent_id":"ops-agent","tool_name":"drive.list","tool_category":"data_read","records_returned":50}
+{"timestamp":"2026-10-01T14:01:30Z","session_id":"s-ag7","agent_id":"ops-agent","tool_name":"calendar.list","tool_category":"data_read","records_returned":18}
+{"timestamp":"2026-10-01T14:02:00Z","session_id":"s-ag8","agent_id":"report-agent","tool_name":"crm.report","tool_category":"data_read","records_returned":8000}

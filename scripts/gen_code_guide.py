@@ -41,6 +41,7 @@ from abm.catalog import AtlasCatalog
 from abm.cli import main as abm_main
 from abm.engine import run_tests
 from abm.loader import load_behaviors
+from abm.models import BEHAVIOR_PREFIXES
 from abm.response import ACTION_REGISTRY
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -237,7 +238,7 @@ def map_datamodel():
     bh = 26
     # root
     ry = (ys[0] + ys[-1]) / 2 - bh / 2
-    box(d, 0, ry, 96, 40, "Behavior", ["models.py:203"], C_DATA, mono=True)
+    box(d, 0, ry, 96, 40, "Behavior", ["models.py:208"], C_DATA, mono=True)
     children = [
         (0, "scalars", ["id name status severity", "confidence description ..."]),
         (1, "atlas: AtlasMapping", None),
@@ -339,7 +340,7 @@ def map_response():
         C_CORE, mono=True, size=7.8)
     arrow(d, 420, 90, 220, 64, color=green)
     arrow(d, 440, 90, 390, 64, color=green)
-    label(d, 0, 4, "Per-step requires_approval in YAML overrides the registry default (models.py:182).",
+    label(d, 0, 4, "Per-step requires_approval in YAML overrides the registry default (models.py:192).",
           7.5, MUTED, anchor="start")
     return d
 
@@ -721,15 +722,15 @@ def build():
         P("Figure 3 - Behavior object tree. Yellow nodes are parsed from strings at validation time.", CAP),
         P("Rules enforced by the schema", H2),
         *bullets([
-            "Behavior IDs match <font name='Courier'>BHV-(PI|JB|LK|EXF|EV|PO|SC|BD|AG|DOS|CH)-NNN</font>; "
-            "ATLAS and ATT&amp;CK IDs are format-checked (models.py:12-19).",
-            "At least one technique must have <font name='Courier'>relationship: primary</font> (models.py:64).",
+            f"Behavior IDs match <font name='Courier'>BHV-({'|'.join(BEHAVIOR_PREFIXES)})-NNN</font>; "
+            "ATLAS and ATT&amp;CK IDs are format-checked (models.py:12-24).",
+            "At least one technique must have <font name='Courier'>relationship: primary</font> (models.py:69).",
             "<font name='Courier'>windowed_threshold</font> needs a window like <font name='Courier'>1h</font>, "
             "conditions like <font name='Courier'>request_count &gt; 5000</font>, and every condition must "
-            "reference a defined metric (models.py:144).",
-            "Regex signatures must compile (models.py:121).",
+            "reference a defined metric (models.py:149).",
+            "Regex signatures must compile (models.py:126).",
             "A <font name='Courier'>stable</font> behavior needs at least one <font name='Courier'>alert</font> "
-            "and one <font name='Courier'>no_alert</font> test (models.py:236).",
+            "and one <font name='Courier'>no_alert</font> test (models.py:241).",
         ]),
     ]
 

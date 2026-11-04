@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-01T14:00:00Z","tool_name":"shell.exec","session_id":"s-ag7","agent_id":"ops-agent","tool_args":"cat /etc/passwd | wc -l"}
+{"timestamp":"2026-10-01T14:00:10Z","tool_name":"shell.exec","session_id":"s-ag7","agent_id":"ops-agent","tool_args":"Get-Process lsass | Select-Object Id"}
+{"timestamp":"2026-10-01T14:00:20Z","tool_name":"shell.exec","session_id":"s-ag7","agent_id":"ops-agent","tool_args":"reg query HKLM\\Software\\Microsoft"}

@@ -1,0 +1,4 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"How do I list all users in PostgreSQL?"}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Which employee benefits are available at the company?"}
+{"timestamp":"2026-10-01T14:00:20Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Draft an org chart template for a 10-person startup."}
+{"timestamp":"2026-10-01T14:00:30Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Who has access to edit this document?"}

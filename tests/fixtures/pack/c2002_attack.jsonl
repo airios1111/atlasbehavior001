@@ -1,0 +1,12 @@
+{"timestamp":"2026-10-01T14:00:00Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":40,"inter_arrival_s":null}
+{"timestamp":"2026-10-01T14:04:49.740000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":41,"inter_arrival_s":289.74}
+{"timestamp":"2026-10-01T14:09:38.600000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":42,"inter_arrival_s":288.86}
+{"timestamp":"2026-10-01T14:14:28.280000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":43,"inter_arrival_s":289.68}
+{"timestamp":"2026-10-01T14:19:18.870000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":44,"inter_arrival_s":290.59}
+{"timestamp":"2026-10-01T14:24:09.550000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":45,"inter_arrival_s":290.68}
+{"timestamp":"2026-10-01T14:29:00.070000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":46,"inter_arrival_s":290.52}
+{"timestamp":"2026-10-01T14:33:49.780000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":40,"inter_arrival_s":289.71}
+{"timestamp":"2026-10-01T14:38:41.010000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":41,"inter_arrival_s":291.23}
+{"timestamp":"2026-10-01T14:43:29.570000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":42,"inter_arrival_s":288.56}
+{"timestamp":"2026-10-01T14:48:21.070000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":43,"inter_arrival_s":291.5}
+{"timestamp":"2026-10-01T14:53:09.610000Z","client_host":"fin-ws-0231","api_key_id":"key-9c1","api_operation":"threads.messages.list","workload_registered":false,"total_tokens":44,"inter_arrival_s":288.54}

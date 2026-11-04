@@ -1,0 +1,4 @@
+{"timestamp":"2026-10-01T14:00:00Z","session_id":"s-ag7","agent_id":"ops-agent","tool_name":"email.search","tool_category":"data_read","records_returned":2000}
+{"timestamp":"2026-10-01T14:00:30Z","session_id":"s-ag7","agent_id":"ops-agent","tool_name":"crm.export_contacts","tool_category":"data_read","records_returned":2500}
+{"timestamp":"2026-10-01T14:01:00Z","session_id":"s-ag7","agent_id":"ops-agent","tool_name":"drive.list","tool_category":"data_read","records_returned":800}
+{"timestamp":"2026-10-01T14:01:30Z","session_id":"s-ag7","agent_id":"ops-agent","tool_name":"calendar.list","tool_category":"data_read","records_returned":300}

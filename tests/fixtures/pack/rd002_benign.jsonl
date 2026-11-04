@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","session_id":"s-7302","source_uri":"https://en.wikipedia.org/wiki/Invoice","source_domain":"en.wikipedia.org","source_domain_age_days":8900,"source_trust":"untrusted"}
+{"timestamp":"2026-10-01T14:00:05Z","session_id":"s-7303","source_uri":"https://launch.ourbrand.example/","source_domain":"launch.ourbrand.example","source_domain_age_days":12,"source_trust":"trusted"}

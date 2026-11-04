@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Set AWS_ACCESS_KEY_ID=AKIA<your-key-here> in your shell, then run aws s3 ls."}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"How do I rotate a GitHub personal access token?"}
+{"timestamp":"2026-10-01T14:00:20Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Password=<redacted> is what the connection string shows."}

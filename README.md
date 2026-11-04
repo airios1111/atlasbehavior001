@@ -165,7 +165,7 @@ references:
 
 ---
 
-## Coverage Snapshot (115 behaviors)
+## Coverage Snapshot (143 behaviors)
 
 | Behavior ID | Behavior | ATLAS Technique | Primary Mitigations | Default Response |
 |---|---|---|---|---|
@@ -284,10 +284,40 @@ references:
 | BHV-SC-009 | Model architecture differs from its signed manifest | AML.T0018.001 Manipulate AI Model: Modify AI Model Architecture | AML.M0014, AML.M0008 | Quarantine artifact, block deploy, open incident |
 | BHV-SC-010 | External dataset imported without signed provenance | AML.T0010.002 AI Supply Chain Compromise: Data | AML.M0025, AML.M0023 | Quarantine artifact, notify |
 | BHV-SC-011 | Recently created package installed on an LLM's suggestion (slopsquatting) | AML.T0011.001 User Execution: Malicious Package | AML.M0016, AML.M0018 | Open incident, notify |
+| BHV-RC-001 | AI endpoint path enumeration from one client | AML.T0006 Active Scanning | AML.M0019, AML.M0004 | Rate limit, notify |
+| BHV-RC-002 | Network scanner fingerprint against AI endpoints | AML.T0006 Active Scanning | AML.M0019, AML.M0024 | Rate limit, notify |
+| BHV-RC-003 | Prompt enumerating employees, admins or org structure | AML.T0087 Gather Victim Identity Information | AML.M0020, AML.M0019 | Increment risk, notify |
+| BHV-RC-004 | Prompt asks the assistant to enumerate its indexed sources | AML.T0064 Gather RAG-Indexed Targets | AML.M0020, AML.M0019 | Increment risk |
+| BHV-MA-001 | Human principal calls the production inference API directly | AML.T0040 AI Model Inference API Access | AML.M0019, AML.M0004 | Step up auth, notify |
+| BHV-MA-002 | One principal sweeps many model endpoints | AML.T0040 AI Model Inference API Access | AML.M0004, AML.M0019 | Rate limit, open incident |
+| BHV-MA-003 | Product channel request carries raw model controls the product never sends | AML.T0047 AI-Enabled Product or Service | AML.M0019, AML.M0002 | Block request, increment risk |
+| BHV-MA-004 | Restricted model weights loaded outside sanctioned environments | AML.T0044 Full AI Model Access | AML.M0005, AML.M0012 | Open incident, revoke token |
+| BHV-CA-001 | Secrets pasted into an LLM prompt | AML.T0055 Unsecured Credentials | AML.M0020, AML.M0018 | Block request, rotate credentials, notify |
+| BHV-CA-002 | Credentials returned in agent tool output | AML.T0098 AI Agent Tool Credential Harvesting | AML.M0028, AML.M0033 | Redact output, deny tool call, kill session, rotate credentials, open incident |
+| BHV-CA-003 | Agent runs OS credential-dumping commands | AML.T0090 OS Credential Dumping | AML.M0032, AML.M0026 | Deny tool call, kill session, open incident |
+| BHV-CA-004 | Agent tool requests cloud instance-metadata credentials | AML.T0106 Exploitation for Credential Access | AML.M0032, AML.M0028 | Deny tool call, kill session, rotate credentials, open incident |
+| BHV-CA-005 | User asks the assistant to reveal its own keys or environment | AML.T0083 Credentials from AI Agent Configuration | AML.M0020, AML.M0026 | Block request, increment risk |
+| BHV-LM-001 | Agent presents its delegated token to an MCP server outside its baseline | AML.T0091.000 Use Alternate Authentication Material: Application Access Token | AML.M0028, AML.M0032 | Deny tool call, revoke token, open incident |
+| BHV-LM-002 | One access token used from several devices and networks | AML.T0091.000 Use Alternate Authentication Material: Application Access Token | AML.M0019, AML.M0026 | Revoke token, open incident |
+| BHV-LM-003 | Prompt requests phishing content impersonating an internal function | AML.T0052.000 Phishing: Spearphishing via Social Engineering LLM | AML.M0020, AML.M0018 | Block request, increment risk, notify |
+| BHV-LM-004 | Voice clone requested for a protected executive without consent | AML.T0052.001 Phishing: Deepfake-Assisted Phishing | AML.M0019, AML.M0018 | Block request, open incident, notify |
+| BHV-C2-001 | Agent beacons to an external host at fixed intervals | AML.T0108 AI Agent | AML.M0032, AML.M0028 | Open incident, notify |
+| BHV-C2-002 | AI service API polled on a fixed schedule by an unregistered host | AML.T0096 AI Service API | AML.M0019, AML.M0024 | Open incident, revoke token |
+| BHV-C2-003 | Agent fetches from a paste site, tunnel or callback host | AML.T0108 AI Agent | AML.M0028, AML.M0032 | Deny tool call, kill session, open incident |
+| BHV-COL-001 | Bulk reads across several enterprise repositories in one session | AML.T0036 Data from Information Repositories | AML.M0019, AML.M0004 | Rate limit, open incident |
+| BHV-COL-002 | Agent bulk-reads files from the local file system | AML.T0037 Data from Local System | AML.M0026, AML.M0032 | Kill session, notify |
+| BHV-COL-003 | Agent pulls bulk records from many connected tools in one session | AML.T0085.001 Data from AI Services: AI Agent Tools | AML.M0028, AML.M0030 | Kill session, open incident |
+| BHV-COL-004 | Bulk export of all users' AI chat histories | AML.T0085 Data from AI Services | AML.M0019, AML.M0005 | Revoke token, open incident |
+| BHV-RD-001 | Offensive AI-testing framework fingerprint from a non-red-team principal *(experimental)* | AML.T0016.000 Obtain Capabilities: Adversarial AI Attack Implementations | AML.M0015, AML.M0004 | Increment risk, notify |
+| BHV-RD-002 | Untrusted retrieval source on a newly registered domain *(experimental)* | AML.T0008.002 Acquire Infrastructure: Domains | AML.M0030, AML.M0020 | Quarantine source, notify |
+| BHV-RD-003 | Newly published agent tool with a name resembling an approved tool *(experimental)* | AML.T0104 Publish Poisoned AI Agent Tool | AML.M0028, AML.M0023, AML.M0014 | Disable tool, notify |
+| BHV-RD-004 | Public model imported from a namespace that mimics a trusted publisher *(experimental)* | AML.T0058 Publish Poisoned Models | AML.M0014, AML.M0023 | Block deploy, notify |
 
 > IDs and names are validated against ATLAS 5.6.0 (pinned in `atlas/atlas-data.lock`). If ATLAS renames or restructures a technique, `abm validate` fails and lists the drift.
 >
 > The first 15 (seed set) are listed first. The next 100 (behavior pack, IDs from -002/-003 upward) are generated from `scripts/behavior_pack/` by `scripts/gen_behavior_pack.py`. All ship at status `test` until their compiled queries are reviewed against real telemetry. Every behavior has a positive and a benign near-miss fixture.
+>
+> The last 28 (RC, MA, CA, LM, C2, COL, RD) fill the thinnest ATLAS tactics and come from `scripts/behavior_pack/tactics.py`. Several read fields that the normalizer or an enrichment step must compute (`inter_arrival_s`, `server_first_seen_for_agent`, `source_domain_age_days`, `package_age_days`, `name_similarity_to_approved`, `publisher_similarity_to_allowlisted`). The RD behaviors ship as `experimental` (mitigation-only coverage): they detect a downstream artifact of resource development, not the adversary's preparation itself.
 >
 > Seed set: Stable: PI-001, PI-002, JB-001, LK-001, LK-002, EXF-003, SC-001. Test: EXF-001, EXF-002, EV-001, PO-001, BD-001, AG-001, DOS-001. Experimental: CH-001.
 >
@@ -310,7 +340,14 @@ references:
 │   ├── backdoor/
 │   ├── agentic/
 │   ├── availability/
-│   └── cost/
+│   ├── cost/
+│   ├── reconnaissance/        # tactic-named categories for the thinnest ATLAS tactics
+│   ├── model-access/
+│   ├── credential-access/
+│   ├── lateral-movement/
+│   ├── command-and-control/
+│   ├── collection/
+│   └── resource-development/
 ├── atlas/
 │   ├── catalog.yaml           # ATLAS tactics/techniques/mitigations (from atlas-sync)
 │   ├── atlas-data.lock        # Pinned ATLAS release + sha256
@@ -325,7 +362,8 @@ references:
 │   ├── compilers/             # kql.py, sigma.py, spl.py
 │   └── cli.py                 # `abm` CLI
 ├── schemas/behavior.schema.json   # Generated from the model (make schema)
-├── scripts/gen_fixtures.py    # Deterministic fixture generator
+├── scripts/gen_fixtures.py    # Deterministic fixture generator (seed set)
+├── scripts/gen_behavior_pack.py  # Renders scripts/behavior_pack/ specs to behaviors/ + fixtures
 ├── tests/
 │   ├── fixtures/              # Positive + benign near-miss JSONL telemetry
 │   └── test_*.py              # Engine, validation, compiler, integration and tutorial tests
@@ -519,7 +557,7 @@ make replay
 4. Run `make validate test`.
 5. Open a PR with the behavior ID, ATLAS IDs, and the telemetry source required.
 
-Behavior ID prefixes: `PI` prompt injection · `JB` jailbreak · `LK` leakage · `EXF` exfiltration · `EV` evasion · `PO` poisoning · `SC` supply chain · `BD` backdoor · `AG` agentic · `DOS` denial of service · `CH` cost harvesting.
+Behavior ID prefixes: `PI` prompt injection · `JB` jailbreak · `LK` leakage · `EXF` exfiltration · `EV` evasion · `PO` poisoning · `SC` supply chain · `BD` backdoor · `AG` agentic · `DOS` denial of service · `CH` cost harvesting · `RC` reconnaissance · `MA` AI model access · `CA` credential access · `LM` lateral movement · `C2` command and control · `COL` collection · `RD` resource development.
 
 See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 
@@ -527,7 +565,7 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 
 ## Roadmap
 
-- [ ] Extend the current 115-behavior set toward full ATLAS tactic coverage; use `abm gaps` to identify techniques without mappings (thinnest tactics: AI Model Access (0), Reconnaissance (0), Command and Control (1), Lateral Movement (1), Credential Access (2), Collection (4), Resource Development (5))
+- [ ] Extend the current 143-behavior set toward full ATLAS technique coverage; every tactic now has at least one declared detection (score ≥ 2). Use `abm gaps --below 2` for remaining technique gaps; Resource Development is mostly outside this telemetry and is covered by experimental, mitigation-only behaviors
 - [ ] OCSF AI-event extension mapping
 - [ ] Sentinel Content Hub packaging (analytics rules + workbooks + Logic Apps)
 - [ ] Agentic AI telemetry: MCP / tool-call provenance graph
