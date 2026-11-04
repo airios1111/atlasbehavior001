@@ -760,6 +760,22 @@
       "caption": "Registrant In Owner Group",
       "description": "The registering principal belongs to the owner group of the artifact name being registered.",
       "type": "boolean_t"
+    },
+    "input_span_ids": {
+      "caption": "Input Span IDs",
+      "description": "IDs of earlier spans in the same trace whose output this span consumed (context edges in the provenance graph), beyond its parent span.",
+      "type": "string_t",
+      "is_array": true
+    },
+    "input_origin": {
+      "caption": "Input Origin",
+      "description": "Where the content that triggered this span came from. For example: <code>user</code>, <code>tool_output</code>, <code>retrieval</code>, <code>memory</code>.",
+      "type": "string_t"
+    },
+    "tool_class": {
+      "caption": "Tool Class",
+      "description": "Capability class of the tool, from the agent telemetry contract. For example: <code>read</code>, <code>write</code>, <code>privileged</code>, <code>secret_read</code>, <code>egress</code>.",
+      "type": "string_t"
     }
   }
 }

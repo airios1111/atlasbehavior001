@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Any
 
 from abm import __version__
+from abm.telemetry import TRACED_SOURCES
 
 Event = dict[str, Any]
 
@@ -292,6 +293,14 @@ SOURCES: dict[str, SourceMap] = {
             "host_id": "device.uid",
             "config_key": "resources[0].name",
             "change_origin": "unmapped.change_origin",
+            "trace_id": "trace.uid",
+            "span_id": "trace.span.uid",
+            "parent_span_id": "trace.span.parent_uid",
+            "operation": "trace.span.operation",
+            "input_span_ids": "ai_tool_call.input_span_ids",
+            "input_origin": "ai_tool_call.input_origin",
+            "source_trust": "ai_tool_call.source_trust",
+            "tool_class": "ai_tool_call.tool_class",
         },
     ),
     "mcp_gateway": SourceMap(
@@ -313,6 +322,11 @@ SOURCES: dict[str, SourceMap] = {
             "publisher_verified": "ai_tool_call.publisher_verified",
             "package_age_days": "ai_tool_call.package_age_days",
             "server_scan_verdict": "ai_tool_call.server_scan_verdict",
+            "trace_id": "trace.uid",
+            "span_id": "trace.span.uid",
+            "parent_span_id": "trace.span.parent_uid",
+            "mcp_method": "api.operation",
+            "tool_class": "ai_tool_call.tool_class",
         },
     ),
     "model_registry": SourceMap(
@@ -576,6 +590,11 @@ def normalize(ev: Event, source: str | None = None) -> Event:
     for alias, canonical in spec.aliases.items():
         if canonical in out and alias not in out:
             out[alias] = out[canonical]
+    # A root span has parent_span_id null. OCSF omits null attributes, so a traced span with a
+    # trace but no trace.span.parent_uid is a root: restore the explicit null the span contract
+    # requires (abm.telemetry), or the provenance graph reports the field as missing.
+    if src in TRACED_SOURCES and "span_id" in out and "parent_span_id" not in out:
+        out["parent_span_id"] = None
     return out
 
 

@@ -13,8 +13,8 @@ OCSF 1.8.0 core + `abm` extension 0.1.0. Tiers: **OCSF core** = attribute define
 | `llm_retrieval` | `AIRetrievalLogs` | Datastore Activity (6005) | 16 | 4 | 12 | 0 | 0 |
 | `vector_store` | `AIVectorStoreEvents` | Datastore Activity (6005) | 10 | 3 | 7 | 0 | 0 |
 | `agent_memory` | `AIAgentMemoryEvents` | Datastore Activity (6005) | 6 | 4 | 2 | 0 | 0 |
-| `agent_runtime` | `AIAgentToolCalls` | API Activity (6003) | 34 | 10 | 23 | 1 | 0 |
-| `mcp_gateway` | `AIMCPGatewayEvents` | API Activity (6003) | 14 | 4 | 10 | 0 | 0 |
+| `agent_runtime` | `AIAgentToolCalls` | API Activity (6003) | 42 | 14 | 27 | 1 | 0 |
+| `mcp_gateway` | `AIMCPGatewayEvents` | API Activity (6003) | 19 | 8 | 11 | 0 | 0 |
 | `model_registry` | `AIModelRegistryEvents` | API Activity (6003) | 25 | 3 | 22 | 0 | 0 |
 | `ml_workspace` | `AIMLWorkspaceEvents` | API Activity (6003) | 11 | 3 | 8 | 0 | 0 |
 | `training_pipeline` | `AITrainingPipelineEvents` | API Activity (6003) | 20 | 2 | 18 | 0 | 0 |
@@ -220,6 +220,14 @@ Written with `message_context.ai_role_id` = 3.
 | `host_id` | `device.uid` | OCSF core |
 | `config_key` | `resources[0].name` | OCSF core |
 | `change_origin` | `unmapped.change_origin` | unmapped |
+| `trace_id` | `trace.uid` | OCSF core |
+| `span_id` | `trace.span.uid` | OCSF core |
+| `parent_span_id` | `trace.span.parent_uid` | OCSF core |
+| `operation` | `trace.span.operation` | OCSF core |
+| `input_span_ids` | `ai_tool_call.input_span_ids` | abm ext |
+| `input_origin` | `ai_tool_call.input_origin` | abm ext |
+| `source_trust` | `ai_tool_call.source_trust` | abm ext |
+| `tool_class` | `ai_tool_call.tool_class` | abm ext |
 
 ## `mcp_gateway`
 
@@ -243,6 +251,11 @@ Written with `message_context.ai_role_id` = 3.
 | `publisher_verified` | `ai_tool_call.publisher_verified` | abm ext |
 | `package_age_days` | `ai_tool_call.package_age_days` | abm ext |
 | `server_scan_verdict` | `ai_tool_call.server_scan_verdict` | abm ext |
+| `trace_id` | `trace.uid` | OCSF core |
+| `span_id` | `trace.span.uid` | OCSF core |
+| `parent_span_id` | `trace.span.parent_uid` | OCSF core |
+| `mcp_method` | `api.operation` | OCSF core |
+| `tool_class` | `ai_tool_call.tool_class` | abm ext |
 
 ## `model_registry`
 

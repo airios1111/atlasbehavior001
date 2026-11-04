@@ -93,6 +93,18 @@
     },
     "server_scan_verdict": {
       "requirement": "optional"
+    },
+    "input_span_ids": {
+      "requirement": "optional"
+    },
+    "input_origin": {
+      "requirement": "optional"
+    },
+    "source_trust": {
+      "requirement": "optional"
+    },
+    "tool_class": {
+      "requirement": "optional"
     }
   }
 }

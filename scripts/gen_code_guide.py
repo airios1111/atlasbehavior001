@@ -238,7 +238,7 @@ def map_datamodel():
     bh = 26
     # root
     ry = (ys[0] + ys[-1]) / 2 - bh / 2
-    box(d, 0, ry, 96, 40, "Behavior", ["models.py:208"], C_DATA, mono=True)
+    box(d, 0, ry, 96, 40, "Behavior", ["models.py:262"], C_DATA, mono=True)
     children = [
         (0, "scalars", ["id name status severity", "confidence description ..."]),
         (1, "atlas: AtlasMapping", None),
@@ -340,7 +340,7 @@ def map_response():
         C_CORE, mono=True, size=7.8)
     arrow(d, 420, 90, 220, 64, color=green)
     arrow(d, 440, 90, 390, 64, color=green)
-    label(d, 0, 4, "Per-step requires_approval in YAML overrides the registry default (models.py:192).",
+    label(d, 0, 4, "Per-step requires_approval in YAML overrides the registry default (models.py:241).",
           7.5, MUTED, anchor="start")
     return d
 
@@ -724,13 +724,13 @@ def build():
         *bullets([
             f"Behavior IDs match <font name='Courier'>BHV-({'|'.join(BEHAVIOR_PREFIXES)})-NNN</font>; "
             "ATLAS and ATT&amp;CK IDs are format-checked (models.py:12-24).",
-            "At least one technique must have <font name='Courier'>relationship: primary</font> (models.py:69).",
+            "At least one technique must have <font name='Courier'>relationship: primary</font> (models.py:71).",
             "<font name='Courier'>windowed_threshold</font> needs a window like <font name='Courier'>1h</font>, "
             "conditions like <font name='Courier'>request_count &gt; 5000</font>, and every condition must "
-            "reference a defined metric (models.py:149).",
-            "Regex signatures must compile (models.py:126).",
+            "reference a defined metric (models.py:207).",
+            "Regex signatures must compile (models.py:128).",
             "A <font name='Courier'>stable</font> behavior needs at least one <font name='Courier'>alert</font> "
-            "and one <font name='Courier'>no_alert</font> test (models.py:241).",
+            "and one <font name='Courier'>no_alert</font> test (models.py:295).",
         ]),
     ]
 

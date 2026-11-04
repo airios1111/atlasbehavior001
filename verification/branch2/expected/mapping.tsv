@@ -225,6 +225,14 @@ agent_runtime	6003	api_activity	file_path	ai_tool_call.file_path	abm
 agent_runtime	6003	api_activity	host_id	device.uid	core
 agent_runtime	6003	api_activity	config_key	resources[0].name	core
 agent_runtime	6003	api_activity	change_origin	unmapped.change_origin	unmapped
+agent_runtime	6003	api_activity	trace_id	trace.uid	core
+agent_runtime	6003	api_activity	span_id	trace.span.uid	core
+agent_runtime	6003	api_activity	parent_span_id	trace.span.parent_uid	core
+agent_runtime	6003	api_activity	operation	trace.span.operation	core
+agent_runtime	6003	api_activity	input_span_ids	ai_tool_call.input_span_ids	abm
+agent_runtime	6003	api_activity	input_origin	ai_tool_call.input_origin	abm
+agent_runtime	6003	api_activity	source_trust	ai_tool_call.source_trust	abm
+agent_runtime	6003	api_activity	tool_class	ai_tool_call.tool_class	abm
 mcp_gateway	6003	api_activity	session_id	message_context.uid	core
 mcp_gateway	6003	api_activity	agent_id	message_context.application.uid	core
 mcp_gateway	6003	api_activity	server_id	message_context.service.uid	core
@@ -239,6 +247,11 @@ mcp_gateway	6003	api_activity	name_similarity_to_approved	ai_tool_call.name_simi
 mcp_gateway	6003	api_activity	publisher_verified	ai_tool_call.publisher_verified	abm
 mcp_gateway	6003	api_activity	package_age_days	ai_tool_call.package_age_days	abm
 mcp_gateway	6003	api_activity	server_scan_verdict	ai_tool_call.server_scan_verdict	abm
+mcp_gateway	6003	api_activity	trace_id	trace.uid	core
+mcp_gateway	6003	api_activity	span_id	trace.span.uid	core
+mcp_gateway	6003	api_activity	parent_span_id	trace.span.parent_uid	core
+mcp_gateway	6003	api_activity	mcp_method	api.operation	core
+mcp_gateway	6003	api_activity	tool_class	ai_tool_call.tool_class	abm
 model_registry	6003	api_activity	principal_id	actor.user.uid	core
 model_registry	6003	api_activity	model_id	ai_model.uid	core
 model_registry	6003	api_activity	environment	ai_model.environment	abm
