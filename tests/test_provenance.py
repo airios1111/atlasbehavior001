@@ -18,7 +18,7 @@ from abm.provenance import build_graphs, find, propagate
 from abm.telemetry import check_span
 from abm.validator import validate
 
-PROVENANCE_IDS = ["BHV-AG-016", "BHV-EXF-014"]
+PROVENANCE_IDS = ["BHV-AG-018", "BHV-EXF-014"]
 T = "t" * 32
 
 
@@ -165,8 +165,8 @@ def test_nested_sinks_fold_into_outermost():
 
 # ---------------------------------------------------------------- engine + fixtures
 def test_provenance_alert_context_and_evidence(behaviors, root):
-    b = behaviors["BHV-AG-016"]
-    [a] = Engine([b]).evaluate(b, load_events(root / "tests/fixtures/pack/ag016_attack.jsonl"))
+    b = behaviors["BHV-AG-018"]
+    [a] = Engine([b]).evaluate(b, load_events(root / "tests/fixtures/pack/ag018_attack.jsonl"))
     assert a.context["trace_id"] == "4bf92f3577b34da6a3ce929d0e0e4736"
     assert a.context["span_id"] == "4bf92f3577b30004" and a.context["source_span_id"] == "4bf92f3577b30002"
     assert a.context["tool_name"] == "payments.create_transfer" and a.metrics == {"hops": 2}
@@ -175,13 +175,13 @@ def test_provenance_alert_context_and_evidence(behaviors, root):
 
 
 def test_filters_scope_the_graph(behaviors, root):
-    b = behaviors["BHV-AG-016"]
+    b = behaviors["BHV-AG-018"]
     d = b.detection.model_copy(update={"filters": {"agent_id": {"ne": "ap-agent"}}})
     scoped = b.model_copy(update={"detection": d})
-    assert Engine([scoped]).evaluate(scoped, load_events(root / "tests/fixtures/pack/ag016_attack.jsonl")) == []
+    assert Engine([scoped]).evaluate(scoped, load_events(root / "tests/fixtures/pack/ag018_attack.jsonl")) == []
 
 
-@pytest.mark.parametrize("stem", ["ag016", "exf014", "sc012"])
+@pytest.mark.parametrize("stem", ["ag018", "exf014", "sc013"])
 def test_trace_fixtures_follow_the_contract(root, stem):
     for kind in ("attack", "benign"):
         evs = load_events(root / f"tests/fixtures/pack/{stem}_{kind}.jsonl")
@@ -190,7 +190,7 @@ def test_trace_fixtures_follow_the_contract(root, stem):
         assert build_graphs(evs)[evs[0]["trace_id"]].issues == []
 
 
-@pytest.mark.parametrize("stem", ["ag016", "exf014", "sc012"])
+@pytest.mark.parametrize("stem", ["ag018", "exf014", "sc013"])
 def test_benign_twin_has_the_same_shape(root, stem):
     def shape(kind):
         evs = load_events(root / f"tests/fixtures/pack/{stem}_{kind}.jsonl")
@@ -211,9 +211,9 @@ def test_any_value_decoding():
 
 
 def test_otlp_fixtures_alert_and_benign_twin_does_not(behaviors, root):
-    b = behaviors["BHV-AG-016"]
-    attack = load_events(root / "tests/fixtures/otel/ag016_otlp_attack.json")
-    benign = load_events(root / "tests/fixtures/otel/ag016_otlp_benign.jsonl")  # two export lines
+    b = behaviors["BHV-AG-018"]
+    attack = load_events(root / "tests/fixtures/otel/ag018_otlp_attack.json")
+    benign = load_events(root / "tests/fixtures/otel/ag018_otlp_benign.jsonl")  # two export lines
     [a] = Engine([b]).evaluate(b, attack)
     assert a.context["tool_name"] == "payments.create_transfer" and a.context["hops"] == 1
     assert "nested sink span(s)" in a.evidence[0]  # the MCP client span under the agent's call
@@ -222,7 +222,7 @@ def test_otlp_fixtures_alert_and_benign_twin_does_not(behaviors, root):
 
 
 def test_otlp_mapping_and_why_context_edges_exist(root):
-    doc = json.loads((root / "tests/fixtures/otel/ag016_otlp_attack.json").read_text(encoding="utf-8"))
+    doc = json.loads((root / "tests/fixtures/otel/ag018_otlp_attack.json").read_text(encoding="utf-8"))
     evs = {e["span_id"][-1]: e for e in from_otlp([doc])}
     assert evs["1"]["input_origin"] == "user" and evs["1"]["parent_span_id"] is None
     assert evs["3"]["input_origin"] == "tool_output" and evs["3"]["source_trust"] == "untrusted"
@@ -248,7 +248,7 @@ def test_otlp_links_and_extension_attributes():
 
 
 def test_load_events_mixes_normalized_and_otlp_lines(tmp_path, root):
-    otlp = (root / "tests/fixtures/otel/ag016_otlp_benign.jsonl").read_text(encoding="utf-8")
+    otlp = (root / "tests/fixtures/otel/ag018_otlp_benign.jsonl").read_text(encoding="utf-8")
     f = tmp_path / "mixed.jsonl"
     f.write_text('{"timestamp": "2026-10-01T13:00:00Z", "prompt": "hi"}\n' + otlp, encoding="utf-8")
     evs = load_events(f)
@@ -271,7 +271,7 @@ def test_kql_unrolls_joins_to_max_hops(behaviors, bid):
 def test_kql_drops_self_referencing_edges(behaviors):
     """Regression (found by differential fuzzing): a span listing itself in InputSpanIds made the
     compiled rule reach it in one hop while the engine ignores self-references."""
-    q = TARGETS["kql"][0](behaviors["BHV-AG-016"])
+    q = TARGETS["kql"][0](behaviors["BHV-AG-018"])
     edges = q[q.index("let Edges"):q.index("let Sources")]
     assert "| where FromSpanId != ToSpanId" in edges
     assert edges.index("FromSpanId != ToSpanId") < edges.index("summarize Edge")
@@ -312,4 +312,4 @@ def test_cli_compile_reports_stubs(root, tmp_path, capsys):
     assert main(["--root", str(root), "compile", "--target", "spl", "--out", str(tmp_path)]) == 0
     cap = capsys.readouterr()
     assert "2 not-expressible stub(s)" in cap.out
-    assert cap.err.count("[WARNING] BHV-") == 2 and "BHV-AG-016: not expressible in spl" in cap.err
+    assert cap.err.count("[WARNING] BHV-") == 2 and "BHV-AG-018: not expressible in spl" in cap.err

@@ -43,7 +43,7 @@ then only flows down the call tree.
   logs, reuse the runtime's span as `parent_span_id`. If both report the same `span_id`, the engine
   merges them.
 - A `tools/list` result is logged as one `event_type: tool_advertised` event per advertised tool
-  (`agent_id`, `server_id`, `tool_name`). BHV-SC-012 (tool shadowing) counts servers per tool name
+  (`agent_id`, `server_id`, `tool_name`). BHV-SC-013 (tool shadowing) counts servers per tool name
   from these events.
 
 ## How provenance logic uses the graph

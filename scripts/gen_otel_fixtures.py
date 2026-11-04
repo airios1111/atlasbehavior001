@@ -7,8 +7,8 @@ the invoke_agent span, tool results are siblings of the turns that read them, an
 links. Detection therefore depends on the adapter's context-edge inference (abm.otel). Trust and
 tool impact ride along as `abm.*` attributes, as a Collector transform processor would add them.
 
-    ag016_otlp_attack.json    one pretty-printed ExportTraceServiceRequest; web content is untrusted
-    ag016_otlp_benign.jsonl   same run, trusted intranet content, written the way the Collector file
+    ag018_otlp_attack.json    one pretty-printed ExportTraceServiceRequest; web content is untrusted
+    ag018_otlp_benign.jsonl   same run, trusted intranet content, written the way the Collector file
                               exporter does (one request per line, the trace split across two lines)
 """
 
@@ -87,13 +87,13 @@ def export(spans: list[dict]) -> dict:
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     attack = run("0af7651916cd43dd8448eb211c80319c", "https://supplier-portal.example/invoice/7781", "untrusted")
-    (OUT / "ag016_otlp_attack.json").write_text(json.dumps(export(attack), indent=2) + "\n", encoding="utf-8")
+    (OUT / "ag018_otlp_attack.json").write_text(json.dumps(export(attack), indent=2) + "\n", encoding="utf-8")
     benign = run("1bf8762a27de54ee9559fc322d91420d", "https://intranet.example/finance/payment-runbook",
                  "trusted")
     lines = [export(benign[:3]), export(benign[3:])]
-    (OUT / "ag016_otlp_benign.jsonl").write_text(
+    (OUT / "ag018_otlp_benign.jsonl").write_text(
         "".join(json.dumps(x, separators=(",", ":")) + "\n" for x in lines), encoding="utf-8")
-    print(f"wrote {OUT.relative_to(OUT.parents[2])}: ag016_otlp_attack.json, ag016_otlp_benign.jsonl")
+    print(f"wrote {OUT.relative_to(OUT.parents[2])}: ag018_otlp_attack.json, ag018_otlp_benign.jsonl")
 
 
 if __name__ == "__main__":

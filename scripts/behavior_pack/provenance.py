@@ -34,7 +34,7 @@ def trace(trace_id: str, *spans: dict, step: float = 2) -> list[dict]:
     return events(*out, step=step)
 
 
-# ------------------------------------------------------------ AG-016 untrusted content -> privileged tool
+# ------------------------------------------------------------ AG-018 untrusted content -> privileged tool
 AP = {"session_id": "s-ap1", "agent_id": "ap-agent", "principal_id": "user-2208"}
 
 
@@ -70,7 +70,7 @@ def _deploy_run(trace_id: str, session: str, domain: str, allowlisted: bool) -> 
     )
 
 
-# ------------------------------------------------------------ SC-012 tool-name shadowing across servers
+# ------------------------------------------------------------ SC-013 tool-name shadowing across servers
 def _tool_list_run(trace_id: str, session: str, second_server: str, second_tools: list[str]) -> list[dict]:
     """Agent session start: both attached MCP servers advertise their tools (one tool_advertised event
     per tool in the tools/list result), then the agent calls create_issue."""
@@ -89,7 +89,7 @@ def _tool_list_run(trace_id: str, session: str, second_server: str, second_tools
 
 
 SPECS = [
-    B("AG-016", "agentic", "Untrusted retrieved or tool-output content reaches a privileged tool call",
+    B("AG-018", "agentic", "Untrusted retrieved or tool-output content reaches a privileged tool call",
       "high", "medium",
       "Content from an untrusted retrieval source or tool result (public web page, inbound email, external "
       "upload) reaches a privileged tool call (payments, identity, permissions, configuration, code "
@@ -135,7 +135,7 @@ SPECS = [
       attack=_deploy_run("7c1e5a9b2d4f46e8a0b3c5d7e9f1a2b4", "s-dp1", "paste.attacker.example", False),
       benign=_deploy_run("8d2f6b0c3e5a47f9b1c4d6e8f0a2b3c5", "s-dp2", "api.deploy.example", True)),
 
-    B("SC-012", "supply-chain", "MCP tool name advertised by more than one server to the same agent",
+    B("SC-013", "supply-chain", "MCP tool name advertised by more than one server to the same agent",
       "high", "medium",
       "Two or more MCP servers advertise a tool with the same name to one agent within an hour. The agent "
       "cannot tell which implementation it will call, so a malicious server can intercept calls meant for "
