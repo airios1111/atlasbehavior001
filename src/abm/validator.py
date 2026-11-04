@@ -9,6 +9,7 @@ from abm.catalog import AtlasCatalog
 from abm.loader import LoadResult
 from abm.models import Behavior, Status
 from abm.response import ACTION_REGISTRY
+from abm.telemetry import GRAPH_FIELDS
 
 
 @dataclass
@@ -62,6 +63,13 @@ def _check(b: Behavior, cat: AtlasCatalog, root: Path) -> list[Finding]:
     for step in b.countermeasures.response:
         if step.action not in ACTION_REGISTRY:
             err(f"unknown response action '{step.action}' (registry: {sorted(ACTION_REGISTRY)})")
+
+    # Provenance needs the span graph fields from the agent telemetry contract
+    if b.detection.logic == "provenance":
+        declared = {f for src in b.telemetry.required for f in src.fields}
+        missing = [f for f in GRAPH_FIELDS if f not in declared]
+        if missing:
+            err(f"provenance logic needs {missing} in telemetry.required (see docs/agent-telemetry.md)")
 
     # Fixtures
     for tc in b.tests:

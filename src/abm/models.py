@@ -22,6 +22,8 @@ ATTACK_TECHNIQUE_RE = re.compile(r"^T\d{4}(\.\d{3})?$")
 WINDOW_RE = re.compile(r"^(\d+)([smhd])$")
 CONDITION_RE = re.compile(r"^\s*([a-z_][a-z0-9_]*)\s*(>=|<=|==|!=|>|<)\s*(-?\d+(?:\.\d+)?)\s*$")
 METRIC_RE = re.compile(r"^(count|dcount|sum|avg|variance|max|min)(?:\(([a-z_][a-z0-9_]*)\))?$")
+MATCH_OPS = frozenset({"in", "not_in", "ne", "exists", "regex", "gt", "gte", "lt", "lte"})
+MAX_HOPS = 8  # bounds the unrolled self-joins in compiled KQL
 
 
 class _Strict(BaseModel):
@@ -134,8 +136,46 @@ class Signature(_Strict):
         return v
 
 
+def check_match_spec(spec: dict[str, Any], where: str) -> None:
+    """Reject unknown operators and invalid regexes in a match spec (field -> value | {op: arg})."""
+    for fld, cond in spec.items():
+        if not isinstance(cond, dict):
+            continue
+        unknown = set(cond) - MATCH_OPS
+        if unknown:
+            raise ValueError(f"{where}.{fld}: unknown operator(s) {sorted(unknown)} "
+                             f"(allowed: {sorted(MATCH_OPS)})")
+        if "regex" in cond:
+            try:
+                re.compile(cond["regex"])
+            except (re.error, TypeError) as e:
+                raise ValueError(f"{where}.{fld}: invalid regex {cond['regex']!r}: {e}") from e
+        for op in ("in", "not_in"):
+            if op in cond and not isinstance(cond[op], list):
+                raise ValueError(f"{where}.{fld}: '{op}' takes a list")
+
+
+class Provenance(_Strict):
+    """Taint tracking over the per-trace span graph (see abm.provenance).
+
+    A span matching `source` taints every span reachable from it along parent and input edges;
+    a span matching `sink` alerts when it is reached within `max_hops` edges. A span never taints
+    itself: its own output cannot have caused its own invocation.
+    """
+
+    source: dict[str, Any] = Field(min_length=1, description="match spec selecting taint sources")
+    sink: dict[str, Any] = Field(min_length=1, description="match spec selecting sink spans")
+    max_hops: int = Field(ge=1, le=MAX_HOPS, description="longest source -> sink path, in edges")
+
+    @model_validator(mode="after")
+    def _specs(self) -> Provenance:
+        check_match_spec(self.source, "provenance.source")
+        check_match_spec(self.sink, "provenance.sink")
+        return self
+
+
 class Detection(_Strict):
-    logic: Literal["signature", "windowed_threshold", "field_match"]
+    logic: Literal["signature", "windowed_threshold", "field_match", "provenance"]
     # signature
     signatures: list[Signature] = Field(default_factory=list)
     # windowed_threshold
@@ -145,6 +185,8 @@ class Detection(_Strict):
     conditions: list[str] = Field(default_factory=list)
     # field_match
     match: dict[str, Any] = Field(default_factory=dict)
+    # provenance
+    provenance: Provenance | None = None
     # common
     filters: dict[str, Any] = Field(default_factory=dict)
     false_positives: list[str] = Field(default_factory=list)
@@ -155,6 +197,13 @@ class Detection(_Strict):
             raise ValueError("signature logic requires 'signatures'")
         if self.logic == "field_match" and not self.match:
             raise ValueError("field_match logic requires 'match'")
+        if self.logic == "provenance":
+            if self.provenance is None:
+                raise ValueError("provenance logic requires 'provenance' (source, sink, max_hops)")
+            if self.window:
+                raise ValueError("provenance logic is evaluated per trace; 'window' does not apply")
+        elif self.provenance is not None:
+            raise ValueError("a 'provenance' block requires logic: provenance")
         if self.logic == "windowed_threshold":
             if not (self.window and WINDOW_RE.match(self.window)):
                 raise ValueError("windowed_threshold requires 'window' like 1h, 15m")

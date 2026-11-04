@@ -55,7 +55,8 @@
           "enum": [
             "signature",
             "windowed_threshold",
-            "field_match"
+            "field_match",
+            "provenance"
           ],
           "title": "Logic",
           "type": "string"
@@ -105,6 +106,17 @@
           "title": "Match",
           "type": "object"
         },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Provenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "filters": {
           "additionalProperties": true,
           "title": "Filters",
@@ -133,6 +145,40 @@
       ],
       "title": "Level",
       "type": "string"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Taint tracking over the per-trace span graph (see abm.provenance).\n\nA span matching `source` taints every span reachable from it along parent and input edges;\na span matching `sink` alerts when it is reached within `max_hops` edges. A span never taints\nitself: its own output cannot have caused its own invocation.",
+      "properties": {
+        "source": {
+          "additionalProperties": true,
+          "description": "match spec selecting taint sources",
+          "minProperties": 1,
+          "title": "Source",
+          "type": "object"
+        },
+        "sink": {
+          "additionalProperties": true,
+          "description": "match spec selecting sink spans",
+          "minProperties": 1,
+          "title": "Sink",
+          "type": "object"
+        },
+        "max_hops": {
+          "description": "longest source -> sink path, in edges",
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Max Hops",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source",
+        "sink",
+        "max_hops"
+      ],
+      "title": "Provenance",
+      "type": "object"
     },
     "ResponseStep": {
       "additionalProperties": false,

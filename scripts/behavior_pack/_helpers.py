@@ -81,6 +81,18 @@ def thr(window: str, group_by: list[str], metrics: dict[str, str], conditions: l
     return d
 
 
+def prov(source: dict, sink: dict, max_hops: int, filters: dict | None = None,
+         fp: tuple[str, ...] = ()) -> dict:
+    """Provenance: taint from spans matching `source` reaches a span matching `sink` in <= max_hops."""
+    d: dict[str, Any] = {"logic": "provenance"}
+    if filters:
+        d["filters"] = filters
+    d["provenance"] = {"source": source, "sink": sink, "max_hops": max_hops}
+    if fp:
+        d["false_positives"] = list(fp)
+    return d
+
+
 def act(action: str, **params: Any) -> dict:
     return {"action": action, "params": params}
 
@@ -90,11 +102,13 @@ def B(id: str, category: str, name: str, severity: str, confidence: str, descrip
       primary: str, *, source: str, fields: list[str], detection: dict, mitigations: list[str],
       response: list[dict], attack: list[dict], benign: list[dict], secondary: tuple[str, ...] = (),
       pre: bool = False, tactics: list[str] | None = None, attack_bridge: tuple[str, ...] = (),
-      status: str = "test") -> dict:
+      status: str = "test", also: dict[str, list[str]] | None = None) -> dict:
     """One behavior. `pre` adds AML.T0040 (inference API access) as a precondition.
     `tactics` defaults to the primary technique's tactics in the pinned ATLAS catalog.
     `status` is `test` for pack behaviors; use `experimental` where the detection only sees a weak
-    downstream proxy of the technique (coverage then scores it as mitigation-only)."""
+    downstream proxy of the technique (coverage then scores it as mitigation-only).
+    `also` declares further required sources ({source: fields}), e.g. a provenance chain that spans
+    agent_runtime and mcp_gateway."""
     techniques = [{"id": primary, "relationship": "primary"}]
     techniques += [{"id": s, "relationship": "secondary"} for s in secondary]
     if pre:
@@ -104,5 +118,6 @@ def B(id: str, category: str, name: str, severity: str, confidence: str, descrip
         "confidence": confidence, "description": description, "primary": primary,
         "techniques": techniques, "tactics": tactics, "attack_bridge": list(attack_bridge),
         "source": source, "fields": ["timestamp", *fields], "detection": detection,
+        "also": {src: ["timestamp", *f] for src, f in (also or {}).items()},
         "mitigations": mitigations, "response": response, "attack": attack, "benign": benign,
     }
