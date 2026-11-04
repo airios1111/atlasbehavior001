@@ -8,17 +8,17 @@ OCSF 1.8.0 core + `abm` extension 0.1.0. Tiers: **OCSF core** = attribute define
 
 | Source | SIEM table | OCSF class | Fields | OCSF core | abm ext | unmapped | alias |
 |---|---|---|---|---|---|---|---|
-| `llm_gateway` | `AIGatewayLogs` | API Activity (6003) / HTTP Activity (4002) | 40 | 14 | 25 | 1 | 0 |
-| `inference_gateway` | `AIInferenceLogs` | API Activity (6003) / HTTP Activity (4002) | 35 | 11 | 24 | 0 | 0 |
+| `llm_gateway` | `AIGatewayLogs` | API Activity (6003) / HTTP Activity (4002) | 43 | 14 | 28 | 1 | 0 |
+| `inference_gateway` | `AIInferenceLogs` | API Activity (6003) / HTTP Activity (4002) | 37 | 12 | 25 | 0 | 0 |
 | `llm_retrieval` | `AIRetrievalLogs` | Datastore Activity (6005) | 16 | 4 | 12 | 0 | 0 |
 | `vector_store` | `AIVectorStoreEvents` | Datastore Activity (6005) | 10 | 3 | 7 | 0 | 0 |
 | `agent_memory` | `AIAgentMemoryEvents` | Datastore Activity (6005) | 6 | 4 | 2 | 0 | 0 |
-| `agent_runtime` | `AIAgentToolCalls` | API Activity (6003) | 31 | 8 | 23 | 0 | 0 |
-| `mcp_gateway` | `AIMCPGatewayEvents` | API Activity (6003) | 13 | 4 | 9 | 0 | 0 |
-| `model_registry` | `AIModelRegistryEvents` | API Activity (6003) | 21 | 3 | 18 | 0 | 0 |
-| `ml_workspace` | `AIMLWorkspaceEvents` | API Activity (6003) | 10 | 3 | 7 | 0 | 0 |
+| `agent_runtime` | `AIAgentToolCalls` | API Activity (6003) | 34 | 10 | 23 | 1 | 0 |
+| `mcp_gateway` | `AIMCPGatewayEvents` | API Activity (6003) | 14 | 4 | 10 | 0 | 0 |
+| `model_registry` | `AIModelRegistryEvents` | API Activity (6003) | 25 | 3 | 22 | 0 | 0 |
+| `ml_workspace` | `AIMLWorkspaceEvents` | API Activity (6003) | 11 | 3 | 8 | 0 | 0 |
 | `training_pipeline` | `AITrainingPipelineEvents` | API Activity (6003) | 20 | 2 | 18 | 0 | 0 |
-| `cloud_audit` | `AzureActivity` | API Activity (6003) | 10 | 5 | 3 | 2 | 0 |
+| `cloud_audit` | `AzureActivity` | API Activity (6003) | 12 | 7 | 3 | 2 | 0 |
 | `identity` | `SigninLogs` | Authentication (3002) | 13 | 10 | 0 | 2 | 1 |
 
 ## `llm_gateway`
@@ -65,6 +65,9 @@ Also accepted as **HTTP Activity** (4002); overrides: `api_operation` → `unmap
 | `response_has_citations` | `ai_completion.has_citations` | abm ext |
 | `cited_unretrieved_sources` | `ai_completion.cited_unretrieved_sources` | abm ext |
 | `memorization_score` | `ai_completion.memorization_score` | abm ext |
+| `completion_link_domains` | `ai_completion.link_domains` | abm ext |
+| `completion_link_reputation` | `ai_completion.link_reputation` | abm ext |
+| `nonexistent_packages_in_completion` | `ai_completion.nonexistent_package_count` | abm ext |
 | `guardrail_verdict` | `ai_guardrail.guardrail_verdict` | abm ext |
 | `moderation_verdict` | `ai_guardrail.moderation_verdict` | abm ext |
 | `harm_score` | `ai_guardrail.harm_score` | abm ext |
@@ -91,6 +94,8 @@ Also accepted as **HTTP Activity** (4002); overrides: `request_id` → `http_req
 | `request_path` | `http_request.url.path` | OCSF core |
 | `status_code` | `http_response.code` | OCSF core |
 | `camera_id` | `device.uid` | OCSF core |
+| `client_app` | `message_context.application.name` | OCSF core |
+| `request_param_keys` | `ai_inference.request_param_keys` | abm ext |
 | `input_hash` | `ai_inference.input_hash` | abm ext |
 | `input_modality` | `ai_inference.input_modality` | abm ext |
 | `input_embedding_norm` | `ai_inference.input_embedding_norm` | abm ext |
@@ -212,6 +217,9 @@ Written with `message_context.ai_role_id` = 3.
 | `change_target` | `ai_tool_call.change_target` | abm ext |
 | `cloud_api` | `ai_tool_call.cloud_api` | abm ext |
 | `file_path` | `ai_tool_call.file_path` | abm ext |
+| `host_id` | `device.uid` | OCSF core |
+| `config_key` | `resources[0].name` | OCSF core |
+| `change_origin` | `unmapped.change_origin` | unmapped |
 
 ## `mcp_gateway`
 
@@ -234,6 +242,7 @@ Written with `message_context.ai_role_id` = 3.
 | `name_similarity_to_approved` | `ai_tool_call.name_similarity_to_approved` | abm ext |
 | `publisher_verified` | `ai_tool_call.publisher_verified` | abm ext |
 | `package_age_days` | `ai_tool_call.package_age_days` | abm ext |
+| `server_scan_verdict` | `ai_tool_call.server_scan_verdict` | abm ext |
 
 ## `model_registry`
 
@@ -263,6 +272,10 @@ Primary class: **API Activity** (`class_uid` 6003).
 | `backdoor_anomaly_index` | `ai_artifact.backdoor_anomaly_index` | abm ext |
 | `trigger_asr` | `ai_artifact.trigger_asr` | abm ext |
 | `accuracy_drop_pct` | `ai_artifact.accuracy_drop_pct` | abm ext |
+| `artifact_name` | `ai_artifact.name` | abm ext |
+| `latest_scan_status` | `ai_artifact.scan_status` | abm ext |
+| `name_matches_approved_artifact` | `ai_artifact.name_matches_approved` | abm ext |
+| `registrant_in_owner_group` | `ai_artifact.registrant_in_owner_group` | abm ext |
 
 ## `ml_workspace`
 
@@ -281,6 +294,7 @@ Primary class: **API Activity** (`class_uid` 6003).
 | `package_age_days` | `ai_artifact.package_age_days` | abm ext |
 | `typosquat_score` | `ai_artifact.typosquat_score` | abm ext |
 | `suggested_by_llm` | `ai_artifact.suggested_by_llm` | abm ext |
+| `child_process` | `ai_artifact.load_child_process` | abm ext |
 
 ## `training_pipeline`
 
@@ -322,6 +336,8 @@ Primary class: **API Activity** (`class_uid` 6003).
 | `event_type` | `metadata.event_code` | OCSF core |
 | `principal_role` | `actor.user.groups[0].name` | OCSF core |
 | `agent_name` | `resources[0].name` | OCSF core |
+| `resource_id` | `resources[0].uid` | OCSF core |
+| `resource_type` | `resources[0].type` | OCSF core |
 | `image` | `ai_artifact.name` | abm ext |
 | `image_signature_status` | `ai_artifact.signature_status` | abm ext |
 | `workload_type` | `ai_artifact.workload_type` | abm ext |

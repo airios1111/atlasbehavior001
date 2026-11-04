@@ -60,6 +60,9 @@
     },
     "via_app_gateway": {
       "requirement": "optional"
+    },
+    "request_param_keys": {
+      "requirement": "optional"
     }
   }
 }

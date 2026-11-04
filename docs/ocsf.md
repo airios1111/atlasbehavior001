@@ -53,7 +53,7 @@ OCSF server, `ocsf-lib` and `ocsf-validator` use.
 
 ```
 extension.json            name "abm", uid 900 (unregistered, private range), version 0.1.0
-dictionary.json           143 attributes: only names not already in the OCSF core dictionary
+dictionary.json           151 attributes: only names not already in the OCSF core dictionary
 objects/
   ai_model.json           patch  + tier, environment
   message_context.json    patch  + reasoning_tokens, cost_usd, context_utilization, inter_arrival_s, channel
@@ -173,7 +173,7 @@ exit code is 2. Without the flag, mapping is lenient.
   * each fixture is valid OCSF, normalizes back to its native fixture, and **raises the same alerts
     as the native JSONL fixture**;
   * source detection works without `log_name`;
-  * the full round trip over all 143 behaviors × both fixtures gives identical alerts and
+  * the full round trip over all 159 behaviors × both fixtures gives identical alerts and
     unchanged test expectations;
   * time-only producers alert the same way;
   * the Detection Finding is valid and round-trips to the alert;

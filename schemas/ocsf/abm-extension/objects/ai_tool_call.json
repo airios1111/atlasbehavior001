@@ -90,6 +90,9 @@
     },
     "package_age_days": {
       "requirement": "optional"
+    },
+    "server_scan_verdict": {
+      "requirement": "optional"
     }
   }
 }

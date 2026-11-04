@@ -72,6 +72,18 @@
     },
     "workload_type": {
       "requirement": "optional"
+    },
+    "load_child_process": {
+      "requirement": "optional"
+    },
+    "scan_status": {
+      "requirement": "optional"
+    },
+    "name_matches_approved": {
+      "requirement": "optional"
+    },
+    "registrant_in_owner_group": {
+      "requirement": "optional"
     }
   }
 }

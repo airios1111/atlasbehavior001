@@ -720,6 +720,46 @@
       "caption": "Workload Type",
       "description": "Kind of workload the artifact is deployed as. For example: <code>inference</code>, <code>training</code>, <code>agent</code>.",
       "type": "string_t"
+    },
+    "link_domains": {
+      "caption": "Link Domains",
+      "description": "Comma-separated domains of the links in the completion.",
+      "type": "string_t"
+    },
+    "link_reputation": {
+      "caption": "Link Reputation",
+      "description": "Worst URL-reputation verdict among the links in the completion. For example: <code>clean</code>, <code>unknown</code>, <code>phishing</code>, <code>malicious</code>.",
+      "type": "string_t"
+    },
+    "nonexistent_package_count": {
+      "caption": "Nonexistent Package Count",
+      "description": "Number of package names in the completion that do not exist on the public package index (from an index lookup on the completion).",
+      "type": "integer_t"
+    },
+    "server_scan_verdict": {
+      "caption": "Server Scan Verdict",
+      "description": "Verdict of the gateway's tool scanner for the MCP server. For example: <code>clean</code>, <code>suspicious</code>, <code>malicious</code>.",
+      "type": "string_t"
+    },
+    "load_child_process": {
+      "caption": "Load Child Process",
+      "description": "Name of a process spawned while the artifact was being loaded. Empty when loading spawned no process.",
+      "type": "string_t"
+    },
+    "scan_status": {
+      "caption": "Scan Status",
+      "description": "Result of the most recent model-scanner run on the artifact. For example: <code>clean</code>, <code>malicious</code>, <code>error</code>, <code>unparseable</code>.",
+      "type": "string_t"
+    },
+    "name_matches_approved": {
+      "caption": "Name Matches Approved",
+      "description": "The artifact's name matches an approved production artifact in the registry.",
+      "type": "boolean_t"
+    },
+    "registrant_in_owner_group": {
+      "caption": "Registrant In Owner Group",
+      "description": "The registering principal belongs to the owner group of the artifact name being registered.",
+      "type": "boolean_t"
     }
   }
 }

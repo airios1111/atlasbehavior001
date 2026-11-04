@@ -1,11 +1,11 @@
 ATLAS Behavior Map - branch2 verification: OCSF AI-event mapping
 abm 0.1.0 | OCSF 1.8.0 | extension abm 0.1.0
-[PASS] 143 behaviors load without errors
+[PASS] 159 behaviors load without errors
 
 ==============================================================================
 1. Branch file inventory (sha256 over LF-normalized content)
 ==============================================================================
-8aeec390487a9b598c1301259d339fc433dc53fb0742c15dcb6f2f8d63703bf0  src/abm/ocsf.py
+8cd6af1ece027ebb942a12067ef07acbec07798565d30b6ea9ca3d64902730dd  src/abm/ocsf.py
 5d885034e2211b9c8fdc185186b46fee7143b652e326efdc0e011b4fb1c72ef5  src/abm/ocsf_schema.py
 c26d14ad2b44b18d24fd09c0997bb4c68295fd3b6d30f44bfb49cf5cf11fd5b9  src/abm/cli.py
 2181cb7b28dc1da0a4b9da132af12fc104ecb7518ef45300a897501300bffa5f  tests/test_ocsf.py
@@ -16,29 +16,29 @@ ebe733f9356ad57fc0c5e8d9d986596cd418f8bf18ef251c3c22eaf0a442082f  scripts/ocsf_v
 0c105bab65d2369d4e251cacd2f982e3557861d1830c992909e0e4b20c3e8c32  scripts/verify_branch2.py
 d792f8bfbd30f5f37db30594ccb455d70b05cec5e0762b13fa178b622b75dc44  scripts/verify_branch2.ps1
 6497519534a7ccc1d53d20cf06af42f60699bb85d1b3ccebfceed811253293b4  scripts/verify_branch2.sh
-f739c809d1491f7ef248e228273235313bfa702fb70332f880d826b8eafd5f7b  docs/ocsf.md
-513447d620b446d6e4262be1f14fd48cbdb3bb219852531a61a9e0564fc74903  docs/ocsf-mapping.md
+6c507d59e7e264c2b6ea2017d9cfa4149515166fb8d301a1cd740696aa05de34  docs/ocsf.md
+76e1c95b3cabe033959137cb85811d8797bdaf6cada3f32041a3323e3667ec2d  docs/ocsf-mapping.md
 553d3c2f8378305d153e87c98dbcf113d7d6f55fe76f3906bb21265ed4e761d7  docs/branches/branch2-ocsf-ai-event-mapping.md
-c400ba9c90ba0ce010b79ae24c9e50199622acff15f0633c9cc9e661f991bc49  README.md
+e01d5228be863179caa74f287d0e17a67ac9b188e807936b832434e41e9132fe  README.md
 948b01928fe72fd5376c2de31dae42b99025585a9112a8c4b04636cdf3ea3e31  Makefile
 56224078ef804ac63acd7e6a15362c68c830d5f3b53daf1f7e091ea080de6f01  .github/workflows/ci.yml
 0fe899440e481aa741cf07a9430bdc7c898f95dc452739f6f9beccc4455bccae  .gitattributes
 cc0f4c0a955d4abf599b7a473ff22a1a676e46d24bc8784f703871690c4d0120  schemas/ocsf/README.md
-47308216b856aa65fc5048999514241e6af72f7e6e0947fdeb605908bc1d8c08  schemas/ocsf/abm-extension/dictionary.json
+cbec3a96a0746e2a5acd67e0fcbfc22bc0e7a08f63bd398b0aa02465d33e543e  schemas/ocsf/abm-extension/dictionary.json
 4923e2f565b6a6edcc91cbe41a999793d086ed67df930f2983daf6e12c430610  schemas/ocsf/abm-extension/events/application/api_activity.json
 9d272e29d1cad5ef046764c64fd4b74581c903ccf9c6d5d419f084677b6cb7f3  schemas/ocsf/abm-extension/events/application/datastore_activity.json
 53fe188ad13133b6e5da5818580293747aa424ff8af0a6c7f312ae1ee9b34324  schemas/ocsf/abm-extension/events/findings/detection_finding.json
 1bf87c12f76e4cd800b6ebe332de36ffab99c97dc23d9a2922165879393e7779  schemas/ocsf/abm-extension/events/network/http_activity.json
 8a5f75ffab4688e65e48e008d554c8fb824236c95692aa867c93212bbe2e63a1  schemas/ocsf/abm-extension/extension.json
-7e8998f0f36dd12dc371f02e961c64be7626953aea31ad23dc5c09303fc88847  schemas/ocsf/abm-extension/objects/ai_artifact.json
-cf423796927e94653c315842385fd97247eb319ddbdefb2f3601b49b6400d7a7  schemas/ocsf/abm-extension/objects/ai_completion.json
+1aa63dcba1f65ea33f6e210134b4422796e265b611ad9e7500853429391f2f9f  schemas/ocsf/abm-extension/objects/ai_artifact.json
+24ca31e8c25816d88119569e9420c7e2c735e5abc74ba4baf36aa8890388ebb0  schemas/ocsf/abm-extension/objects/ai_completion.json
 0dd16f411a020a812a936e7244c920bb0c21aa2a2da9d2bb64714d2053d3397c  schemas/ocsf/abm-extension/objects/ai_context_record.json
 3801622f83b466cbb315fb2d24f4451daf777e2b76963926950aa1d294f3798e  schemas/ocsf/abm-extension/objects/ai_guardrail.json
-0bf80d3c921ef92da22d74fdce2531cd9ff988726779ac4ee8a84cb0d13e91c2  schemas/ocsf/abm-extension/objects/ai_inference.json
+2cf3a19b3168fc4302d40e03e8782f297b149101f37b6cd89aad4ebd85428a3f  schemas/ocsf/abm-extension/objects/ai_inference.json
 6cb8f46379278254cfe49e3099a2f81cd39707b28de378df8a65ce827fac3695  schemas/ocsf/abm-extension/objects/ai_model.json
 f288af366a7a3eb1f0e27441ac7d1182759a9cfd5a39c6e7ee6ad4a90b68fca8  schemas/ocsf/abm-extension/objects/ai_prompt.json
 847bb9880353e50e6c35df47699e2eb28c26ed13fd1bd5e3dda6538cb399a889  schemas/ocsf/abm-extension/objects/ai_response_action.json
-92f43377341bbb8dfae950d4fcfdfd8294e73f8310c5a2a43f63fa8c7f23d258  schemas/ocsf/abm-extension/objects/ai_tool_call.json
+8f50d44b12330dc47f0ce36daa0365546961c65faa032c2dc8db86f7cd0f5046  schemas/ocsf/abm-extension/objects/ai_tool_call.json
 0074288a581f3173209583f8b63e2d321e904aecbbabab7a4261c239b79e77c8  schemas/ocsf/abm-extension/objects/ai_training.json
 3fc209b0b2acb7e4a690756a5cf0dfade69a37d597b264104c5ad7ac8bf0d519  schemas/ocsf/abm-extension/objects/atlas_mapping.json
 ea7be1195f35358633486797bff1661d2b05d38da7dc26bc035cfaeff38263ae  schemas/ocsf/abm-extension/objects/atlas_technique.json
@@ -69,7 +69,7 @@ abm extension          : abm uid=900 version=0.1.0
 core ai_operation profile present: True
 core ai_model attributes         : ['ai_provider', 'name', 'uid', 'version']
 core message_context attributes  : ['ai_role', 'ai_role_id', 'application', 'completion_tokens', 'name', 'prompt_tokens', 'service', 'total_tokens', 'uid']
-extension dictionary attributes  : 143
+extension dictionary attributes  : 151
 extension new objects            : ['ai_artifact', 'ai_completion', 'ai_context_record', 'ai_guardrail', 'ai_inference', 'ai_prompt', 'ai_response_action', 'ai_tool_call', 'ai_training', 'atlas_mapping', 'atlas_technique']
 extension patches                : ['class:api_activity', 'class:datastore_activity', 'class:detection_finding', 'class:http_activity', 'object:ai_model', 'object:message_context']
 [PASS] extension self-check (no redefined core names, all references resolve)
@@ -80,19 +80,19 @@ extension patches                : ['class:api_activity', 'class:datastore_activ
 ==============================================================================
 [PASS] SOURCES == KQL_TABLES (12 sources)
 source             class                        fields  core   abm unmap alias
-llm_gateway        6003/4002                        40    14    25     1     0
-inference_gateway  6003/4002                        35    11    24     0     0
+llm_gateway        6003/4002                        43    14    28     1     0
+inference_gateway  6003/4002                        37    12    25     0     0
 llm_retrieval      6005                             16     4    12     0     0
 vector_store       6005                             10     3     7     0     0
 agent_memory       6005                              6     4     2     0     0
-agent_runtime      6003                             31     8    23     0     0
-mcp_gateway        6003                             13     4     9     0     0
-model_registry     6003                             21     3    18     0     0
-ml_workspace       6003                             10     3     7     0     0
+agent_runtime      6003                             34    10    23     1     0
+mcp_gateway        6003                             14     4    10     0     0
+model_registry     6003                             25     3    22     0     0
+ml_workspace       6003                             11     3     8     0     0
 training_pipeline  6003                             20     2    18     0     0
-cloud_audit        6003                             10     5     3     2     0
+cloud_audit        6003                             12     7     3     2     0
 identity           3002                             13    10     0     2     1
-TOTAL                                              225    71   148     5     1
+TOTAL                                              241    76   158     6     1
 [PASS] every mapping path resolves in OCSF 1.8.0 + abm extension
 [PASS] every field declared in behavior telemetry has an OCSF path
 
@@ -169,7 +169,7 @@ TOTAL                                              225    71   148     5     1
 ==============================================================================
 5. Full corpus round trip: native -> OCSF -> normalized, every behavior fixture
 ==============================================================================
-[PASS] 143 behaviors, 284 fixtures, 29290 events: identical alerts, test expectations hold
+[PASS] 159 behaviors, 316 fixtures, 29632 events: identical alerts, test expectations hold
 
 ==============================================================================
 6. CLI (abm replay --input-format / --output-format ocsf)
@@ -258,9 +258,9 @@ $ python scripts/gen_ocsf_mapping_doc.py --check
 ==============================================================================
 8. abm validate --run-tests / abm test
 ==============================================================================
-    143 behavior(s), 0 error(s), 0 warning(s)
+    159 behavior(s), 0 error(s), 0 warning(s)
 [PASS] abm validate --run-tests
-    284/284 passed
+    316/316 passed
 [PASS] abm test
 
 ==============================================================================
@@ -292,6 +292,8 @@ PASSED  tests/test_engine.py::test_untrusted_scope_filter
 PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-C2-001]
 PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-CA-001]
 PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-COL-001]
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-DSC-001]
+PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-IA-001]
 PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-LM-001]
 PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-MA-001]
 PASSED  tests/test_models.py::test_accepts_tactic_category_prefixes[BHV-RC-001]
@@ -309,6 +311,7 @@ PASSED  tests/test_models.py::test_positive_threshold_windows_remain_valid[2d-17
 PASSED  tests/test_models.py::test_rejects_bad_atlas_ids
 PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-C2-01]
 PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-CO-001]
+PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-DS-001]
 PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-PI-1]
 PASSED  tests/test_models.py::test_rejects_bad_behavior_id[BHV-XX-001]
 PASSED  tests/test_models.py::test_rejects_bad_behavior_id[PI-001]
@@ -418,7 +421,7 @@ PASSED  tests/test_xsoar.py::test_one_incident_per_alert_and_statuses
 PASSED  tests/test_xsoar.py::test_payload_carries_atlas_context_and_plan
 PASSED  tests/test_xsoar.py::test_rejects_plain_http_and_missing_key
 PASSED  tests/test_xsoar.py::test_xsoar6_vs_xsoar8_endpoints_and_headers
-summary: 152 passed, 0 failed, 0 errors, 0 skipped
+summary: 155 passed, 0 failed, 0 errors, 0 skipped
 [PASS] pytest
 
 ==============================================================================

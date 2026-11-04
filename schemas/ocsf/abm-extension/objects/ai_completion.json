@@ -18,6 +18,15 @@
     },
     "memorization_score": {
       "requirement": "optional"
+    },
+    "link_domains": {
+      "requirement": "optional"
+    },
+    "link_reputation": {
+      "requirement": "optional"
+    },
+    "nonexistent_package_count": {
+      "requirement": "optional"
     }
   }
 }
