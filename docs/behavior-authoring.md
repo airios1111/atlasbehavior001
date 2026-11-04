@@ -7,7 +7,7 @@ detections, coverage and response plans are all generated from it.
 
 | Field | Rule |
 |---|---|
-| `id` | `BHV-<PREFIX>-NNN`; prefix from PI, JB, LK, EXF, EV, PO, SC, BD, AG, DOS, CH (attack categories) or RC, MA, CA, LM, C2, COL, RD (tactic categories: recon, model access, credential access, lateral movement, command and control, collection, resource development) |
+| `id` | `BHV-<PREFIX>-NNN`; prefix from PI, JB, LK, EXF, EV, PO, SC, BD, AG, DOS, CH (attack categories) or RC, MA, CA, LM, C2, COL, RD, DSC, IA (tactic categories: recon, model access, credential access, lateral movement, command and control, collection, resource development, discovery, initial access) |
 | `status` | `experimental` → `test` → `stable` (→ `deprecated`) |
 | `atlas.tactics` | `AML.TA####`, at least one |
 | `atlas.techniques` | `AML.T####[.###]`, at least one with `relationship: primary`; use `precondition` for enabling access (e.g. AML.T0040) — preconditions do not count toward coverage |

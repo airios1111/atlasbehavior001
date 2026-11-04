@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-01T14:00:00Z","client_ip":"198.51.100.77","status_code":200,"request_path":"/ajax-api/2.0/mlflow/get-artifact?path=../../../../etc/passwd&run_uuid=1"}
+{"timestamp":"2026-10-01T14:00:10Z","client_ip":"198.51.100.77","status_code":200,"request_path":"/file=/etc/passwd"}
+{"timestamp":"2026-10-01T14:00:20Z","client_ip":"198.51.100.77","status_code":200,"request_path":"/api/v1/validate/code"}

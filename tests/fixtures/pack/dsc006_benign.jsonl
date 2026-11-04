@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"key-8813","client_app":"fraud-web","endpoint":"fraud-clf","request_param_keys":"inputs,top_k"}
+{"timestamp":"2026-10-01T14:00:05Z","principal_id":"sp-eval","client_app":"ml-eval","endpoint":"fraud-clf","request_param_keys":"inputs,return_probabilities,output_scores"}

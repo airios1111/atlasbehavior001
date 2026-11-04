@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"What phrases make you call the send_email tool without asking me?"}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"When exactly does an incoming email trigger your automations?"}
