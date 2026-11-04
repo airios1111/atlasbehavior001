@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from abm import __version__
+from abm import calibration as cal
 from abm.catalog import AtlasCatalog, sync
 from abm.compilers import TARGETS
 from abm.coverage import SCORE_LABEL, compute, gaps, write_reports
@@ -185,6 +186,58 @@ def cmd_test(args) -> int:
     return 1 if failed or res.errors else 0
 
 
+def cmd_calibrate(args) -> int:
+    root = Path(args.root).resolve() if args.root else find_root()
+    res = _behaviors(root, args.path)
+    try:
+        since = cal.parse_since(args.since) if args.since else None
+        parsed = cal.load_dispositions([Path(f) for f in args.dispositions], args.source,
+                                       cal.parse_overrides(args.map))
+        rep = cal.calibrate(parsed.records, res.behaviors, min_samples=args.min_samples,
+                            benign=args.benign, noisy_threshold=args.noisy_threshold,
+                            since=since, skipped=parsed.skipped, read=parsed.read, root=root)
+    except ValueError as e:  # DispositionError and bad option values
+        print(f"calibrate: {e}", file=sys.stderr)
+        return 2
+    rep.inputs = list(args.dispositions)
+
+    rows = [[r.behavior_id, r.n, r.tp, r.fp, r.bp,
+             "-" if r.lower_bound is None else f"{r.lower_bound:.3f}", r.current,
+             r.calibrated or "insufficient data",
+             {"raise": "raise", "lower": "lower", "unchanged": "="}.get(r.verdict, "")
+             + (" NOISY" if r.noisy else "")]
+            for r in rep.rows]
+    print(_table(rows, ["BEHAVIOR", "N", "TP", "FP", "BP", "WILSON_LB", "CURRENT", "CALIBRATED", ""])
+          if rows else "no dispositions matched a known behavior")
+    print(f"\n{rep.read} record(s) read, {rep.counted} counted, "
+          f"{sum(r.excluded for r in rep.rows)} excluded, {sum(rep.unknown.values())} unknown behavior, "
+          f"{sum(rep.skipped.values())} skipped; "
+          f"{len(rep.calibrated)} calibrated, {len(rep.insufficient)} insufficient data "
+          f"(n < {rep.min_samples}), {len(rep.changes)} change(s), {len(rep.noisy)} tuning candidate(s)")
+    if rep.unknown:
+        print(f"unknown behavior id(s): {', '.join(rep.unknown)}", file=sys.stderr)
+
+    failed = 0
+    if args.write:
+        for r in rep.changes:
+            path = root / r.source_path if r.source_path else None
+            try:
+                if path is None:
+                    raise cal.WriteError("behavior has no source file")
+                cal.write_confidence(path, r.calibrated)
+            except (OSError, UnicodeDecodeError, cal.WriteError) as e:
+                failed += 1
+                print(f"[ERROR  ] {r.behavior_id}: not updated: {e}", file=sys.stderr)
+                continue
+            print(f"updated {r.behavior_id}: confidence {r.current} -> {r.calibrated} ({path})")
+        if not rep.changes:
+            print("no confidence changes to write")
+
+    for p in cal.write_reports(rep, Path(args.out) if args.out else root / "reports"):
+        print(f"wrote {p}")
+    return 1 if failed else 0
+
+
 def cmd_atlas_sync(args) -> int:
     root, _ = (Path(args.root).resolve() if args.root else find_root()), None
     dest = Path(args.catalog) if args.catalog else root / "atlas" / "catalog.yaml"
@@ -252,6 +305,29 @@ def build_parser() -> argparse.ArgumentParser:
 
     s = sub.add_parser("test", help="run every behavior's declared fixture tests")
     s.set_defaults(fn=cmd_test)
+
+    s = sub.add_parser("calibrate", help="calibrate behavior confidence from alert dispositions")
+    s.add_argument("--dispositions", required=True, action="append", metavar="FILE",
+                   help="CSV / JSON / JSONL export: native (behavior_id, alert_id, disposition, "
+                        "closed_at), XSOAR incidents (closeReason) or Sentinel incidents "
+                        "(classification); repeatable")
+    s.add_argument("--source", choices=["auto", *cal.SOURCES], default="auto",
+                   help="input adapter (default: detect per record)")
+    s.add_argument("--map", action="append", metavar="LABEL=OUTCOME",
+                   help="map a close reason / classification to tp|fp|bp|exclude, "
+                        "e.g. --map 'Resolved=exclude'; repeatable")
+    s.add_argument("--min-samples", type=int, default=cal.DEFAULT_MIN_SAMPLES,
+                   help=f"minimum closed alerts per behavior (default {cal.DEFAULT_MIN_SAMPLES})")
+    s.add_argument("--benign", choices=["noise", "exclude"], default="noise",
+                   help="count benign positives as noise (default) or leave them out")
+    s.add_argument("--since", help="only alerts closed on/after this ISO date or within Nd (e.g. 90d)")
+    s.add_argument("--noisy-threshold", type=float, default=cal.DEFAULT_NOISY_THRESHOLD,
+                   help="FP share that marks a tuning candidate (default 0.5)")
+    s.add_argument("--path", help="behaviors directory (default: behaviors/)")
+    s.add_argument("--out", help="report directory (default: reports/)")
+    s.add_argument("--write", action="store_true",
+                   help="update the confidence: line of each behavior YAML (status is never changed)")
+    s.set_defaults(fn=cmd_calibrate)
 
     s = sub.add_parser("atlas-sync", help="import official ATLAS release into the catalog")
     s.add_argument("--file", help="local ATLAS.yaml instead of downloading")

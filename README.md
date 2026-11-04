@@ -359,6 +359,7 @@ references:
 │   ├── engine.py              # Reference detection engine (replay, fixtures)
 │   ├── response.py            # Action registry, response planner, executors
 │   ├── coverage.py            # Scoring, gaps, Navigator layer
+│   ├── calibration.py         # Confidence calibration from alert dispositions
 │   ├── compilers/             # kql.py, sigma.py, spl.py
 │   └── cli.py                 # `abm` CLI
 ├── schemas/behavior.schema.json   # Generated from the model (make schema)
@@ -432,6 +433,7 @@ abm replay --fixture tests/fixtures/extraction_burst.jsonl --respond --expect al
 abm replay --fixture tests/fixtures/extraction_burst.jsonl --xsoar https://xsoar.example.com   # Cortex XSOAR incident
 abm test                                   # run every behavior's declared fixtures
 abm gaps --tactic AML.TA0010
+abm calibrate --dispositions closed.csv [--write]   # confidence from SOC dispositions
 abm atlas-sync [--file ATLAS.yaml]         # online or offline catalog refresh
 ```
 
@@ -533,11 +535,65 @@ Coverage scoring:
 Scores describe the behavior definitions and local replay results. A score of 3 does not verify
 that a deployed control or SOAR playbook successfully enforces the response.
 
+## Confidence Calibration
+
+A behavior's `confidence` starts as the author's estimate. `abm calibrate` replaces it with
+measured precision from closed alerts:
+
+```bash
+abm calibrate --dispositions dispositions.csv                 # reports only
+abm calibrate --dispositions xsoar.json --dispositions sentinel.csv --since 90d --write
+```
+
+**Input.** CSV, JSON or JSONL. The adapter is detected per record; force one with `--source`:
+
+| Source | Disposition field | Behavior ID from | Alert ID | Closed at |
+|---|---|---|---|---|
+| Native | `disposition`: `true_positive` · `false_positive` · `benign_positive` · `undetermined` | `behavior_id` | `alert_id` | `closed_at` |
+| Cortex XSOAR | `closeReason` | `CustomFields.abmbehaviorid`, label `behavior_id`, or `[BHV-…]` in the name (all set by `abm replay --xsoar`) | `id` | `closed` |
+| Microsoft Sentinel | `classification`: `TruePositive` · `FalsePositive` · `BenignPositive` · `Undetermined` | `BHV-…` in the incident title (name analytics rules after the behavior) | `IncidentNumber` | `ClosedTime` (falls back to `lastModifiedTimeUtc`) |
+
+Sentinel REST (`{"value": [...]}` with `properties`), `SecurityIncident` query exports and portal
+CSVs all work. Column names are matched case- and space-insensitively. XSOAR close reasons map as follows:
+`Resolved` / `True Positive` → TP, `False Positive` → FP, `Security Testing` / `Known Issue` → BP,
+`Duplicate` / `Other` → excluded. The XSOAR 8 `Resolved - …` forms map the same way. For custom
+close reasons, or to stop reading XSOAR 6's generic `Resolved` as a true positive, use
+`--map 'LABEL=tp|fp|bp|exclude'`. Open incidents are skipped. If an alert was closed more than once,
+only the most recent disposition counts.
+
+**Method.** precision = TP / (TP + FP + BP). Benign positives count as noise because they cost
+triage time, and they are what `detection.false_positives` documents. Use `--benign exclude` to leave
+them out. Undetermined and duplicate closures are not counted. Confidence comes from the **Wilson
+score lower bound** (95%), not the raw ratio, so a small perfect sample can't claim high confidence:
+
+| Wilson lower bound | Confidence |
+|---|---|
+| ≥ 0.95 | critical |
+| ≥ 0.80 | high |
+| ≥ 0.50 | medium |
+| < 0.50 | low |
+
+With fewer than `--min-samples` (default 20) counted alerts, a behavior reports **insufficient
+data** with no number and is never written. At n = 20, only 20/20 reaches `high` (bound 0.84), and
+19/20 stays `medium` (bound 0.76). `critical` needs at least 73 alerts, all true positives.
+
+**Output.** `reports/calibration.md` and `reports/calibration.json` contain per-behavior counts,
+precision, bound, current and calibrated confidence, and **tuning candidates**: behaviors whose noise
+share is ≥ 50% (`--noisy-threshold`), listed with their `detection.false_positives` notes and the
+analysts' reasons (Sentinel `classificationReason` or a native `reason` column). Dispositions for behavior
+IDs that aren't in `behaviors/` and skipped records are listed with a reason.
+
+**`--write`** rewrites only the `confidence:` line of each changed YAML. It uses a targeted line edit,
+not a YAML round-trip, so ATLAS comments, quoting and line endings survive. Each edit is re-parsed and
+rejected unless `confidence` is the only value that changed. `status` is never modified:
+promotion stays a reviewed decision. Review the diff and commit it like any other behavior change.
+Pack behaviors are only regenerated with `gen_behavior_pack.py --force`, which would reset them.
+
 ---
 
 ## Testing
 
-- **Unit and integration tests**: detection evaluation, model validation, coverage scoring, mocked XSOAR delivery, and the tutorial.
+- **Unit and integration tests**: detection evaluation, model validation, coverage scoring, confidence calibration (band edges, small samples, XSOAR/Sentinel adapters, YAML write-back), mocked XSOAR delivery, and the tutorial.
 - **Fixture replay**: attack and benign events in `tests/fixtures/` run through the reference engine; every `stable` behavior requires at least one positive and one negative test.
 - **Catalog validation**: CI fails if a referenced ATLAS ID does not resolve in the checked-in catalog. Upstream changes are checked when the catalog is refreshed.
 - **Compiler checks**: every behavior must compile to KQL, SPL, and Sigma; selected output shapes and Sigma YAML are tested. Target-native validation and execution against real workspaces remain deployment checks.
@@ -569,7 +625,7 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 - [ ] OCSF AI-event extension mapping
 - [ ] Sentinel Content Hub packaging (analytics rules + workbooks + Logic Apps)
 - [ ] Agentic AI telemetry: MCP / tool-call provenance graph
-- [ ] Confidence calibration from production alert dispositions
+- [x] Confidence calibration from production alert dispositions (`abm calibrate`)
 - [ ] OWASP LLM Top 10 and NIST AI RMF cross-reference tags
 - [ ] AWS (Bedrock / CloudTrail) and GCP (Vertex AI / Cloud Audit) source adapters
 
