@@ -1,0 +1,212 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AICloudAuditEvents_CL custom table and the data collection rule that ingests normalized 'cloud_audit' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AICloudAuditEvents_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AICloudAuditEvents_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "AgentName",
+              "type": "string"
+            },
+            {
+              "name": "DeployerInApprovedGroup",
+              "type": "boolean"
+            },
+            {
+              "name": "EventType",
+              "type": "string"
+            },
+            {
+              "name": "Image",
+              "type": "string"
+            },
+            {
+              "name": "ImageSignatureStatus",
+              "type": "string"
+            },
+            {
+              "name": "Operation",
+              "type": "string"
+            },
+            {
+              "name": "PrincipalId",
+              "type": "string"
+            },
+            {
+              "name": "PrincipalRole",
+              "type": "string"
+            },
+            {
+              "name": "ResourceId",
+              "type": "string"
+            },
+            {
+              "name": "ResourceType",
+              "type": "string"
+            },
+            {
+              "name": "Scope",
+              "type": "string"
+            },
+            {
+              "name": "WorkloadType",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-cloud-audit",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AICloudAuditEvents_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AICloudAuditEventsRaw": {
+            "columns": [
+              {
+                "name": "agent_name",
+                "type": "string"
+              },
+              {
+                "name": "deployer_in_approved_group",
+                "type": "boolean"
+              },
+              {
+                "name": "event_type",
+                "type": "string"
+              },
+              {
+                "name": "image",
+                "type": "string"
+              },
+              {
+                "name": "image_signature_status",
+                "type": "string"
+              },
+              {
+                "name": "operation",
+                "type": "string"
+              },
+              {
+                "name": "principal_id",
+                "type": "string"
+              },
+              {
+                "name": "principal_role",
+                "type": "string"
+              },
+              {
+                "name": "resource_id",
+                "type": "string"
+              },
+              {
+                "name": "resource_type",
+                "type": "string"
+              },
+              {
+                "name": "scope",
+                "type": "string"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              },
+              {
+                "name": "workload_type",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AICloudAuditEventsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), AgentName = agent_name, DeployerInApprovedGroup = deployer_in_approved_group, EventType = event_type, Image = image, ImageSignatureStatus = image_signature_status, Operation = operation, PrincipalId = principal_id, PrincipalRole = principal_role, ResourceId = resource_id, ResourceType = resource_type, Scope = scope, WorkloadType = workload_type",
+            "outputStream": "Custom-AICloudAuditEvents_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-cloud-audit'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AICloudAuditEventsRaw"
+    }
+  }
+}

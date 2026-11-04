@@ -2,7 +2,7 @@ PY ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: setup atlas-sync validate test replay build coverage schema fixtures docs lint clean all ocsf-fixtures ocsf-docs ocsf-check verify-branch2
+.PHONY: setup atlas-sync validate test replay build coverage schema fixtures docs lint clean all ocsf-fixtures ocsf-docs ocsf-check verify-branch2 sentinel
 
 setup:
 	$(PY) -m venv $(VENV)
@@ -31,6 +31,10 @@ coverage:
 .PHONY: calibrate
 calibrate:
 	$(BIN)/abm calibrate --dispositions $(DISPOSITIONS) $(if $(WRITE),--write)
+
+sentinel:
+	$(BIN)/abm sentinel-build
+	$(BIN)/abm sentinel-validate
 
 schema:
 	$(BIN)/python -c "import json; from abm.models import Behavior; print(json.dumps(Behavior.model_json_schema(), indent=2))" > schemas/behavior.schema.json

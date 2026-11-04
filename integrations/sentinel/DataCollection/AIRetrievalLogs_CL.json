@@ -1,0 +1,244 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AIRetrievalLogs_CL custom table and the data collection rule that ingests normalized 'llm_retrieval' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AIRetrievalLogs_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AIRetrievalLogs_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "CallerClearance",
+              "type": "string"
+            },
+            {
+              "name": "DocId",
+              "type": "string"
+            },
+            {
+              "name": "DocSensitivity",
+              "type": "string"
+            },
+            {
+              "name": "PrincipalId",
+              "type": "string"
+            },
+            {
+              "name": "Query",
+              "type": "string"
+            },
+            {
+              "name": "QueryId",
+              "type": "string"
+            },
+            {
+              "name": "RawHtml",
+              "type": "string"
+            },
+            {
+              "name": "RetrievedContent",
+              "type": "string"
+            },
+            {
+              "name": "SessionId",
+              "type": "string"
+            },
+            {
+              "name": "SourceDomain",
+              "type": "string"
+            },
+            {
+              "name": "SourceDomainAgeDays",
+              "type": "long"
+            },
+            {
+              "name": "SourceSystem",
+              "type": "string"
+            },
+            {
+              "name": "SourceTrust",
+              "type": "string"
+            },
+            {
+              "name": "SourceType",
+              "type": "string"
+            },
+            {
+              "name": "SourceUri",
+              "type": "string"
+            },
+            {
+              "name": "TenantMismatch",
+              "type": "boolean"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-llm-retrieval",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AIRetrievalLogs_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AIRetrievalLogsRaw": {
+            "columns": [
+              {
+                "name": "caller_clearance",
+                "type": "string"
+              },
+              {
+                "name": "doc_id",
+                "type": "string"
+              },
+              {
+                "name": "doc_sensitivity",
+                "type": "string"
+              },
+              {
+                "name": "principal_id",
+                "type": "string"
+              },
+              {
+                "name": "query",
+                "type": "string"
+              },
+              {
+                "name": "query_id",
+                "type": "string"
+              },
+              {
+                "name": "raw_html",
+                "type": "string"
+              },
+              {
+                "name": "retrieved_content",
+                "type": "string"
+              },
+              {
+                "name": "session_id",
+                "type": "string"
+              },
+              {
+                "name": "source_domain",
+                "type": "string"
+              },
+              {
+                "name": "source_domain_age_days",
+                "type": "long"
+              },
+              {
+                "name": "source_system",
+                "type": "string"
+              },
+              {
+                "name": "source_trust",
+                "type": "string"
+              },
+              {
+                "name": "source_type",
+                "type": "string"
+              },
+              {
+                "name": "source_uri",
+                "type": "string"
+              },
+              {
+                "name": "tenant_mismatch",
+                "type": "boolean"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AIRetrievalLogsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), CallerClearance = caller_clearance, DocId = doc_id, DocSensitivity = doc_sensitivity, PrincipalId = principal_id, Query = query, QueryId = query_id, RawHtml = raw_html, RetrievedContent = retrieved_content, SessionId = session_id, SourceDomain = source_domain, SourceDomainAgeDays = source_domain_age_days, SourceSystem = source_system, SourceTrust = source_trust, SourceType = source_type, SourceUri = source_uri, TenantMismatch = tenant_mismatch",
+            "outputStream": "Custom-AIRetrievalLogs_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-llm-retrieval'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AIRetrievalLogsRaw"
+    }
+  }
+}

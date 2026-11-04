@@ -31,6 +31,33 @@ KQL_TABLES = {
     "identity": "SigninLogs",
 }
 
+# Microsoft Sentinel profile. Custom tables fed through the Logs Ingestion API (DCR) must end in _CL.
+# identity and cloud_audit also go to custom tables here: the behaviors read normalized fields
+# (principal_id, token_id, ...) that the built-in SigninLogs / AzureActivity schemas don't have, and
+# Sentinel rejects a rule whose query references a column that doesn't exist.
+SENTINEL_TABLES = {
+    "llm_gateway": "AIGatewayLogs_CL",
+    "inference_gateway": "AIInferenceLogs_CL",
+    "llm_retrieval": "AIRetrievalLogs_CL",
+    "model_registry": "AIModelRegistryEvents_CL",
+    "agent_runtime": "AIAgentToolCalls_CL",
+    "training_pipeline": "AITrainingPipelineEvents_CL",
+    "vector_store": "AIVectorStoreEvents_CL",
+    "agent_memory": "AIAgentMemoryEvents_CL",
+    "mcp_gateway": "AIMCPGatewayEvents_CL",
+    "ml_workspace": "AIMLWorkspaceEvents_CL",
+    "cloud_audit": "AICloudAuditEvents_CL",
+    "identity": "AIIdentityEvents_CL",
+}
+
+# --profile: which table names the KQL compiler emits.
+KQL_PROFILES = {"default": KQL_TABLES, "sentinel": SENTINEL_TABLES}
+
+# Sentinel scheduled rules run every 5 minutes at most and look back 14 days at most.
+SENTINEL_MIN_PERIOD_S = 5 * 60
+SENTINEL_MAX_PERIOD_S = 14 * 86400
+SENTINEL_DEFAULT_PERIOD = "1h"  # per-event rules (signature / field_match) have no window
+
 SPL_SOURCES = {
     "llm_gateway": 'index=ai sourcetype="ai:gateway"',
     "inference_gateway": 'index=ai sourcetype="ai:inference"',
@@ -78,3 +105,24 @@ def not_expressible(b, target: str, reason: str, comment: str, end: str = "") ->
         f"replay exported spans with: abm replay --behavior {b.id} --fixture <spans.jsonl>",
     ]
     return "\n".join([header(b, comment, end), *(f"{comment} {t}{end}" for t in lines)]) + "\n"
+
+
+def kql_table(source: str, profile: str = "default") -> str:
+    if profile not in KQL_PROFILES:
+        raise ValueError(f"unknown KQL profile '{profile}' (expected one of {sorted(KQL_PROFILES)})")
+    default = pascal(source) + ("_CL" if profile == "sentinel" else "")
+    return KQL_PROFILES[profile].get(source, default)
+
+
+def sentinel_period(window_seconds: int) -> str:
+    """Detection window -> Sentinel queryPeriod/queryFrequency in the Azure-Sentinel template format
+    (5m, 1h, 1d). 0 means no window. Clamped to 5m..14d; seconds round up to whole minutes."""
+    if window_seconds <= 0:
+        return SENTINEL_DEFAULT_PERIOD
+    s = min(max(window_seconds, SENTINEL_MIN_PERIOD_S), SENTINEL_MAX_PERIOD_S)
+    minutes = -(-s // 60)
+    if minutes % 1440 == 0:
+        return f"{minutes // 1440}d"
+    if minutes % 60 == 0:
+        return f"{minutes // 60}h"
+    return f"{minutes}m"

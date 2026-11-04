@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from abm.compilers.common import KQL_TABLES, header, pascal
+from abm.compilers.common import header, kql_table, pascal, sentinel_period
 from abm.models import Behavior
 
 _AGG = {"count": "count()", "dcount": "dcount({f})", "sum": "sum({f})", "avg": "avg({f})",
@@ -51,7 +51,7 @@ def _conds(spec: dict[str, Any], indent: str = "    ") -> list[str]:
     return [f"{indent}| where {w}" for f, cond in spec.items() for w in _where(f, cond)]
 
 
-def _provenance(b: Behavior) -> str:
+def _provenance(b: Behavior, profile: str = "default") -> str:
     """Taint along the span graph as self-joins on an edge table, unrolled to max_hops.
 
     Matches the reference engine for paths up to max_hops whose spans all fall inside the rule's
@@ -60,7 +60,7 @@ def _provenance(b: Behavior) -> str:
     p = d.provenance
     if p is None:  # unreachable for validated behaviors (Detection._shape)
         raise ValueError(f"{b.id}: provenance logic without a provenance block")
-    tables = list(dict.fromkeys(KQL_TABLES.get(s.source, pascal(s.source)) for s in b.telemetry.required))
+    tables = list(dict.fromkeys(kql_table(s.source, profile) for s in b.telemetry.required))
     n = p.max_hops
     lines = [
         header(b),
@@ -109,14 +109,17 @@ def _provenance(b: Behavior) -> str:
     return "\n".join(lines) + "\n"
 
 
-def compile_behavior(b: Behavior) -> str:
+def compile_behavior(b: Behavior, profile: str = "default") -> str:
+    """profile="sentinel" emits _CL custom tables and never looks back less than Sentinel's 5-minute
+    minimum schedule, so a 1m window run every 5m still sees every bin."""
     d = b.detection
     if d.logic == "provenance":
-        return _provenance(b)
-    table = KQL_TABLES.get(b.log_source, pascal(b.log_source))
+        return _provenance(b, profile)
+    table = kql_table(b.log_source, profile)
     lines = [header(b), table]
     if d.window:
-        lines.append(f"| where TimeGenerated > ago({d.window})")
+        lookback = sentinel_period(d.window_seconds) if profile == "sentinel" else d.window
+        lines.append(f"| where TimeGenerated > ago({lookback})")
     for f, spec in d.filters.items():
         lines += [f"| where {w}" for w in _where(f, spec)]
 

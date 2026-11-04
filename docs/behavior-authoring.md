@@ -12,6 +12,7 @@ detections, coverage and response plans are all generated from it.
 | `atlas.tactics` | `AML.TA####`, at least one |
 | `atlas.techniques` | `AML.T####[.###]`, at least one with `relationship: primary`; use `precondition` for enabling access (e.g. AML.T0040) — preconditions do not count toward coverage |
 | `telemetry.required[0].source` | Drives the SIEM table/index mapping in `src/abm/compilers/common.py` |
+| `attack_bridge` | Optional ATT&CK technique IDs. They become the Sentinel rule's `tactics` / `relevantTechniques`; each one (or its parent) must be listed in `ATTACK_TACTICS` in `src/abm/compilers/sentinel.py`, or `abm sentinel-validate` fails |
 | `detection.logic` | `signature` \| `windowed_threshold` \| `field_match` \| `provenance` |
 | `tests` | `stable` requires at least one `alert` and one `no_alert` fixture |
 
@@ -90,6 +91,11 @@ fixture should have a benign near-miss twin (same shape, should not fire). Gener
 to a spec when the detection only sees a weak downstream proxy of the technique; coverage then
 scores it 1 (mitigation-only).
 
+Telemetry fields and fixture values also define the Sentinel custom tables: every field a behavior
+declares for a source becomes a column of that source's `_CL` table, typed from the fixture values and
+from how the detection uses it (numeric comparisons and `sum/avg/variance/min/max` make it numeric).
+A field that is a string in one fixture and a number in another fails `abm sentinel-build`.
+
 The engine is stateless. When a detection needs history ("first time this agent used this server",
 "seconds since the previous call"), read a field computed by the normalizer or an enrichment step
 and say in the description how it is computed (see `inter_arrival_s` in BHV-C2-001).
@@ -100,5 +106,6 @@ and say in the description how it is computed (see `inter_arrival_s` in BHV-C2-0
 - [ ] Mapped to the most specific sub-technique
 - [ ] Mitigations bound
 - [ ] Compiled KQL/SPL reviewed against a real workspace
+- [ ] `abm sentinel-build` run and `integrations/sentinel/` committed (CI checks it)
 - [ ] False positives documented (`abm calibrate` lists them next to measured noise)
 - [ ] Confidence calibrated from production dispositions (`abm calibrate --write`, n ≥ 20)

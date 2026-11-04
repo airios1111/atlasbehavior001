@@ -7,7 +7,7 @@ abm 0.1.0 | OCSF 1.8.0 | extension abm 0.1.0
 ==============================================================================
 3f218f11e1e99061b5bcf607de115eea5925b51f14c251b4ecf4777dbe7dfb37  src/abm/ocsf.py
 5d885034e2211b9c8fdc185186b46fee7143b652e326efdc0e011b4fb1c72ef5  src/abm/ocsf_schema.py
-12255358ef3b417e0a55b47208ccc865f5946912a5e28deccaf1fb9fea6ed7a8  src/abm/cli.py
+be872070de8c12d22583f947ef91fe941a560819b9b64ef0eb6ba39d4e107f55  src/abm/cli.py
 2181cb7b28dc1da0a4b9da132af12fc104ecb7518ef45300a897501300bffa5f  tests/test_ocsf.py
 8498c37e701c3a297922a11bc019ee4c316155802789f17d4135eb5a420e7c1c  scripts/gen_ocsf_fixtures.py
 ab9f687b5ca3852863b2116c84d71b535e8ca19b0cc78e4884b900c411b0f95c  scripts/gen_ocsf_mapping_doc.py
@@ -19,10 +19,10 @@ d792f8bfbd30f5f37db30594ccb455d70b05cec5e0762b13fa178b622b75dc44  scripts/verify
 50bea3a16e3b6ddce01712a764426730fbd543ee46dc73b274d9864a0c0d0ef3  docs/ocsf.md
 4d4a5ae9524b45a11a00b42956a767c502d58666d77cd59f7aac1fa5524baf4a  docs/ocsf-mapping.md
 553d3c2f8378305d153e87c98dbcf113d7d6f55fe76f3906bb21265ed4e761d7  docs/branches/branch2-ocsf-ai-event-mapping.md
-f52277ad4621bbeadf11305925a0d8879529611b1393aa381e86864ef912c444  README.md
-5f8f700863e9c9f7768f32586864b815d7caa5f9a0bc5ddc4f8e79b469ec1ad6  Makefile
-56224078ef804ac63acd7e6a15362c68c830d5f3b53daf1f7e091ea080de6f01  .github/workflows/ci.yml
-0fe899440e481aa741cf07a9430bdc7c898f95dc452739f6f9beccc4455bccae  .gitattributes
+873abca84a042114d690645b479be64029ac15487674e41ea33d77df16a9c658  README.md
+55213b7697e2a848f0c7410ccb9a0c0e5977027b139cf226c34e9e693c3bafc2  Makefile
+218d18532cc07b52758b6405d500a91d4aa110f883bf7fd2d3836f5985f0659d  .github/workflows/ci.yml
+bdd438734b3d9eed246a4a46dab45f13794741e9e770d7787a2f724ce991020d  .gitattributes
 cc0f4c0a955d4abf599b7a473ff22a1a676e46d24bc8784f703871690c4d0120  schemas/ocsf/README.md
 a87c78341503782bcf50a9c999367f0f55630adda3e4587a48589ce1e6bb5a4d  schemas/ocsf/abm-extension/dictionary.json
 4923e2f565b6a6edcc91cbe41a999793d086ed67df930f2983daf6e12c430610  schemas/ocsf/abm-extension/events/application/api_activity.json
@@ -266,6 +266,48 @@ $ python scripts/gen_ocsf_mapping_doc.py --check
 ==============================================================================
 9. pytest (per-test outcome, sorted)
 ==============================================================================
+PASSED  tests/test_calibration.py::test_bad_close_times_do_not_abort_the_run
+PASSED  tests/test_calibration.py::test_band_edges[0.0-low]
+PASSED  tests/test_calibration.py::test_band_edges[0.4999-low]
+PASSED  tests/test_calibration.py::test_band_edges[0.5-medium]
+PASSED  tests/test_calibration.py::test_band_edges[0.7999-medium]
+PASSED  tests/test_calibration.py::test_band_edges[0.8-high]
+PASSED  tests/test_calibration.py::test_band_edges[0.9499-high]
+PASSED  tests/test_calibration.py::test_band_edges[0.95-critical]
+PASSED  tests/test_calibration.py::test_band_edges[1.0-critical]
+PASSED  tests/test_calibration.py::test_below_min_samples_reports_insufficient_data_not_a_number
+PASSED  tests/test_calibration.py::test_benign_positive_counts_as_noise_by_default_or_can_be_excluded
+PASSED  tests/test_calibration.py::test_cli_bad_input_exits_2
+PASSED  tests/test_calibration.py::test_cli_reports_without_write_leave_yaml_untouched
+PASSED  tests/test_calibration.py::test_cli_write_changes_only_the_confidence_line
+PASSED  tests/test_calibration.py::test_cli_write_refuses_ambiguous_file_and_exits_1
+PASSED  tests/test_calibration.py::test_dedupe_keeps_latest_disposition_per_alert
+PASSED  tests/test_calibration.py::test_deeply_nested_json_is_a_clean_error
+PASSED  tests/test_calibration.py::test_exactly_min_samples_is_calibrated
+PASSED  tests/test_calibration.py::test_excel_exports_semicolon_utf16_and_non_utf8
+PASSED  tests/test_calibration.py::test_excluded_outcomes_do_not_count_toward_n
+PASSED  tests/test_calibration.py::test_insufficient_data_is_never_flagged_noisy
+PASSED  tests/test_calibration.py::test_long_custom_close_reasons_still_map
+PASSED  tests/test_calibration.py::test_min_samples_is_configurable
+PASSED  tests/test_calibration.py::test_native_jsonl_and_bad_input
+PASSED  tests/test_calibration.py::test_noisy_behavior_listed_with_false_positive_notes
+PASSED  tests/test_calibration.py::test_sentinel_rest_json_and_portal_csv
+PASSED  tests/test_calibration.py::test_set_confidence_is_a_single_line_edit
+PASSED  tests/test_calibration.py::test_since_filters_by_closed_at
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[14-20-low]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[15-20-medium]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[19-20-medium]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[20-20-high]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[72-72-high]
+PASSED  tests/test_calibration.py::test_synthetic_sets_land_on_each_side_of_a_band_edge[73-73-critical]
+PASSED  tests/test_calibration.py::test_unknown_behavior_ids_reported_not_calibrated
+PASSED  tests/test_calibration.py::test_untrusted_text_cannot_inject_markup_or_terminal_escapes
+PASSED  tests/test_calibration.py::test_verdict_relative_to_current_confidence
+PASSED  tests/test_calibration.py::test_wilson_lower_bound_known_values
+PASSED  tests/test_calibration.py::test_write_never_changes_status_even_when_lowering
+PASSED  tests/test_calibration.py::test_write_verification_rejects_any_other_change
+PASSED  tests/test_calibration.py::test_xsoar_adapter
+PASSED  tests/test_calibration.py::test_zero_true_positives_gives_exactly_zero
 PASSED  tests/test_compilers_coverage.py::test_atlas_data_import_parses_matrix_layout
 PASSED  tests/test_compilers_coverage.py::test_coverage_scores
 PASSED  tests/test_compilers_coverage.py::test_drift_detected_against_catalog_without_technique
@@ -458,6 +500,42 @@ PASSED  tests/test_provenance.py::test_trace_fixtures_follow_the_contract[ag018]
 PASSED  tests/test_provenance.py::test_trace_fixtures_follow_the_contract[exf014]
 PASSED  tests/test_provenance.py::test_trace_fixtures_follow_the_contract[sc013]
 PASSED  tests/test_provenance.py::test_validator_requires_graph_fields
+PASSED  tests/test_sentinel.py::test_atlas_ids_travel_in_custom_details_and_description
+PASSED  tests/test_sentinel.py::test_attack_bridge_drives_sentinel_tactics_and_techniques
+PASSED  tests/test_sentinel.py::test_check_and_write_detect_drift_stale_files_and_ignore_crlf
+PASSED  tests/test_sentinel.py::test_check_arm_rejects_common_arm_ttk_failures
+PASSED  tests/test_sentinel.py::test_check_rule_rejects_invalid_rules
+PASSED  tests/test_sentinel.py::test_cli_compile_sentinel_target_and_profile
+PASSED  tests/test_sentinel.py::test_cli_sentinel_build_check_and_validate
+PASSED  tests/test_sentinel.py::test_column_types_follow_fixtures_and_detection_logic
+PASSED  tests/test_sentinel.py::test_committed_solution_is_current_and_valid
+PASSED  tests/test_sentinel.py::test_conflicting_field_types_fail_the_build
+PASSED  tests/test_sentinel.py::test_dcr_maps_stream_onto_table
+PASSED  tests/test_sentinel.py::test_entity_mappings_from_group_by
+PASSED  tests/test_sentinel.py::test_every_behavior_compiles_to_a_valid_sentinel_rule
+PASSED  tests/test_sentinel.py::test_plan_param_values_bind_templates_to_columns
+PASSED  tests/test_sentinel.py::test_playbook_routes_every_registry_action_and_gates_approvals
+PASSED  tests/test_sentinel.py::test_provenance_rules_read_every_span_table
+PASSED  tests/test_sentinel.py::test_query_period_and_frequency_come_from_window
+PASSED  tests/test_sentinel.py::test_response_plan_column_matches_abm_plan
+PASSED  tests/test_sentinel.py::test_rule_id_is_uuid5_of_behavior_id_and_stable
+PASSED  tests/test_sentinel.py::test_sentinel_period[0-1h]
+PASSED  tests/test_sentinel.py::test_sentinel_period[1800-30m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[2592000-14d]
+PASSED  tests/test_sentinel.py::test_sentinel_period[300-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[3600-1h]
+PASSED  tests/test_sentinel.py::test_sentinel_period[3601-61m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[60-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[600-10m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[86400-1d]
+PASSED  tests/test_sentinel.py::test_sentinel_period[90-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[900-15m]
+PASSED  tests/test_sentinel.py::test_sentinel_profile_uses_custom_tables_and_default_is_unchanged
+PASSED  tests/test_sentinel.py::test_severity_and_status_mapping
+PASSED  tests/test_sentinel.py::test_solution_data_lists_shipped_rules
+PASSED  tests/test_sentinel.py::test_tables_cover_every_column_the_queries_read
+PASSED  tests/test_sentinel.py::test_undeclared_detection_fields_still_get_columns
+PASSED  tests/test_sentinel.py::test_workbook_alert_views_and_navigator_coverage
 PASSED  tests/test_tutorial.py::test_tutorial_behaviors_validate_and_pass_fixtures
 PASSED  tests/test_tutorial.py::test_tutorial_mixed_traffic_replay
 PASSED  tests/test_xsoar.py::test_cli_replay_to_xsoar_reads_key_from_env
@@ -467,7 +545,9 @@ PASSED  tests/test_xsoar.py::test_one_incident_per_alert_and_statuses
 PASSED  tests/test_xsoar.py::test_payload_carries_atlas_context_and_plan
 PASSED  tests/test_xsoar.py::test_rejects_plain_http_and_missing_key
 PASSED  tests/test_xsoar.py::test_xsoar6_vs_xsoar8_endpoints_and_headers
-summary: 201 passed, 0 failed, 0 errors, 0 skipped
+SKIPPED tests/test_calibration.py::test_write_keeps_file_permissions
+SKIPPED tests/test_calibration.py::test_write_refuses_symlinks
+summary: 279 passed, 0 failed, 0 errors, 2 skipped
 [PASS] pytest
 
 ==============================================================================

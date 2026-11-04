@@ -1,0 +1,1464 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "title": "ABM - Run ATLAS Behavior Map response plan",
+    "description": "Runs the response plan that an ATLAS Behavior Map analytic rule attaches to its alert (custom detail ResponsePlan). Steps with status auto run right away; steps with status awaiting_approval are sent for Outlook approval first. Each ABM action name (ACTION_REGISTRY) has its own Switch case that POSTs to your action endpoint; replace a case with a native connector where you have one. Results are added to the incident as a comment.",
+    "prerequisites": [
+      "An HTTPS action endpoint (Azure Function or API Management) that carries out ABM actions and accepts Microsoft Entra tokens for the audience you pass as ActionEndpointAudience.",
+      "A mailbox or distribution list that approves gated actions (ApproverEmail)."
+    ],
+    "postDeployment": [
+      "Authorize the Office 365 Outlook connection (API connections > office365-<PlaybookName>).",
+      "Assign the playbook's managed identity the Microsoft Sentinel Responder role on the workspace.",
+      "Allow the managed identity on the action endpoint.",
+      "Create an automation rule that runs this playbook when an ABM alert is created."
+    ],
+    "lastUpdateTime": "2026-11-04T00:00:00.000Z",
+    "entities": [
+      "Account",
+      "IP",
+      "Host"
+    ],
+    "tags": [
+      "MITRE ATLAS",
+      "AI security",
+      "Response"
+    ],
+    "support": {
+      "tier": "community"
+    },
+    "author": {
+      "name": "Andres Rios"
+    }
+  },
+  "parameters": {
+    "PlaybookName": {
+      "type": "string",
+      "defaultValue": "ABM-ResponsePlan",
+      "metadata": {
+        "description": "Name of the Logic App."
+      }
+    },
+    "ActionEndpointUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "HTTPS endpoint that carries out ABM actions. Receives {action, params, plan_row, behavior_id, alert}."
+      }
+    },
+    "ActionEndpointAudience": {
+      "type": "string",
+      "metadata": {
+        "description": "Microsoft Entra audience (application ID URI) the action endpoint accepts."
+      }
+    },
+    "ApproverEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "Who approves awaiting_approval steps."
+      }
+    },
+    "ApprovalTimeout": {
+      "type": "string",
+      "defaultValue": "PT24H",
+      "metadata": {
+        "description": "ISO 8601 duration to wait for approval. No answer means the step is not run."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region for the Logic App and its API connections."
+      }
+    }
+  },
+  "variables": {
+    "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]",
+    "Office365ConnectionName": "[concat('office365-', parameters('PlaybookName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('AzureSentinelConnectionName')]",
+      "location": "[parameters('location')]",
+      "kind": "V1",
+      "properties": {
+        "displayName": "[variables('AzureSentinelConnectionName')]",
+        "parameterValueType": "Alternative",
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'azuresentinel')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('Office365ConnectionName')]",
+      "location": "[parameters('location')]",
+      "kind": "V1",
+      "properties": {
+        "displayName": "[variables('Office365ConnectionName')]",
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'office365')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('PlaybookName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "tags": {
+        "hidden-SentinelTemplateName": "ABM-ResponsePlan",
+        "hidden-SentinelTemplateVersion": "1.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+        "[resourceId('Microsoft.Web/connections', variables('Office365ConnectionName'))]"
+      ],
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "type": "Object"
+            },
+            "ActionEndpointUrl": {
+              "type": "String"
+            },
+            "ActionEndpointAudience": {
+              "type": "String"
+            },
+            "ApproverEmail": {
+              "type": "String"
+            }
+          },
+          "triggers": {
+            "Microsoft_Sentinel_alert": {
+              "type": "ApiConnectionWebhook",
+              "inputs": {
+                "body": {
+                  "callback_url": "@{listCallbackUrl()}"
+                },
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                  }
+                },
+                "path": "/subscribe"
+              }
+            }
+          },
+          "actions": {
+            "Parse_custom_details": {
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@json(coalesce(triggerBody()?['ExtendedProperties']?['Custom Details'], '{}'))",
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "Behavior_id": {
+              "type": "Compose",
+              "inputs": "@{if(startsWith(string(body('Parse_custom_details')?['BehaviorId']), '[\"'), first(body('Parse_custom_details')?['BehaviorId']), body('Parse_custom_details')?['BehaviorId'])}",
+              "runAfter": {
+                "Parse_custom_details": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Response_plan": {
+              "type": "Compose",
+              "inputs": "@json(if(startsWith(string(body('Parse_custom_details')?['ResponsePlan']), '[\"'), first(body('Parse_custom_details')?['ResponsePlan']), body('Parse_custom_details')?['ResponsePlan']))",
+              "runAfter": {
+                "Behavior_id": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Initialize_results": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "Results",
+                    "type": "array",
+                    "value": "@createArray()"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Response_plan": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Initialize_decision": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "Decision",
+                    "type": "string",
+                    "value": "pending"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Initialize_results": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "For_each_action": {
+              "type": "Foreach",
+              "foreach": "@outputs('Response_plan')",
+              "runtimeConfiguration": {
+                "concurrency": {
+                  "repetitions": 1
+                }
+              },
+              "runAfter": {
+                "Initialize_decision": [
+                  "Succeeded"
+                ]
+              },
+              "actions": {
+                "Approval_gate": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@items('For_each_action')?['status']",
+                          "awaiting_approval"
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Send_approval_email": {
+                      "type": "ApiConnectionWebhook",
+                      "inputs": {
+                        "host": {
+                          "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                          }
+                        },
+                        "path": "/approvalmail/$subscriptions",
+                        "body": {
+                          "NotificationUrl": "@{listCallbackUrl()}",
+                          "Message": {
+                            "To": "@parameters('ApproverEmail')",
+                            "Subject": "ABM approval needed: @{items('For_each_action')?['action']} for @{outputs('Behavior_id')}",
+                            "Options": "Approve, Reject",
+                            "Body": "<p>ATLAS Behavior Map response action <b>@{items('For_each_action')?['action']}</b> is waiting for approval.</p><p>Alert: @{triggerBody()?['AlertDisplayName']}<br>Behavior: @{outputs('Behavior_id')}<br>Parameters: @{string(items('For_each_action')?['params'])}<br>Blast radius: @{items('For_each_action')?['blast_radius']}, reversible: @{items('For_each_action')?['reversible']}</p>",
+                            "Importance": "High",
+                            "HideHTMLMessage": false,
+                            "ShowHTMLConfirmationDialog": false
+                          }
+                        }
+                      },
+                      "limit": {
+                        "timeout": "[parameters('ApprovalTimeout')]"
+                      }
+                    },
+                    "Set_decision_from_approver": {
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "Decision",
+                        "value": "@{if(equals(actions('Send_approval_email')?['status'], 'Succeeded'), body('Send_approval_email')?['SelectedOption'], 'no_response')}"
+                      },
+                      "runAfter": {
+                        "Send_approval_email": [
+                          "Succeeded",
+                          "Failed",
+                          "TimedOut"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Set_decision_auto": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "Decision",
+                          "value": "auto"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Execute_if_allowed": {
+                  "type": "If",
+                  "expression": {
+                    "or": [
+                      {
+                        "equals": [
+                          "@variables('Decision')",
+                          "auto"
+                        ]
+                      },
+                      {
+                        "equals": [
+                          "@variables('Decision')",
+                          "Approve"
+                        ]
+                      }
+                    ]
+                  },
+                  "runAfter": {
+                    "Approval_gate": [
+                      "Succeeded"
+                    ]
+                  },
+                  "actions": {
+                    "Route_action": {
+                      "type": "Switch",
+                      "expression": "@items('For_each_action')?['action']",
+                      "cases": {
+                        "Case_block_request": {
+                          "case": "block_request",
+                          "actions": {
+                            "Run_block_request": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "block_request",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_block_request": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_block_request')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_block_request')?['statusCode'], actions('Run_block_request')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_block_request": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_redact_output": {
+                          "case": "redact_output",
+                          "actions": {
+                            "Run_redact_output": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "redact_output",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_redact_output": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_redact_output')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_redact_output')?['statusCode'], actions('Run_redact_output')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_redact_output": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_strip_content": {
+                          "case": "strip_content",
+                          "actions": {
+                            "Run_strip_content": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "strip_content",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_strip_content": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_strip_content')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_strip_content')?['statusCode'], actions('Run_strip_content')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_strip_content": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_deny_tool_call": {
+                          "case": "deny_tool_call",
+                          "actions": {
+                            "Run_deny_tool_call": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "deny_tool_call",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_deny_tool_call": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_deny_tool_call')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_deny_tool_call')?['statusCode'], actions('Run_deny_tool_call')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_deny_tool_call": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_cap_tokens": {
+                          "case": "cap_tokens",
+                          "actions": {
+                            "Run_cap_tokens": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "cap_tokens",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_cap_tokens": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_cap_tokens')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_cap_tokens')?['statusCode'], actions('Run_cap_tokens')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_cap_tokens": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_increment_risk": {
+                          "case": "increment_risk",
+                          "actions": {
+                            "Run_increment_risk": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "increment_risk",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_increment_risk": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_increment_risk')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_increment_risk')?['statusCode'], actions('Run_increment_risk')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_increment_risk": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_rate_limit": {
+                          "case": "rate_limit",
+                          "actions": {
+                            "Run_rate_limit": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "rate_limit",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_rate_limit": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_rate_limit')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_rate_limit')?['statusCode'], actions('Run_rate_limit')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_rate_limit": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_enforce_quota": {
+                          "case": "enforce_quota",
+                          "actions": {
+                            "Run_enforce_quota": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "enforce_quota",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_enforce_quota": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_enforce_quota')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_enforce_quota')?['statusCode'], actions('Run_enforce_quota')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_enforce_quota": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_degrade_output": {
+                          "case": "degrade_output",
+                          "actions": {
+                            "Run_degrade_output": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "degrade_output",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_degrade_output": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_degrade_output')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_degrade_output')?['statusCode'], actions('Run_degrade_output')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_degrade_output": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_open_incident": {
+                          "case": "open_incident",
+                          "actions": {
+                            "Run_open_incident": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "open_incident",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_open_incident": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_open_incident')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_open_incident')?['statusCode'], actions('Run_open_incident')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_open_incident": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_notify": {
+                          "case": "notify",
+                          "actions": {
+                            "Run_notify": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "notify",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_notify": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_notify')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_notify')?['statusCode'], actions('Run_notify')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_notify": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_kill_session": {
+                          "case": "kill_session",
+                          "actions": {
+                            "Run_kill_session": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "kill_session",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_kill_session": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_kill_session')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_kill_session')?['statusCode'], actions('Run_kill_session')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_kill_session": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_quarantine_source": {
+                          "case": "quarantine_source",
+                          "actions": {
+                            "Run_quarantine_source": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "quarantine_source",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_quarantine_source": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_quarantine_source')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_quarantine_source')?['statusCode'], actions('Run_quarantine_source')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_quarantine_source": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_revoke_token": {
+                          "case": "revoke_token",
+                          "actions": {
+                            "Run_revoke_token": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "revoke_token",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_revoke_token": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_revoke_token')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_revoke_token')?['statusCode'], actions('Run_revoke_token')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_revoke_token": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_block_deploy": {
+                          "case": "block_deploy",
+                          "actions": {
+                            "Run_block_deploy": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "block_deploy",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_block_deploy": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_block_deploy')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_block_deploy')?['statusCode'], actions('Run_block_deploy')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_block_deploy": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_pull_model": {
+                          "case": "pull_model",
+                          "actions": {
+                            "Run_pull_model": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "pull_model",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_pull_model": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_pull_model')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_pull_model')?['statusCode'], actions('Run_pull_model')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_pull_model": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_halt_pipeline": {
+                          "case": "halt_pipeline",
+                          "actions": {
+                            "Run_halt_pipeline": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "halt_pipeline",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_halt_pipeline": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_halt_pipeline')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_halt_pipeline')?['statusCode'], actions('Run_halt_pipeline')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_halt_pipeline": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_step_up_auth": {
+                          "case": "step_up_auth",
+                          "actions": {
+                            "Run_step_up_auth": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "step_up_auth",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_step_up_auth": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_step_up_auth')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_step_up_auth')?['statusCode'], actions('Run_step_up_auth')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_step_up_auth": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_quarantine_vector_records": {
+                          "case": "quarantine_vector_records",
+                          "actions": {
+                            "Run_quarantine_vector_records": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "quarantine_vector_records",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_quarantine_vector_records": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_quarantine_vector_records')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_quarantine_vector_records')?['statusCode'], actions('Run_quarantine_vector_records')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_quarantine_vector_records": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_quarantine_artifact": {
+                          "case": "quarantine_artifact",
+                          "actions": {
+                            "Run_quarantine_artifact": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "quarantine_artifact",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_quarantine_artifact": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_quarantine_artifact')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_quarantine_artifact')?['statusCode'], actions('Run_quarantine_artifact')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_quarantine_artifact": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_disable_tool": {
+                          "case": "disable_tool",
+                          "actions": {
+                            "Run_disable_tool": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "disable_tool",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_disable_tool": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_disable_tool')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_disable_tool')?['statusCode'], actions('Run_disable_tool')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_disable_tool": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_rotate_credentials": {
+                          "case": "rotate_credentials",
+                          "actions": {
+                            "Run_rotate_credentials": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "rotate_credentials",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_rotate_credentials": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_rotate_credentials')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_rotate_credentials')?['statusCode'], actions('Run_rotate_credentials')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_rotate_credentials": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Case_purge_agent_memory": {
+                          "case": "purge_agent_memory",
+                          "actions": {
+                            "Run_purge_agent_memory": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "@parameters('ActionEndpointUrl')",
+                                "headers": {
+                                  "Content-Type": "application/json"
+                                },
+                                "body": {
+                                  "action": "purge_agent_memory",
+                                  "params": "@items('For_each_action')?['params']",
+                                  "plan_row": "@items('For_each_action')",
+                                  "behavior_id": "@outputs('Behavior_id')",
+                                  "alert": "@triggerBody()"
+                                },
+                                "authentication": {
+                                  "type": "ManagedServiceIdentity",
+                                  "audience": "@parameters('ActionEndpointAudience')"
+                                }
+                              }
+                            },
+                            "Record_purge_agent_memory": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Results",
+                                "value": {
+                                  "action": "@items('For_each_action')?['action']",
+                                  "status": "@{if(equals(actions('Run_purge_agent_memory')?['status'], 'Succeeded'), 'executed', concat('failed(', string(coalesce(outputs('Run_purge_agent_memory')?['statusCode'], actions('Run_purge_agent_memory')?['status'])), ')'))}",
+                                  "approval": "@variables('Decision')"
+                                }
+                              },
+                              "runAfter": {
+                                "Run_purge_agent_memory": [
+                                  "Succeeded",
+                                  "Failed",
+                                  "TimedOut"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "default": {
+                        "actions": {
+                          "Record_unknown_action": {
+                            "type": "AppendToArrayVariable",
+                            "inputs": {
+                              "name": "Results",
+                              "value": {
+                                "action": "@items('For_each_action')?['action']",
+                                "status": "failed(unknown action)",
+                                "approval": "@variables('Decision')"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Record_not_approved": {
+                        "type": "AppendToArrayVariable",
+                        "inputs": {
+                          "name": "Results",
+                          "value": {
+                            "action": "@items('For_each_action')?['action']",
+                            "status": "@{concat('rejected(', variables('Decision'), ')')}",
+                            "approval": "@variables('Decision')"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "Results_table": {
+              "type": "Table",
+              "inputs": {
+                "from": "@variables('Results')",
+                "format": "HTML"
+              },
+              "runAfter": {
+                "For_each_action": [
+                  "Succeeded",
+                  "Failed",
+                  "TimedOut"
+                ]
+              }
+            },
+            "Alert_-_Get_incident": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/Incidents/subscriptions/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/resourceGroups/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/workspaces/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/alerts/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}"
+              },
+              "runAfter": {
+                "Results_table": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Add_comment_to_incident_(V3)": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "path": "/Incidents/Comment",
+                "body": {
+                  "incidentArmId": "@body('Alert_-_Get_incident')?['id']",
+                  "message": "<p><b>ATLAS Behavior Map response plan</b> for @{outputs('Behavior_id')}</p>@{body('Results_table')}"
+                }
+              },
+              "runAfter": {
+                "Alert_-_Get_incident": [
+                  "Succeeded"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "azuresentinel": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'azuresentinel')]",
+                "connectionProperties": {
+                  "authentication": {
+                    "type": "ManagedServiceIdentity"
+                  }
+                }
+              },
+              "office365": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('Office365ConnectionName'))]",
+                "connectionName": "[variables('Office365ConnectionName')]",
+                "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'office365')]"
+              }
+            }
+          },
+          "ActionEndpointUrl": {
+            "value": "[parameters('ActionEndpointUrl')]"
+          },
+          "ActionEndpointAudience": {
+            "value": "[parameters('ActionEndpointAudience')]"
+          },
+          "ApproverEmail": {
+            "value": "[parameters('ApproverEmail')]"
+          }
+        }
+      }
+    }
+  ]
+}
