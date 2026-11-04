@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","artifact_id":"art-c08","principal_id":"svc-ml-cd","event_type":"model_deploy","latest_scan_status":"clean"}
+{"timestamp":"2026-10-01T14:00:05Z","artifact_id":"art-c07","principal_id":"svc-scanner","event_type":"model_scan","latest_scan_status":"error"}

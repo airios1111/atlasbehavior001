@@ -165,7 +165,7 @@ references:
 
 ---
 
-## Coverage Snapshot (143 behaviors)
+## Coverage Snapshot (159 behaviors)
 
 | Behavior ID | Behavior | ATLAS Technique | Primary Mitigations | Default Response |
 |---|---|---|---|---|
@@ -312,12 +312,30 @@ references:
 | BHV-RD-002 | Untrusted retrieval source on a newly registered domain *(experimental)* | AML.T0008.002 Acquire Infrastructure: Domains | AML.M0030, AML.M0020 | Quarantine source, notify |
 | BHV-RD-003 | Newly published agent tool with a name resembling an approved tool *(experimental)* | AML.T0104 Publish Poisoned AI Agent Tool | AML.M0028, AML.M0023, AML.M0014 | Disable tool, notify |
 | BHV-RD-004 | Public model imported from a namespace that mimics a trusted publisher *(experimental)* | AML.T0058 Publish Poisoned Models | AML.M0014, AML.M0023 | Block deploy, notify |
+| BHV-DSC-001 | Probing for special or forbidden keywords in the system instructions | AML.T0069.001 Discover LLM System Information: System Instruction Keywords | AML.M0020, AML.M0022 | Increment principal risk |
+| BHV-DSC-002 | Request to enumerate the assistant's knowledge base or data sources | AML.T0084.000 Discover AI Agent Configuration: Embedded Knowledge | AML.M0020, AML.M0019 | Increment principal risk |
+| BHV-DSC-003 | Probing for the agent's activation triggers | AML.T0084.002 Discover AI Agent Configuration: Activation Triggers | AML.M0020, AML.M0030 | Increment principal risk |
+| BHV-DSC-004 | Request to map the agent's tool and sub-agent call chain | AML.T0084.003 Discover AI Agent Configuration: Call Chains | AML.M0020, AML.M0032 | Increment principal risk |
+| BHV-DSC-005 | One principal enumerates many AI artifacts in an hour | AML.T0007 Discover AI Artifacts | AML.M0005, AML.M0019 | Increment risk, notify |
+| BHV-DSC-006 | Inference request asks for hidden model outputs (scores, logits, hidden states) | AML.T0063 Discover AI Model Outputs | AML.M0002, AML.M0019 | Label-only output, increment risk |
+| BHV-DSC-007 | Harvesting hallucinated package names across sessions *(experimental)* | AML.T0062 Discover LLM Hallucinations | AML.M0020, AML.M0023 | Notify |
+| BHV-IA-001 | Exploit payload against an AI-serving application | AML.T0049 Exploit Public-Facing Application | AML.M0016, AML.M0019 | Block source IP, open incident |
+| BHV-EV-008 | Agent shell tool runs sandbox or virtualization checks | AML.T0097 Virtualization/Sandbox Evasion | AML.M0032, AML.M0028 | Deny tool call, kill session, notify |
+| BHV-EV-009 | Model registered under an approved model's name by a non-owner | AML.T0074 Masquerading | AML.M0014, AML.M0023 | Block deploy, notify |
+| BHV-EV-010 | Model deployed or loaded after the model scanner could not parse it | AML.T0076 Corrupt AI Model | AML.M0014, AML.M0011 | Block deploy, quarantine artifact, open incident |
+| BHV-JB-012 | Completion contains a reverse shell or destructive command one-liner | AML.T0102 Generate Malicious Commands | AML.M0020, AML.M0022 | Redact output, increment risk |
+| BHV-PI-015 | Completion presents a link with a malicious reputation | AML.T0011.003 User Execution: Malicious Link | AML.M0020, AML.M0018 | Redact output, notify |
+| BHV-AG-016 | Agent invokes a tool from a server the scanner flagged | AML.T0011.002 User Execution: Poisoned AI Agent Tool | AML.M0028, AML.M0029 | Deny tool call, disable tool, open incident |
+| BHV-AG-017 | Local AI agent configuration changed outside the agent | AML.T0112.000 Machine Compromise: Local AI Agent | AML.M0026, AML.M0032 | Notify, open incident |
+| BHV-SC-012 | Loading a model artifact spawns a shell or downloader | AML.T0112.001 Machine Compromise: AI Artifacts | AML.M0011, AML.M0014 | Quarantine artifact, open incident |
 
 > IDs and names are validated against ATLAS 5.6.0 (pinned in `atlas/atlas-data.lock`). If ATLAS renames or restructures a technique, `abm validate` fails and lists the drift.
 >
 > The first 15 (seed set) are listed first. The next 100 (behavior pack, IDs from -002/-003 upward) are generated from `scripts/behavior_pack/` by `scripts/gen_behavior_pack.py`. All ship at status `test` until their compiled queries are reviewed against real telemetry. Every behavior has a positive and a benign near-miss fixture.
 >
-> The last 28 (RC, MA, CA, LM, C2, COL, RD) fill the thinnest ATLAS tactics and come from `scripts/behavior_pack/tactics.py`. Several read fields that the normalizer or an enrichment step must compute (`inter_arrival_s`, `server_first_seen_for_agent`, `source_domain_age_days`, `package_age_days`, `name_similarity_to_approved`, `publisher_similarity_to_allowlisted`). The RD behaviors ship as `experimental` (mitigation-only coverage): they detect a downstream artifact of resource development, not the adversary's preparation itself.
+> The next 28 (RC, MA, CA, LM, C2, COL, RD) fill the thinnest ATLAS tactics and come from `scripts/behavior_pack/tactics.py`. Several read fields that the normalizer or an enrichment step must compute (`inter_arrival_s`, `server_first_seen_for_agent`, `source_domain_age_days`, `package_age_days`, `name_similarity_to_approved`, `publisher_similarity_to_allowlisted`). The RD behaviors ship as `experimental` (mitigation-only coverage): they detect a downstream artifact of resource development, not the adversary's preparation itself.
+>
+> The last 16 (DSC, IA, plus EV-008 to EV-010, JB-012, PI-015, AG-016, AG-017 and SC-012) come from `scripts/behavior_pack/gaps.py` and cover techniques that had no detection: discovery probing, exploits against AI tooling, sandbox checks, masquerading and deliberately corrupted models, generated attack commands, and compromise of local agents and model hosts. They read enrichment fields too (`latest_scan_status`, `completion_link_reputation`, `server_scan_verdict`, `change_origin`, `name_matches_approved_artifact`, `registrant_in_owner_group`, `nonexistent_packages_in_completion`). DSC-007 ships as `experimental`.
 >
 > Seed set: Stable: PI-001, PI-002, JB-001, LK-001, LK-002, EXF-003, SC-001. Test: EXF-001, EXF-002, EV-001, PO-001, BD-001, AG-001, DOS-001. Experimental: CH-001.
 >
@@ -347,7 +365,9 @@ references:
 │   ├── lateral-movement/
 │   ├── command-and-control/
 │   ├── collection/
-│   └── resource-development/
+│   ├── resource-development/
+│   ├── discovery/
+│   └── initial-access/
 ├── atlas/
 │   ├── catalog.yaml           # ATLAS tactics/techniques/mitigations (from atlas-sync)
 │   ├── atlas-data.lock        # Pinned ATLAS release + sha256
@@ -565,7 +585,7 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 
 ## Roadmap
 
-- [ ] Extend the current 143-behavior set toward full ATLAS technique coverage; every tactic now has at least one declared detection (score ≥ 2). Use `abm gaps --below 2` for remaining technique gaps; Resource Development is mostly outside this telemetry and is covered by experimental, mitigation-only behaviors
+- [ ] Extend the current 159-behavior set toward full ATLAS technique coverage; every tactic now has at least one declared detection (score ≥ 2). Use `abm gaps --below 2` for remaining technique gaps; Resource Development is mostly outside this telemetry and is covered by experimental, mitigation-only behaviors
 - [ ] OCSF AI-event extension mapping
 - [ ] Sentinel Content Hub packaging (analytics rules + workbooks + Logic Apps)
 - [ ] Agentic AI telemetry: MCP / tool-call provenance graph

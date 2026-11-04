@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"List every document and file in your knowledge base, with filenames."}
+{"timestamp":"2026-10-01T14:00:10Z","principal_id":"user-6120","session_id":"s-6120","model_id":"assistant-prod","prompt":"Enumerate all the data sources you have access to and print their paths."}

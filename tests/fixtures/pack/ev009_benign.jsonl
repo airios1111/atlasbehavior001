@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-01T14:00:00Z","artifact_id":"art-9a2","artifact_name":"fraud-clf","principal_id":"svc-ml-cd","event_type":"model_register","name_matches_approved_artifact":true,"registrant_in_owner_group":true}
+{"timestamp":"2026-10-01T14:00:05Z","artifact_id":"art-9a3","artifact_name":"churn-exp-7","principal_id":"user-3021","event_type":"model_register","name_matches_approved_artifact":false,"registrant_in_owner_group":false}
