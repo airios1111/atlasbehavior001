@@ -73,7 +73,10 @@ jobs:
           $data.BasePath = $solution
           $data | ConvertTo-Json -Depth 20 | Set-Content $dataFile
           Push-Location Azure-Sentinel/Tools/Create-Azure-Sentinel-Solution/V3
-          ./createSolutionV3.ps1 -SolutionDataFolderPath (Join-Path $solution "Data")
+          # local: version from Data/Solution_ABM.json. The default (catalog) looks the offer up in the
+          # marketplace catalog API and loads .script/package-automation/, neither of which applies to
+          # an unpublished solution built from a sparse checkout.
+          ./createSolutionV3.ps1 -SolutionDataFolderPath (Join-Path $solution "Data") -VersionMode local
           Pop-Location
           Get-ChildItem (Join-Path $solution "Package")
           foreach ($f in "mainTemplate.json", "createUiDefinition.json") {
