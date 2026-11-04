@@ -7,7 +7,7 @@ abm 0.1.0 | OCSF 1.8.0 | extension abm 0.1.0
 ==============================================================================
 8cd6af1ece027ebb942a12067ef07acbec07798565d30b6ea9ca3d64902730dd  src/abm/ocsf.py
 5d885034e2211b9c8fdc185186b46fee7143b652e326efdc0e011b4fb1c72ef5  src/abm/ocsf_schema.py
-c26d14ad2b44b18d24fd09c0997bb4c68295fd3b6d30f44bfb49cf5cf11fd5b9  src/abm/cli.py
+a85db5da070f5e7685fec10bae06e141b00845b485c300738a94359d10913b5d  src/abm/cli.py
 2181cb7b28dc1da0a4b9da132af12fc104ecb7518ef45300a897501300bffa5f  tests/test_ocsf.py
 8498c37e701c3a297922a11bc019ee4c316155802789f17d4135eb5a420e7c1c  scripts/gen_ocsf_fixtures.py
 ab9f687b5ca3852863b2116c84d71b535e8ca19b0cc78e4884b900c411b0f95c  scripts/gen_ocsf_mapping_doc.py
@@ -19,10 +19,10 @@ d792f8bfbd30f5f37db30594ccb455d70b05cec5e0762b13fa178b622b75dc44  scripts/verify
 6c507d59e7e264c2b6ea2017d9cfa4149515166fb8d301a1cd740696aa05de34  docs/ocsf.md
 76e1c95b3cabe033959137cb85811d8797bdaf6cada3f32041a3323e3667ec2d  docs/ocsf-mapping.md
 553d3c2f8378305d153e87c98dbcf113d7d6f55fe76f3906bb21265ed4e761d7  docs/branches/branch2-ocsf-ai-event-mapping.md
-e01d5228be863179caa74f287d0e17a67ac9b188e807936b832434e41e9132fe  README.md
-948b01928fe72fd5376c2de31dae42b99025585a9112a8c4b04636cdf3ea3e31  Makefile
-56224078ef804ac63acd7e6a15362c68c830d5f3b53daf1f7e091ea080de6f01  .github/workflows/ci.yml
-0fe899440e481aa741cf07a9430bdc7c898f95dc452739f6f9beccc4455bccae  .gitattributes
+ad5ef6e301ddac5221168c448f68c1fdc1c78cab1a5d2e71ed01b83b56ff2d52  README.md
+e579a04cc690886af1157f1f83818aaddccbf37ce42058576f3bcda3f12ac14d  Makefile
+218d18532cc07b52758b6405d500a91d4aa110f883bf7fd2d3836f5985f0659d  .github/workflows/ci.yml
+bdd438734b3d9eed246a4a46dab45f13794741e9e770d7787a2f724ce991020d  .gitattributes
 cc0f4c0a955d4abf599b7a473ff22a1a676e46d24bc8784f703871690c4d0120  schemas/ocsf/README.md
 cbec3a96a0746e2a5acd67e0fcbfc22bc0e7a08f63bd398b0aa02465d33e543e  schemas/ocsf/abm-extension/dictionary.json
 4923e2f565b6a6edcc91cbe41a999793d086ed67df930f2983daf6e12c430610  schemas/ocsf/abm-extension/events/application/api_activity.json
@@ -412,6 +412,41 @@ PASSED  tests/test_ocsf.py::test_source_override_and_unknown_class
 PASSED  tests/test_ocsf.py::test_sources_cover_every_siem_table
 PASSED  tests/test_ocsf.py::test_time_only_ocsf_events_raise_the_same_alerts
 PASSED  tests/test_ocsf.py::test_unmapped_and_null_fields
+PASSED  tests/test_sentinel.py::test_atlas_ids_travel_in_custom_details_and_description
+PASSED  tests/test_sentinel.py::test_attack_bridge_drives_sentinel_tactics_and_techniques
+PASSED  tests/test_sentinel.py::test_check_and_write_detect_drift_stale_files_and_ignore_crlf
+PASSED  tests/test_sentinel.py::test_check_arm_rejects_common_arm_ttk_failures
+PASSED  tests/test_sentinel.py::test_check_rule_rejects_invalid_rules
+PASSED  tests/test_sentinel.py::test_cli_compile_sentinel_target_and_profile
+PASSED  tests/test_sentinel.py::test_cli_sentinel_build_check_and_validate
+PASSED  tests/test_sentinel.py::test_column_types_follow_fixtures_and_detection_logic
+PASSED  tests/test_sentinel.py::test_committed_solution_is_current_and_valid
+PASSED  tests/test_sentinel.py::test_conflicting_field_types_fail_the_build
+PASSED  tests/test_sentinel.py::test_dcr_maps_stream_onto_table
+PASSED  tests/test_sentinel.py::test_entity_mappings_from_group_by
+PASSED  tests/test_sentinel.py::test_every_behavior_compiles_to_a_valid_sentinel_rule
+PASSED  tests/test_sentinel.py::test_plan_param_values_bind_templates_to_columns
+PASSED  tests/test_sentinel.py::test_playbook_routes_every_registry_action_and_gates_approvals
+PASSED  tests/test_sentinel.py::test_query_period_and_frequency_come_from_window
+PASSED  tests/test_sentinel.py::test_response_plan_column_matches_abm_plan
+PASSED  tests/test_sentinel.py::test_rule_id_is_uuid5_of_behavior_id_and_stable
+PASSED  tests/test_sentinel.py::test_sentinel_period[0-1h]
+PASSED  tests/test_sentinel.py::test_sentinel_period[1800-30m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[2592000-14d]
+PASSED  tests/test_sentinel.py::test_sentinel_period[300-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[3600-1h]
+PASSED  tests/test_sentinel.py::test_sentinel_period[3601-61m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[60-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[600-10m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[86400-1d]
+PASSED  tests/test_sentinel.py::test_sentinel_period[90-5m]
+PASSED  tests/test_sentinel.py::test_sentinel_period[900-15m]
+PASSED  tests/test_sentinel.py::test_sentinel_profile_uses_custom_tables_and_default_is_unchanged
+PASSED  tests/test_sentinel.py::test_severity_and_status_mapping
+PASSED  tests/test_sentinel.py::test_solution_data_lists_shipped_rules
+PASSED  tests/test_sentinel.py::test_tables_cover_every_column_the_queries_read
+PASSED  tests/test_sentinel.py::test_undeclared_detection_fields_still_get_columns
+PASSED  tests/test_sentinel.py::test_workbook_alert_views_and_navigator_coverage
 PASSED  tests/test_tutorial.py::test_tutorial_behaviors_validate_and_pass_fixtures
 PASSED  tests/test_tutorial.py::test_tutorial_mixed_traffic_replay
 PASSED  tests/test_xsoar.py::test_cli_replay_to_xsoar_reads_key_from_env
@@ -421,7 +456,7 @@ PASSED  tests/test_xsoar.py::test_one_incident_per_alert_and_statuses
 PASSED  tests/test_xsoar.py::test_payload_carries_atlas_context_and_plan
 PASSED  tests/test_xsoar.py::test_rejects_plain_http_and_missing_key
 PASSED  tests/test_xsoar.py::test_xsoar6_vs_xsoar8_endpoints_and_headers
-summary: 155 passed, 0 failed, 0 errors, 0 skipped
+summary: 190 passed, 0 failed, 0 errors, 0 skipped
 [PASS] pytest
 
 ==============================================================================

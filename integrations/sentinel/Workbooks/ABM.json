@@ -1,0 +1,142 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# ATLAS Behavior Map\nAlerts from the ABM analytic rules by behavior and MITRE ATLAS tactic, and the ATLAS coverage of the installed rule set. ATLAS IDs come from each alert's custom details (BehaviorId, AtlasTechnique, AtlasTactics)."
+      },
+      "name": "text - title"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "9d402bb4-ea32-5580-a667-dcdca0987b6e",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Time range",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "value": {
+              "durationMs": 604800000
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - time range"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let AbmAlerts = SecurityAlert\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| extend CustomDetails = todynamic(tostring(todynamic(ExtendedProperties)[\"Custom Details\"]))\n| extend B = CustomDetails.BehaviorId, T = CustomDetails.AtlasTactics, P = CustomDetails.AtlasTechnique\n| extend BehaviorId = tostring(iff(gettype(B) == \"array\", B[0], B)),\n         AtlasTactics = tostring(iff(gettype(T) == \"array\", T[0], T)),\n         AtlasTechnique = tostring(iff(gettype(P) == \"array\", P[0], P))\n| where isnotempty(BehaviorId);\nAbmAlerts\n| summarize Alerts = count() by BehaviorId\n| sort by Alerts desc",
+        "size": 0,
+        "title": "Alerts by BehaviorId",
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "barchart"
+      },
+      "name": "query - alerts by behavior"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let AbmAlerts = SecurityAlert\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| extend CustomDetails = todynamic(tostring(todynamic(ExtendedProperties)[\"Custom Details\"]))\n| extend B = CustomDetails.BehaviorId, T = CustomDetails.AtlasTactics, P = CustomDetails.AtlasTechnique\n| extend BehaviorId = tostring(iff(gettype(B) == \"array\", B[0], B)),\n         AtlasTactics = tostring(iff(gettype(T) == \"array\", T[0], T)),\n         AtlasTechnique = tostring(iff(gettype(P) == \"array\", P[0], P))\n| where isnotempty(BehaviorId);\nlet Tactics = datatable(Tactic:string, TacticName:string) [\"AML.TA0002\", \"Reconnaissance\", \"AML.TA0003\", \"Resource Development\", \"AML.TA0004\", \"Initial Access\", \"AML.TA0000\", \"AI Model Access\", \"AML.TA0005\", \"Execution\", \"AML.TA0006\", \"Persistence\", \"AML.TA0012\", \"Privilege Escalation\", \"AML.TA0007\", \"Defense Evasion\", \"AML.TA0013\", \"Credential Access\", \"AML.TA0008\", \"Discovery\", \"AML.TA0015\", \"Lateral Movement\", \"AML.TA0009\", \"Collection\", \"AML.TA0001\", \"AI Attack Staging\", \"AML.TA0014\", \"Command and Control\", \"AML.TA0010\", \"Exfiltration\", \"AML.TA0011\", \"Impact\"];\nAbmAlerts\n| mv-expand Tactic = split(AtlasTactics, \",\") to typeof(string)\n| join kind=leftouter Tactics on Tactic\n| summarize Alerts = count() by AtlasTactic = strcat(Tactic, \" \", TacticName)\n| sort by Alerts desc",
+        "size": 0,
+        "title": "Alerts by ATLAS tactic",
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "barchart"
+      },
+      "name": "query - alerts by tactic"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let AbmAlerts = SecurityAlert\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| extend CustomDetails = todynamic(tostring(todynamic(ExtendedProperties)[\"Custom Details\"]))\n| extend B = CustomDetails.BehaviorId, T = CustomDetails.AtlasTactics, P = CustomDetails.AtlasTechnique\n| extend BehaviorId = tostring(iff(gettype(B) == \"array\", B[0], B)),\n         AtlasTactics = tostring(iff(gettype(T) == \"array\", T[0], T)),\n         AtlasTechnique = tostring(iff(gettype(P) == \"array\", P[0], P))\n| where isnotempty(BehaviorId);\nAbmAlerts\n| mv-expand Tactic = split(AtlasTactics, \",\") to typeof(string)\n| summarize Alerts = count() by Tactic, bin(TimeGenerated, {TimeRange:grain})",
+        "size": 0,
+        "title": "ABM alerts over time by ATLAS tactic",
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "timechart"
+      },
+      "name": "query - alerts over time"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let AbmAlerts = SecurityAlert\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| extend CustomDetails = todynamic(tostring(todynamic(ExtendedProperties)[\"Custom Details\"]))\n| extend B = CustomDetails.BehaviorId, T = CustomDetails.AtlasTactics, P = CustomDetails.AtlasTechnique\n| extend BehaviorId = tostring(iff(gettype(B) == \"array\", B[0], B)),\n         AtlasTactics = tostring(iff(gettype(T) == \"array\", T[0], T)),\n         AtlasTechnique = tostring(iff(gettype(P) == \"array\", P[0], P))\n| where isnotempty(BehaviorId);\nAbmAlerts\n| project TimeGenerated, AlertName, AlertSeverity, BehaviorId, AtlasTechnique, AtlasTactics, SystemAlertId\n| sort by TimeGenerated desc\n| take 200",
+        "size": 0,
+        "title": "Recent ABM alerts",
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "table"
+      },
+      "name": "query - recent alerts"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## MITRE ATLAS coverage\nSnapshot of the ATLAS Navigator layer built with this rule set (Generated from behaviors; catalog mitre-atlas/atlas-data 5.6.0). 133 technique/tactic entries: 10 at score 3, 117 at score 2, 6 at score 1. Techniques with score 0 have no behavior and are not in the layer; run `abm gaps` for them.\n\n| Tactic | Techniques in layer | 3: detection + automated response (replay passing) | 2: detection | 1: mitigation-only |\n|---|---|---|---|---|\n| AML.TA0002 Reconnaissance | 3 | 0 | 3 | 0 |\n| AML.TA0003 Resource Development | 10 | 0 | 6 | 4 |\n| AML.TA0004 Initial Access | 11 | 1 | 10 | 0 |\n| AML.TA0000 AI Model Access | 4 | 0 | 4 | 0 |\n| AML.TA0005 Execution | 11 | 2 | 9 | 0 |\n| AML.TA0006 Persistence | 13 | 1 | 12 | 0 |\n| AML.TA0012 Privilege Escalation | 4 | 1 | 3 | 0 |\n| AML.TA0007 Defense Evasion | 13 | 1 | 12 | 0 |\n| AML.TA0013 Credential Access | 6 | 0 | 6 | 0 |\n| AML.TA0008 Discovery | 14 | 0 | 13 | 1 |\n| AML.TA0015 Lateral Movement | 3 | 0 | 3 | 0 |\n| AML.TA0009 Collection | 6 | 0 | 6 | 0 |\n| AML.TA0001 AI Attack Staging | 12 | 1 | 11 | 0 |\n| AML.TA0014 Command and Control | 3 | 0 | 3 | 0 |\n| AML.TA0010 Exfiltration | 8 | 3 | 5 | 0 |\n| AML.TA0011 Impact | 12 | 0 | 11 | 1 |"
+      },
+      "name": "text - coverage"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "datatable(TacticId:string, Tactic:string, TechniqueId:string, Technique:string, Score:int, Behaviors:string) [\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0005.001\", \"Create Proxy AI Model: Train Proxy via Replication\", 2, \"BHV-EXF-008, BHV-EXF-009\",\n    \"AML.TA0002\", \"Reconnaissance\", \"AML.T0006\", \"Active Scanning\", 2, \"BHV-RC-001, BHV-RC-002\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0007\", \"Discover AI Artifacts\", 2, \"BHV-DSC-005\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0008.002\", \"Acquire Infrastructure: Domains\", 1, \"BHV-RD-002\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0008.005\", \"Acquire Infrastructure: AI Service Proxies\", 2, \"BHV-CH-003\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0010.001\", \"AI Supply Chain Compromise: AI Software\", 2, \"BHV-SC-004\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0010.002\", \"AI Supply Chain Compromise: Data\", 2, \"BHV-SC-010\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0010.003\", \"AI Supply Chain Compromise: Model\", 3, \"BHV-RD-004, BHV-SC-001, BHV-SC-002, BHV-SC-003\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0010.004\", \"AI Supply Chain Compromise: Container Registry\", 2, \"BHV-SC-005\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0010.005\", \"AI Supply Chain Compromise: AI Agent Tool\", 2, \"BHV-RD-003, BHV-SC-007\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0011.000\", \"User Execution: Unsafe AI Artifacts\", 2, \"BHV-SC-002\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0011.001\", \"User Execution: Malicious Package\", 2, \"BHV-SC-004, BHV-SC-011\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0011.002\", \"User Execution: Poisoned AI Agent Tool\", 2, \"BHV-AG-016\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0011.003\", \"User Execution: Malicious Link\", 2, \"BHV-PI-015\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0012\", \"Valid Accounts\", 2, \"BHV-AG-009, BHV-CH-002\",\n    \"AML.TA0012\", \"Privilege Escalation\", \"AML.T0012\", \"Valid Accounts\", 2, \"BHV-AG-009, BHV-CH-002\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0013\", \"Discover AI Model Ontology\", 2, \"BHV-LK-012\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0014\", \"Discover AI Model Family\", 2, \"BHV-LK-013\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0015\", \"Evade AI Model\", 2, \"BHV-EV-001, BHV-EV-002, BHV-EV-003, BHV-EV-004, BHV-EV-005, BHV-EV-007\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0015\", \"Evade AI Model\", 2, \"BHV-EV-001, BHV-EV-002, BHV-EV-003, BHV-EV-004, BHV-EV-005, BHV-EV-007\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0015\", \"Evade AI Model\", 2, \"BHV-EV-001, BHV-EV-002, BHV-EV-003, BHV-EV-004, BHV-EV-005, BHV-EV-007\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0016.000\", \"Obtain Capabilities: Adversarial AI Attack Implementations\", 1, \"BHV-RD-001\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0018\", \"Manipulate AI Model\", 3, \"BHV-BD-003, BHV-SC-001\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0018\", \"Manipulate AI Model\", 3, \"BHV-BD-003, BHV-SC-001\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0018.000\", \"Manipulate AI Model: Poison AI Model\", 2, \"BHV-BD-001, BHV-BD-002, BHV-BD-005, BHV-PO-008\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0018.000\", \"Manipulate AI Model: Poison AI Model\", 2, \"BHV-BD-001, BHV-BD-002, BHV-BD-005, BHV-PO-008\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0018.001\", \"Manipulate AI Model: Modify AI Model Architecture\", 2, \"BHV-SC-009\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0018.001\", \"Manipulate AI Model: Modify AI Model Architecture\", 2, \"BHV-SC-009\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0018.002\", \"Manipulate AI Model: Embed Malware\", 2, \"BHV-BD-004\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0018.002\", \"Manipulate AI Model: Embed Malware\", 2, \"BHV-BD-004\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0020\", \"Poison Training Data\", 2, \"BHV-PO-001, BHV-PO-002, BHV-PO-003, BHV-PO-008\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0020\", \"Poison Training Data\", 2, \"BHV-PO-001, BHV-PO-002, BHV-PO-003, BHV-PO-008\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0021\", \"Establish Accounts\", 2, \"BHV-CH-006\",\n    \"AML.TA0010\", \"Exfiltration\", \"AML.T0024.000\", \"Exfiltration via AI Inference API: Infer Training Data Membership\", 2, \"BHV-EXF-001, BHV-LK-011\",\n    \"AML.TA0010\", \"Exfiltration\", \"AML.T0024.001\", \"Exfiltration via AI Inference API: Invert AI Model\", 2, \"BHV-EXF-002, BHV-EXF-012\",\n    \"AML.TA0010\", \"Exfiltration\", \"AML.T0024.002\", \"Exfiltration via AI Inference API: Extract AI Model\", 3, \"BHV-EXF-003, BHV-EXF-008, BHV-EXF-009\",\n    \"AML.TA0010\", \"Exfiltration\", \"AML.T0025\", \"Exfiltration via Cyber Means\", 2, \"BHV-EXF-006\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0029\", \"Denial of AI Service\", 2, \"BHV-DOS-001, BHV-DOS-002, BHV-DOS-003, BHV-DOS-004, BHV-DOS-005, BHV-DOS-006, BHV-DOS-007, BHV-DOS-008\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0031\", \"Erode AI Model Integrity\", 2, \"BHV-BD-006\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0034\", \"Cost Harvesting\", 1, \"BHV-CH-001\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0034.000\", \"Cost Harvesting: Excessive Queries\", 2, \"BHV-CH-002, BHV-CH-003, BHV-CH-006\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0034.001\", \"Cost Harvesting: Resource-Intensive Queries\", 2, \"BHV-DOS-003, BHV-DOS-004, BHV-DOS-008, BHV-CH-004, BHV-CH-005\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0034.002\", \"Cost Harvesting: Agentic Resource Consumption\", 2, \"BHV-AG-007, BHV-CH-007\",\n    \"AML.TA0009\", \"Collection\", \"AML.T0035\", \"AI Artifact Collection\", 2, \"BHV-EXF-006, BHV-EXF-007\",\n    \"AML.TA0009\", \"Collection\", \"AML.T0036\", \"Data from Information Repositories\", 2, \"BHV-COL-001\",\n    \"AML.TA0009\", \"Collection\", \"AML.T0037\", \"Data from Local System\", 2, \"BHV-COL-002\",\n    \"AML.TA0000\", \"AI Model Access\", \"AML.T0040\", \"AI Model Inference API Access\", 2, \"BHV-MA-001, BHV-MA-002\",\n    \"AML.TA0000\", \"AI Model Access\", \"AML.T0041\", \"Physical Environment Access\", 2, \"BHV-EV-004\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0042\", \"Verify Attack\", 2, \"BHV-JB-008\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0043\", \"Craft Adversarial Data\", 2, \"BHV-EV-001\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0043.000\", \"Craft Adversarial Data: White-Box Optimization\", 2, \"BHV-JB-007\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0043.001\", \"Craft Adversarial Data: Black-Box Optimization\", 2, \"BHV-EV-002\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0043.004\", \"Craft Adversarial Data: Insert Backdoor Trigger\", 2, \"BHV-BD-001, BHV-BD-002\",\n    \"AML.TA0000\", \"AI Model Access\", \"AML.T0044\", \"Full AI Model Access\", 2, \"BHV-MA-004\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0046\", \"Spamming AI System with Chaff Data\", 2, \"BHV-EV-006\",\n    \"AML.TA0000\", \"AI Model Access\", \"AML.T0047\", \"AI-Enabled Product or Service\", 2, \"BHV-MA-003\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0049\", \"Exploit Public-Facing Application\", 2, \"BHV-IA-001\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0050\", \"Command and Scripting Interpreter\", 2, \"BHV-AG-002\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0051.000\", \"LLM Prompt Injection: Direct\", 3, \"BHV-PI-001, BHV-PI-003, BHV-PI-004, BHV-PI-005, BHV-PI-010, BHV-PI-012\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0051.001\", \"LLM Prompt Injection: Indirect\", 3, \"BHV-PI-002, BHV-PI-006, BHV-PI-007, BHV-PI-009, BHV-PI-011, BHV-PI-013, BHV-PI-015\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0051.002\", \"LLM Prompt Injection: Triggered\", 2, \"BHV-PI-008\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0052.000\", \"Phishing: Spearphishing via Social Engineering LLM\", 2, \"BHV-LM-003\",\n    \"AML.TA0015\", \"Lateral Movement\", \"AML.T0052.000\", \"Phishing: Spearphishing via Social Engineering LLM\", 2, \"BHV-LM-003\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0052.001\", \"Phishing: Deepfake-Assisted Phishing\", 2, \"BHV-LM-004\",\n    \"AML.TA0015\", \"Lateral Movement\", \"AML.T0052.001\", \"Phishing: Deepfake-Assisted Phishing\", 2, \"BHV-LM-004\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0053\", \"AI Agent Tool Invocation\", 2, \"BHV-AG-001, BHV-AG-008, BHV-AG-009\",\n    \"AML.TA0012\", \"Privilege Escalation\", \"AML.T0053\", \"AI Agent Tool Invocation\", 2, \"BHV-AG-001, BHV-AG-008, BHV-AG-009\",\n    \"AML.TA0012\", \"Privilege Escalation\", \"AML.T0054\", \"LLM Jailbreak\", 3, \"BHV-JB-001, BHV-JB-002, BHV-JB-003, BHV-JB-004, BHV-JB-005, BHV-JB-006, BHV-JB-007, BHV-JB-008, BHV-JB-009, BHV-JB-010, BHV-JB-011\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0054\", \"LLM Jailbreak\", 3, \"BHV-JB-001, BHV-JB-002, BHV-JB-003, BHV-JB-004, BHV-JB-005, BHV-JB-006, BHV-JB-007, BHV-JB-008, BHV-JB-009, BHV-JB-010, BHV-JB-011\",\n    \"AML.TA0013\", \"Credential Access\", \"AML.T0055\", \"Unsecured Credentials\", 2, \"BHV-CA-001, BHV-CA-002, BHV-LK-005\",\n    \"AML.TA0010\", \"Exfiltration\", \"AML.T0056\", \"Extract LLM System Prompt\", 3, \"BHV-LK-001, BHV-LK-003\",\n    \"AML.TA0010\", \"Exfiltration\", \"AML.T0057\", \"LLM Data Leakage\", 3, \"BHV-LK-002, BHV-LK-005, BHV-LK-006, BHV-LK-007, BHV-LK-011\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0058\", \"Publish Poisoned Models\", 1, \"BHV-RD-004\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0059\", \"Erode Dataset Integrity\", 2, \"BHV-PO-009\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0060\", \"Publish Hallucinated Entities\", 2, \"BHV-SC-011\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0061\", \"LLM Prompt Self-Replication\", 2, \"BHV-PI-010\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0062\", \"Discover LLM Hallucinations\", 1, \"BHV-DSC-007\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0063\", \"Discover AI Model Outputs\", 2, \"BHV-DSC-006\",\n    \"AML.TA0002\", \"Reconnaissance\", \"AML.T0064\", \"Gather RAG-Indexed Targets\", 2, \"BHV-LK-009, BHV-RC-004\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0065\", \"LLM Prompt Crafting\", 2, \"BHV-JB-009\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0066\", \"Retrieval Content Crafting\", 2, \"BHV-PI-007, BHV-RD-002\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0067.000\", \"LLM Trusted Output Components Manipulation: Citations\", 2, \"BHV-PI-014\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0068\", \"LLM Prompt Obfuscation\", 2, \"BHV-EV-005, BHV-JB-004, BHV-PI-003, BHV-PI-005\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0069.000\", \"Discover LLM System Information: Special Character Sets\", 2, \"BHV-LK-004\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0069.001\", \"Discover LLM System Information: System Instruction Keywords\", 2, \"BHV-DSC-001\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0069.002\", \"Discover LLM System Information: System Prompt\", 2, \"BHV-LK-003\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0070\", \"RAG Poisoning\", 2, \"BHV-PO-004\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0071\", \"False RAG Entry Injection\", 2, \"BHV-PO-005\",\n    \"AML.TA0014\", \"Command and Control\", \"AML.T0072\", \"Reverse Shell\", 2, \"BHV-AG-003\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0073\", \"Impersonation\", 2, \"BHV-JB-010\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0074\", \"Masquerading\", 2, \"BHV-EV-009\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0075\", \"Cloud Service Discovery\", 2, \"BHV-AG-012\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0076\", \"Corrupt AI Model\", 2, \"BHV-EV-010\",\n    \"AML.TA0010\", \"Exfiltration\", \"AML.T0077\", \"LLM Response Rendering\", 2, \"BHV-EXF-010, BHV-PI-009\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0080.000\", \"AI Agent Context Poisoning: Memory\", 2, \"BHV-PO-006\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0080.001\", \"AI Agent Context Poisoning: Thread\", 2, \"BHV-PO-007\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0081\", \"Modify AI Agent Configuration\", 2, \"BHV-AG-010\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0081\", \"Modify AI Agent Configuration\", 2, \"BHV-AG-010\",\n    \"AML.TA0013\", \"Credential Access\", \"AML.T0082\", \"RAG Credential Harvesting\", 2, \"BHV-LK-010\",\n    \"AML.TA0013\", \"Credential Access\", \"AML.T0083\", \"Credentials from AI Agent Configuration\", 2, \"BHV-AG-005, BHV-CA-005\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0084.000\", \"Discover AI Agent Configuration: Embedded Knowledge\", 2, \"BHV-DSC-002\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0084.001\", \"Discover AI Agent Configuration: Tool Definitions\", 2, \"BHV-LK-014\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0084.002\", \"Discover AI Agent Configuration: Activation Triggers\", 2, \"BHV-DSC-003\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0084.003\", \"Discover AI Agent Configuration: Call Chains\", 2, \"BHV-DSC-004\",\n    \"AML.TA0009\", \"Collection\", \"AML.T0085\", \"Data from AI Services\", 2, \"BHV-COL-004\",\n    \"AML.TA0009\", \"Collection\", \"AML.T0085.000\", \"Data from AI Services: RAG Databases\", 2, \"BHV-EXF-013, BHV-LK-007, BHV-LK-008, BHV-LK-009\",\n    \"AML.TA0009\", \"Collection\", \"AML.T0085.001\", \"Data from AI Services: AI Agent Tools\", 2, \"BHV-COL-003\",\n    \"AML.TA0010\", \"Exfiltration\", \"AML.T0086\", \"Exfiltration via AI Agent Tool Invocation\", 2, \"BHV-EXF-004, BHV-EXF-005, BHV-EXF-011\",\n    \"AML.TA0002\", \"Reconnaissance\", \"AML.T0087\", \"Gather Victim Identity Information\", 2, \"BHV-RC-003\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0088\", \"Generate Deepfakes\", 2, \"BHV-EV-007\",\n    \"AML.TA0008\", \"Discovery\", \"AML.T0089\", \"Process Discovery\", 2, \"BHV-AG-013\",\n    \"AML.TA0013\", \"Credential Access\", \"AML.T0090\", \"OS Credential Dumping\", 2, \"BHV-CA-003\",\n    \"AML.TA0015\", \"Lateral Movement\", \"AML.T0091.000\", \"Use Alternate Authentication Material: Application Access Token\", 2, \"BHV-AG-014, BHV-LM-001, BHV-LM-002\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0092\", \"Manipulate User LLM Chat History\", 2, \"BHV-PO-007\",\n    \"AML.TA0004\", \"Initial Access\", \"AML.T0093\", \"Prompt Infiltration via Public-Facing Application\", 2, \"BHV-PI-011\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0093\", \"Prompt Infiltration via Public-Facing Application\", 2, \"BHV-PI-011\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0094\", \"Delay Execution of LLM Instructions\", 2, \"BHV-PI-008\",\n    \"AML.TA0014\", \"Command and Control\", \"AML.T0096\", \"AI Service API\", 2, \"BHV-C2-002\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0097\", \"Virtualization/Sandbox Evasion\", 2, \"BHV-EV-008\",\n    \"AML.TA0013\", \"Credential Access\", \"AML.T0098\", \"AI Agent Tool Credential Harvesting\", 2, \"BHV-AG-005, BHV-CA-002, BHV-EXF-011\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0099\", \"AI Agent Tool Data Poisoning\", 2, \"BHV-PI-013\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0100\", \"AI Agent Clickbait\", 2, \"BHV-AG-011\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0101\", \"Data Destruction via AI Agent Tool Invocation\", 2, \"BHV-AG-006\",\n    \"AML.TA0001\", \"AI Attack Staging\", \"AML.T0102\", \"Generate Malicious Commands\", 2, \"BHV-JB-012\",\n    \"AML.TA0005\", \"Execution\", \"AML.T0103\", \"Deploy AI Agent\", 2, \"BHV-AG-015\",\n    \"AML.TA0003\", \"Resource Development\", \"AML.T0104\", \"Publish Poisoned AI Agent Tool\", 1, \"BHV-RD-003\",\n    \"AML.TA0012\", \"Privilege Escalation\", \"AML.T0105\", \"Escape to Host\", 2, \"BHV-AG-004\",\n    \"AML.TA0013\", \"Credential Access\", \"AML.T0106\", \"Exploitation for Credential Access\", 2, \"BHV-CA-004\",\n    \"AML.TA0014\", \"Command and Control\", \"AML.T0108\", \"AI Agent\", 2, \"BHV-C2-001, BHV-C2-003\",\n    \"AML.TA0007\", \"Defense Evasion\", \"AML.T0109\", \"AI Supply Chain Rug Pull\", 2, \"BHV-SC-006\",\n    \"AML.TA0006\", \"Persistence\", \"AML.T0110\", \"AI Agent Tool Poisoning\", 2, \"BHV-SC-008\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0112.000\", \"Machine Compromise: Local AI Agent\", 2, \"BHV-AG-017\",\n    \"AML.TA0011\", \"Impact\", \"AML.T0112.001\", \"Machine Compromise: AI Artifacts\", 2, \"BHV-SC-012\"\n]\n| extend Coverage = case(Score == 3, \"3 detection + automated response (replay passing)\", Score == 2, \"2 detection\", Score == 1, \"1 mitigation-only\", \"0 none\")\n| project TacticId, Tactic, TechniqueId, Technique, Coverage, Behaviors\n| sort by TacticId asc, TechniqueId asc",
+        "size": 0,
+        "title": "ATLAS coverage by technique (Navigator layer)",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "table"
+      },
+      "name": "query - coverage"
+    }
+  ],
+  "fromTemplateId": "sentinel-ATLASBehaviorMap",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

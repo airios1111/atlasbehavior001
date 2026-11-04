@@ -10,7 +10,8 @@ from pathlib import Path
 
 from abm import __version__
 from abm.catalog import AtlasCatalog, sync
-from abm.compilers import TARGETS
+from abm.compilers import TARGETS, render
+from abm.compilers.common import KQL_PROFILES
 from abm.coverage import SCORE_LABEL, compute, gaps, write_reports
 from abm.engine import Engine, load_events, run_tests
 from abm.loader import find_root, load_behaviors
@@ -73,16 +74,51 @@ def cmd_compile(args) -> int:
     out_root = Path(args.out) if args.out else root / "dist"
     n = 0
     for t in targets:
-        fn, ext = TARGETS[t]
+        _, ext = TARGETS[t]
         out = out_root / t if (args.target == "all" or not args.out) else out_root
         out.mkdir(parents=True, exist_ok=True)
         for b in res.behaviors:
             if b.status.value == "deprecated" and not args.include_deprecated:
                 continue
-            (out / f"{b.id}{ext}").write_text(fn(b), encoding="utf-8")
+            (out / f"{b.id}{ext}").write_text(render(t, b, args.profile), encoding="utf-8")
             n += 1
     print(f"compiled {n} rule(s) -> {out_root}")
     return 1 if res.errors else 0
+
+
+def cmd_sentinel_build(args) -> int:
+    from abm import sentinel_solution as sol
+
+    root, catalog = _ctx(args)
+    res = _behaviors(root, None)
+    if res.errors:
+        return 1
+    out = Path(args.out) if args.out else root / "integrations" / "sentinel"
+    layer = json.loads(Path(args.layer).read_text(encoding="utf-8")) if args.layer else None
+    files = sol.build(res.behaviors, catalog, root, layer)
+    if args.check:
+        problems = sol.check(files, out)
+        for p in problems:
+            print(p)
+        print(f"{len(files)} file(s) expected, {len(problems)} difference(s) in {out}"
+              + ("" if not problems else ". Run `abm sentinel-build` and commit the result."))
+        return 1 if problems else 0
+    changed = sol.write(files, out)
+    print(f"sentinel solution: {len(files)} file(s), {len(changed)} changed -> {out}")
+    return 0
+
+
+def cmd_sentinel_validate(args) -> int:
+    from abm import sentinel_solution as sol
+
+    root = Path(args.root).resolve() if args.root else find_root()
+    out = Path(args.path) if args.path else root / "integrations" / "sentinel"
+    problems = sol.validate_dir(out)
+    for p in problems:
+        print(p)
+    n = len(list((out / sol.RULES_DIR).glob("*.yaml"))) if (out / sol.RULES_DIR).is_dir() else 0
+    print(f"{n} analytic rule(s), {len(problems)} error(s) in {out}")
+    return 1 if problems else 0
 
 
 def cmd_map(args) -> int:
@@ -270,7 +306,21 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--out")
     s.add_argument("--path")
     s.add_argument("--include-deprecated", action="store_true")
+    s.add_argument("--profile", choices=list(KQL_PROFILES), default="default",
+                   help="KQL table names: default, or sentinel (custom tables end in _CL). "
+                        "The sentinel target always uses the sentinel profile")
     s.set_defaults(fn=cmd_compile)
+
+    s = sub.add_parser("sentinel-build",
+                       help="generate the Microsoft Sentinel solution (rules, tables/DCRs, workbook, playbook)")
+    s.add_argument("--out", help="solution folder (default: integrations/sentinel)")
+    s.add_argument("--layer", help="Navigator layer JSON for the workbook (default: computed, as abm coverage)")
+    s.add_argument("--check", action="store_true", help="write nothing; exit 1 if the folder is out of date")
+    s.set_defaults(fn=cmd_sentinel_build)
+
+    s = sub.add_parser("sentinel-validate", help="check a Sentinel solution folder before packaging")
+    s.add_argument("path", nargs="?", help="solution folder (default: integrations/sentinel)")
+    s.set_defaults(fn=cmd_sentinel_validate)
 
     s = sub.add_parser("map", help="show behavior -> ATLAS mapping")
     s.add_argument("--behavior")

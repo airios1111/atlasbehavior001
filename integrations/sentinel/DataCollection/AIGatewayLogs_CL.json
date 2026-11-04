@@ -1,0 +1,460 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AIGatewayLogs_CL custom table and the data collection rule that ingests normalized 'llm_gateway' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AIGatewayLogs_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AIGatewayLogs_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "ApiKeyId",
+              "type": "string"
+            },
+            {
+              "name": "ApiOperation",
+              "type": "string"
+            },
+            {
+              "name": "Channel",
+              "type": "string"
+            },
+            {
+              "name": "CitedUnretrievedSources",
+              "type": "long"
+            },
+            {
+              "name": "ClientApp",
+              "type": "string"
+            },
+            {
+              "name": "ClientAsn",
+              "type": "long"
+            },
+            {
+              "name": "ClientHost",
+              "type": "string"
+            },
+            {
+              "name": "ClientIp",
+              "type": "string"
+            },
+            {
+              "name": "Completion",
+              "type": "string"
+            },
+            {
+              "name": "CompletionLinkDomains",
+              "type": "string"
+            },
+            {
+              "name": "CompletionLinkReputation",
+              "type": "string"
+            },
+            {
+              "name": "ConfusableCharRatio",
+              "type": "real"
+            },
+            {
+              "name": "ContextUtilization",
+              "type": "real"
+            },
+            {
+              "name": "CostUsd",
+              "type": "real"
+            },
+            {
+              "name": "GuardrailVerdict",
+              "type": "string"
+            },
+            {
+              "name": "HarmScore",
+              "type": "real"
+            },
+            {
+              "name": "InputTokens",
+              "type": "long"
+            },
+            {
+              "name": "InterArrivalS",
+              "type": "real"
+            },
+            {
+              "name": "InvisibleCharCount",
+              "type": "long"
+            },
+            {
+              "name": "JailbreakCorpusMatch",
+              "type": "boolean"
+            },
+            {
+              "name": "LatencyMs",
+              "type": "long"
+            },
+            {
+              "name": "LogprobsRequested",
+              "type": "boolean"
+            },
+            {
+              "name": "MemorizationScore",
+              "type": "real"
+            },
+            {
+              "name": "ModelId",
+              "type": "string"
+            },
+            {
+              "name": "ModelTier",
+              "type": "string"
+            },
+            {
+              "name": "ModerationVerdict",
+              "type": "string"
+            },
+            {
+              "name": "NonexistentPackagesInCompletion",
+              "type": "long"
+            },
+            {
+              "name": "OutputTokens",
+              "type": "long"
+            },
+            {
+              "name": "PrincipalId",
+              "type": "string"
+            },
+            {
+              "name": "Prompt",
+              "type": "string"
+            },
+            {
+              "name": "PromptDialogueTurns",
+              "type": "long"
+            },
+            {
+              "name": "PromptHash",
+              "type": "string"
+            },
+            {
+              "name": "ReasoningTokens",
+              "type": "long"
+            },
+            {
+              "name": "Refused",
+              "type": "long"
+            },
+            {
+              "name": "RequestParamKeys",
+              "type": "string"
+            },
+            {
+              "name": "ResponseHasCitations",
+              "type": "boolean"
+            },
+            {
+              "name": "SessionId",
+              "type": "string"
+            },
+            {
+              "name": "SuffixPerplexity",
+              "type": "real"
+            },
+            {
+              "name": "SuffixTokenCount",
+              "type": "long"
+            },
+            {
+              "name": "TotalTokens",
+              "type": "long"
+            },
+            {
+              "name": "UserAgent",
+              "type": "string"
+            },
+            {
+              "name": "UserContent",
+              "type": "string"
+            },
+            {
+              "name": "WorkloadRegistered",
+              "type": "boolean"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-llm-gateway",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AIGatewayLogs_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AIGatewayLogsRaw": {
+            "columns": [
+              {
+                "name": "api_key_id",
+                "type": "string"
+              },
+              {
+                "name": "api_operation",
+                "type": "string"
+              },
+              {
+                "name": "channel",
+                "type": "string"
+              },
+              {
+                "name": "cited_unretrieved_sources",
+                "type": "long"
+              },
+              {
+                "name": "client_app",
+                "type": "string"
+              },
+              {
+                "name": "client_asn",
+                "type": "long"
+              },
+              {
+                "name": "client_host",
+                "type": "string"
+              },
+              {
+                "name": "client_ip",
+                "type": "string"
+              },
+              {
+                "name": "completion",
+                "type": "string"
+              },
+              {
+                "name": "completion_link_domains",
+                "type": "string"
+              },
+              {
+                "name": "completion_link_reputation",
+                "type": "string"
+              },
+              {
+                "name": "confusable_char_ratio",
+                "type": "real"
+              },
+              {
+                "name": "context_utilization",
+                "type": "real"
+              },
+              {
+                "name": "cost_usd",
+                "type": "real"
+              },
+              {
+                "name": "guardrail_verdict",
+                "type": "string"
+              },
+              {
+                "name": "harm_score",
+                "type": "real"
+              },
+              {
+                "name": "input_tokens",
+                "type": "long"
+              },
+              {
+                "name": "inter_arrival_s",
+                "type": "real"
+              },
+              {
+                "name": "invisible_char_count",
+                "type": "long"
+              },
+              {
+                "name": "jailbreak_corpus_match",
+                "type": "boolean"
+              },
+              {
+                "name": "latency_ms",
+                "type": "long"
+              },
+              {
+                "name": "logprobs_requested",
+                "type": "boolean"
+              },
+              {
+                "name": "memorization_score",
+                "type": "real"
+              },
+              {
+                "name": "model_id",
+                "type": "string"
+              },
+              {
+                "name": "model_tier",
+                "type": "string"
+              },
+              {
+                "name": "moderation_verdict",
+                "type": "string"
+              },
+              {
+                "name": "nonexistent_packages_in_completion",
+                "type": "long"
+              },
+              {
+                "name": "output_tokens",
+                "type": "long"
+              },
+              {
+                "name": "principal_id",
+                "type": "string"
+              },
+              {
+                "name": "prompt",
+                "type": "string"
+              },
+              {
+                "name": "prompt_dialogue_turns",
+                "type": "long"
+              },
+              {
+                "name": "prompt_hash",
+                "type": "string"
+              },
+              {
+                "name": "reasoning_tokens",
+                "type": "long"
+              },
+              {
+                "name": "refused",
+                "type": "long"
+              },
+              {
+                "name": "request_param_keys",
+                "type": "string"
+              },
+              {
+                "name": "response_has_citations",
+                "type": "boolean"
+              },
+              {
+                "name": "session_id",
+                "type": "string"
+              },
+              {
+                "name": "suffix_perplexity",
+                "type": "real"
+              },
+              {
+                "name": "suffix_token_count",
+                "type": "long"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              },
+              {
+                "name": "total_tokens",
+                "type": "long"
+              },
+              {
+                "name": "user_agent",
+                "type": "string"
+              },
+              {
+                "name": "user_content",
+                "type": "string"
+              },
+              {
+                "name": "workload_registered",
+                "type": "boolean"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AIGatewayLogsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), ApiKeyId = api_key_id, ApiOperation = api_operation, Channel = channel, CitedUnretrievedSources = cited_unretrieved_sources, ClientApp = client_app, ClientAsn = client_asn, ClientHost = client_host, ClientIp = client_ip, Completion = completion, CompletionLinkDomains = completion_link_domains, CompletionLinkReputation = completion_link_reputation, ConfusableCharRatio = confusable_char_ratio, ContextUtilization = context_utilization, CostUsd = cost_usd, GuardrailVerdict = guardrail_verdict, HarmScore = harm_score, InputTokens = input_tokens, InterArrivalS = inter_arrival_s, InvisibleCharCount = invisible_char_count, JailbreakCorpusMatch = jailbreak_corpus_match, LatencyMs = latency_ms, LogprobsRequested = logprobs_requested, MemorizationScore = memorization_score, ModelId = model_id, ModelTier = model_tier, ModerationVerdict = moderation_verdict, NonexistentPackagesInCompletion = nonexistent_packages_in_completion, OutputTokens = output_tokens, PrincipalId = principal_id, Prompt = prompt, PromptDialogueTurns = prompt_dialogue_turns, PromptHash = prompt_hash, ReasoningTokens = reasoning_tokens, Refused = refused, RequestParamKeys = request_param_keys, ResponseHasCitations = response_has_citations, SessionId = session_id, SuffixPerplexity = suffix_perplexity, SuffixTokenCount = suffix_token_count, TotalTokens = total_tokens, UserAgent = user_agent, UserContent = user_content, WorkloadRegistered = workload_registered",
+            "outputStream": "Custom-AIGatewayLogs_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-llm-gateway'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AIGatewayLogsRaw"
+    }
+  }
+}

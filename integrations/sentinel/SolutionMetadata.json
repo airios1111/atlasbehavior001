@@ -1,0 +1,19 @@
+{
+  "publisherId": "azuresentinel",
+  "offerId": "azure-sentinel-solution-atlasbehaviormap",
+  "firstPublishDate": "2026-11-04",
+  "providers": [
+    "ATLAS Behavior Map"
+  ],
+  "categories": {
+    "domains": [
+      "Security - Threat Protection",
+      "Security - Others"
+    ]
+  },
+  "support": {
+    "name": "ATLAS Behavior Map",
+    "tier": "Community",
+    "link": "https://github.com/airios1111/atlasbehavior001/issues"
+  }
+}

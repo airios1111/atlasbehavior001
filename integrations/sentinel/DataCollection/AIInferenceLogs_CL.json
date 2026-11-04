@@ -1,0 +1,412 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AIInferenceLogs_CL custom table and the data collection rule that ingests normalized 'inference_gateway' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AIInferenceLogs_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AIInferenceLogs_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "AdvDetectorScore",
+              "type": "real"
+            },
+            {
+              "name": "CameraId",
+              "type": "string"
+            },
+            {
+              "name": "CheckType",
+              "type": "string"
+            },
+            {
+              "name": "ClientApp",
+              "type": "string"
+            },
+            {
+              "name": "ClientIp",
+              "type": "string"
+            },
+            {
+              "name": "DecisionMargin",
+              "type": "real"
+            },
+            {
+              "name": "DecompressionRatio",
+              "type": "real"
+            },
+            {
+              "name": "DeepfakeScore",
+              "type": "real"
+            },
+            {
+              "name": "Endpoint",
+              "type": "string"
+            },
+            {
+              "name": "Environment",
+              "type": "string"
+            },
+            {
+              "name": "FileSha256",
+              "type": "string"
+            },
+            {
+              "name": "FuzzyHashCluster",
+              "type": "string"
+            },
+            {
+              "name": "InputEmbeddingNorm",
+              "type": "real"
+            },
+            {
+              "name": "InputHash",
+              "type": "string"
+            },
+            {
+              "name": "InputModality",
+              "type": "string"
+            },
+            {
+              "name": "InputQualityScore",
+              "type": "real"
+            },
+            {
+              "name": "InputSimilarityToPrev",
+              "type": "real"
+            },
+            {
+              "name": "IsTimeout",
+              "type": "long"
+            },
+            {
+              "name": "ModelId",
+              "type": "string"
+            },
+            {
+              "name": "PatchDetectorScore",
+              "type": "real"
+            },
+            {
+              "name": "PredictedClass",
+              "type": "string"
+            },
+            {
+              "name": "PredictedLabel",
+              "type": "string"
+            },
+            {
+              "name": "PredictionChangedByTrigger",
+              "type": "boolean"
+            },
+            {
+              "name": "PrincipalId",
+              "type": "string"
+            },
+            {
+              "name": "PrincipalType",
+              "type": "string"
+            },
+            {
+              "name": "RequestId",
+              "type": "string"
+            },
+            {
+              "name": "RequestParamKeys",
+              "type": "string"
+            },
+            {
+              "name": "RequestPath",
+              "type": "string"
+            },
+            {
+              "name": "ReturnConfidence",
+              "type": "long"
+            },
+            {
+              "name": "SessionId",
+              "type": "string"
+            },
+            {
+              "name": "SpeakerConsentOnFile",
+              "type": "boolean"
+            },
+            {
+              "name": "SpeakerIsProtectedPerson",
+              "type": "boolean"
+            },
+            {
+              "name": "StatusCode",
+              "type": "long"
+            },
+            {
+              "name": "Task",
+              "type": "string"
+            },
+            {
+              "name": "TriggerDetectorScore",
+              "type": "real"
+            },
+            {
+              "name": "UserAgent",
+              "type": "string"
+            },
+            {
+              "name": "ViaAppGateway",
+              "type": "boolean"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-inference-gateway",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AIInferenceLogs_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AIInferenceLogsRaw": {
+            "columns": [
+              {
+                "name": "adv_detector_score",
+                "type": "real"
+              },
+              {
+                "name": "camera_id",
+                "type": "string"
+              },
+              {
+                "name": "check_type",
+                "type": "string"
+              },
+              {
+                "name": "client_app",
+                "type": "string"
+              },
+              {
+                "name": "client_ip",
+                "type": "string"
+              },
+              {
+                "name": "decision_margin",
+                "type": "real"
+              },
+              {
+                "name": "decompression_ratio",
+                "type": "real"
+              },
+              {
+                "name": "deepfake_score",
+                "type": "real"
+              },
+              {
+                "name": "endpoint",
+                "type": "string"
+              },
+              {
+                "name": "environment",
+                "type": "string"
+              },
+              {
+                "name": "file_sha256",
+                "type": "string"
+              },
+              {
+                "name": "fuzzy_hash_cluster",
+                "type": "string"
+              },
+              {
+                "name": "input_embedding_norm",
+                "type": "real"
+              },
+              {
+                "name": "input_hash",
+                "type": "string"
+              },
+              {
+                "name": "input_modality",
+                "type": "string"
+              },
+              {
+                "name": "input_quality_score",
+                "type": "real"
+              },
+              {
+                "name": "input_similarity_to_prev",
+                "type": "real"
+              },
+              {
+                "name": "is_timeout",
+                "type": "long"
+              },
+              {
+                "name": "model_id",
+                "type": "string"
+              },
+              {
+                "name": "patch_detector_score",
+                "type": "real"
+              },
+              {
+                "name": "predicted_class",
+                "type": "string"
+              },
+              {
+                "name": "predicted_label",
+                "type": "string"
+              },
+              {
+                "name": "prediction_changed_by_trigger",
+                "type": "boolean"
+              },
+              {
+                "name": "principal_id",
+                "type": "string"
+              },
+              {
+                "name": "principal_type",
+                "type": "string"
+              },
+              {
+                "name": "request_id",
+                "type": "string"
+              },
+              {
+                "name": "request_param_keys",
+                "type": "string"
+              },
+              {
+                "name": "request_path",
+                "type": "string"
+              },
+              {
+                "name": "return_confidence",
+                "type": "long"
+              },
+              {
+                "name": "session_id",
+                "type": "string"
+              },
+              {
+                "name": "speaker_consent_on_file",
+                "type": "boolean"
+              },
+              {
+                "name": "speaker_is_protected_person",
+                "type": "boolean"
+              },
+              {
+                "name": "status_code",
+                "type": "long"
+              },
+              {
+                "name": "task",
+                "type": "string"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              },
+              {
+                "name": "trigger_detector_score",
+                "type": "real"
+              },
+              {
+                "name": "user_agent",
+                "type": "string"
+              },
+              {
+                "name": "via_app_gateway",
+                "type": "boolean"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AIInferenceLogsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), AdvDetectorScore = adv_detector_score, CameraId = camera_id, CheckType = check_type, ClientApp = client_app, ClientIp = client_ip, DecisionMargin = decision_margin, DecompressionRatio = decompression_ratio, DeepfakeScore = deepfake_score, Endpoint = endpoint, Environment = environment, FileSha256 = file_sha256, FuzzyHashCluster = fuzzy_hash_cluster, InputEmbeddingNorm = input_embedding_norm, InputHash = input_hash, InputModality = input_modality, InputQualityScore = input_quality_score, InputSimilarityToPrev = input_similarity_to_prev, IsTimeout = is_timeout, ModelId = model_id, PatchDetectorScore = patch_detector_score, PredictedClass = predicted_class, PredictedLabel = predicted_label, PredictionChangedByTrigger = prediction_changed_by_trigger, PrincipalId = principal_id, PrincipalType = principal_type, RequestId = request_id, RequestParamKeys = request_param_keys, RequestPath = request_path, ReturnConfidence = return_confidence, SessionId = session_id, SpeakerConsentOnFile = speaker_consent_on_file, SpeakerIsProtectedPerson = speaker_is_protected_person, StatusCode = status_code, Task = task, TriggerDetectorScore = trigger_detector_score, UserAgent = user_agent, ViaAppGateway = via_app_gateway",
+            "outputStream": "Custom-AIInferenceLogs_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-inference-gateway'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AIInferenceLogsRaw"
+    }
+  }
+}
