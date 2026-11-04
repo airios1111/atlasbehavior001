@@ -1,0 +1,196 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AIVectorStoreEvents_CL custom table and the data collection rule that ingests normalized 'vector_store' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AIVectorStoreEvents_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AIVectorStoreEvents_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "Collection",
+              "type": "string"
+            },
+            {
+              "name": "Content",
+              "type": "string"
+            },
+            {
+              "name": "DocId",
+              "type": "string"
+            },
+            {
+              "name": "NearDuplicateScore",
+              "type": "real"
+            },
+            {
+              "name": "Operation",
+              "type": "string"
+            },
+            {
+              "name": "PrincipalId",
+              "type": "string"
+            },
+            {
+              "name": "RecordsReturned",
+              "type": "long"
+            },
+            {
+              "name": "SourceTrust",
+              "type": "string"
+            },
+            {
+              "name": "TopK",
+              "type": "long"
+            },
+            {
+              "name": "UploaderId",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-vector-store",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AIVectorStoreEvents_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AIVectorStoreEventsRaw": {
+            "columns": [
+              {
+                "name": "collection",
+                "type": "string"
+              },
+              {
+                "name": "content",
+                "type": "string"
+              },
+              {
+                "name": "doc_id",
+                "type": "string"
+              },
+              {
+                "name": "near_duplicate_score",
+                "type": "real"
+              },
+              {
+                "name": "operation",
+                "type": "string"
+              },
+              {
+                "name": "principal_id",
+                "type": "string"
+              },
+              {
+                "name": "records_returned",
+                "type": "long"
+              },
+              {
+                "name": "source_trust",
+                "type": "string"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              },
+              {
+                "name": "top_k",
+                "type": "long"
+              },
+              {
+                "name": "uploader_id",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AIVectorStoreEventsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), Collection = collection, Content = content, DocId = doc_id, NearDuplicateScore = near_duplicate_score, Operation = operation, PrincipalId = principal_id, RecordsReturned = records_returned, SourceTrust = source_trust, TopK = top_k, UploaderId = uploader_id",
+            "outputStream": "Custom-AIVectorStoreEvents_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-vector-store'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AIVectorStoreEventsRaw"
+    }
+  }
+}

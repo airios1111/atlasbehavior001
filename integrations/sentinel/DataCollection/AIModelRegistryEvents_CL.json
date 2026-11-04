@@ -1,0 +1,284 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AIModelRegistryEvents_CL custom table and the data collection rule that ingests normalized 'model_registry' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AIModelRegistryEvents_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AIModelRegistryEvents_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "AccuracyDropPct",
+              "type": "real"
+            },
+            {
+              "name": "ArchitectureHashMatch",
+              "type": "boolean"
+            },
+            {
+              "name": "ArtifactId",
+              "type": "string"
+            },
+            {
+              "name": "ArtifactType",
+              "type": "string"
+            },
+            {
+              "name": "BackdoorAnomalyIndex",
+              "type": "real"
+            },
+            {
+              "name": "DigestMatch",
+              "type": "boolean"
+            },
+            {
+              "name": "Environment",
+              "type": "string"
+            },
+            {
+              "name": "EventType",
+              "type": "string"
+            },
+            {
+              "name": "MalwareSignatureHits",
+              "type": "long"
+            },
+            {
+              "name": "ModelId",
+              "type": "string"
+            },
+            {
+              "name": "PrincipalId",
+              "type": "string"
+            },
+            {
+              "name": "Publisher",
+              "type": "string"
+            },
+            {
+              "name": "PublisherAllowlisted",
+              "type": "boolean"
+            },
+            {
+              "name": "PublisherSimilarityToAllowlisted",
+              "type": "real"
+            },
+            {
+              "name": "SignatureStatus",
+              "type": "string"
+            },
+            {
+              "name": "SizeGb",
+              "type": "real"
+            },
+            {
+              "name": "SourceHub",
+              "type": "string"
+            },
+            {
+              "name": "SourceRepo",
+              "type": "string"
+            },
+            {
+              "name": "TrainingJobId",
+              "type": "string"
+            },
+            {
+              "name": "TriggerAsr",
+              "type": "real"
+            },
+            {
+              "name": "UnsafeOpcodeCount",
+              "type": "long"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-model-registry",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AIModelRegistryEvents_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AIModelRegistryEventsRaw": {
+            "columns": [
+              {
+                "name": "accuracy_drop_pct",
+                "type": "real"
+              },
+              {
+                "name": "architecture_hash_match",
+                "type": "boolean"
+              },
+              {
+                "name": "artifact_id",
+                "type": "string"
+              },
+              {
+                "name": "artifact_type",
+                "type": "string"
+              },
+              {
+                "name": "backdoor_anomaly_index",
+                "type": "real"
+              },
+              {
+                "name": "digest_match",
+                "type": "boolean"
+              },
+              {
+                "name": "environment",
+                "type": "string"
+              },
+              {
+                "name": "event_type",
+                "type": "string"
+              },
+              {
+                "name": "malware_signature_hits",
+                "type": "long"
+              },
+              {
+                "name": "model_id",
+                "type": "string"
+              },
+              {
+                "name": "principal_id",
+                "type": "string"
+              },
+              {
+                "name": "publisher",
+                "type": "string"
+              },
+              {
+                "name": "publisher_allowlisted",
+                "type": "boolean"
+              },
+              {
+                "name": "publisher_similarity_to_allowlisted",
+                "type": "real"
+              },
+              {
+                "name": "signature_status",
+                "type": "string"
+              },
+              {
+                "name": "size_gb",
+                "type": "real"
+              },
+              {
+                "name": "source_hub",
+                "type": "string"
+              },
+              {
+                "name": "source_repo",
+                "type": "string"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              },
+              {
+                "name": "training_job_id",
+                "type": "string"
+              },
+              {
+                "name": "trigger_asr",
+                "type": "real"
+              },
+              {
+                "name": "unsafe_opcode_count",
+                "type": "long"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AIModelRegistryEventsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), AccuracyDropPct = accuracy_drop_pct, ArchitectureHashMatch = architecture_hash_match, ArtifactId = artifact_id, ArtifactType = artifact_type, BackdoorAnomalyIndex = backdoor_anomaly_index, DigestMatch = digest_match, Environment = environment, EventType = event_type, MalwareSignatureHits = malware_signature_hits, ModelId = model_id, PrincipalId = principal_id, Publisher = publisher, PublisherAllowlisted = publisher_allowlisted, PublisherSimilarityToAllowlisted = publisher_similarity_to_allowlisted, SignatureStatus = signature_status, SizeGb = size_gb, SourceHub = source_hub, SourceRepo = source_repo, TrainingJobId = training_job_id, TriggerAsr = trigger_asr, UnsafeOpcodeCount = unsafe_opcode_count",
+            "outputStream": "Custom-AIModelRegistryEvents_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-model-registry'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AIModelRegistryEventsRaw"
+    }
+  }
+}

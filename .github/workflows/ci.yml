@@ -25,6 +25,8 @@ jobs:
       - run: pytest -q
       - run: abm compile --target all
       - run: abm coverage
+      - run: abm sentinel-build --check   # integrations/sentinel matches the behaviors
+      - run: abm sentinel-validate        # rule YAML + table/DCR/playbook/data-file checks
       - uses: actions/upload-artifact@v4
         if: matrix.python == '3.12'
         with:
@@ -32,3 +34,65 @@ jobs:
           path: |
             dist/
             reports/
+
+  # Content Hub package: Microsoft's solution packaging tool builds mainTemplate.json and
+  # createUiDefinition.json from integrations/sentinel, then arm-ttk tests every ARM template.
+  sentinel-package:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      SOLUTION: Azure-Sentinel/Solutions/ATLASBehaviorMap
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Azure/Azure-Sentinel
+          path: Azure-Sentinel
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /Tools/Create-Azure-Sentinel-Solution/
+            /Workbooks/WorkbooksMetadata.json
+            /Logos/Azure_Sentinel.svg
+      - uses: actions/checkout@v4
+        with:
+          repository: Azure/arm-ttk
+          path: arm-ttk
+      - name: Build the solution package (createSolutionV3.ps1)
+        shell: pwsh
+        run: |
+          $solution = Join-Path $PWD $env:SOLUTION
+          New-Item -ItemType Directory -Force (Split-Path $solution) | Out-Null
+          Copy-Item -Recurse integrations/sentinel $solution
+          # BasePath in the data file has to point at the copied solution folder
+          $dataFile = Join-Path $solution "Data/Solution_ABM.json"
+          $data = Get-Content $dataFile -Raw | ConvertFrom-Json
+          $data.BasePath = $solution
+          $data | ConvertTo-Json -Depth 20 | Set-Content $dataFile
+          Push-Location Azure-Sentinel/Tools/Create-Azure-Sentinel-Solution/V3
+          ./createSolutionV3.ps1 -SolutionDataFolderPath (Join-Path $solution "Data")
+          Pop-Location
+          Get-ChildItem (Join-Path $solution "Package")
+          foreach ($f in "mainTemplate.json", "createUiDefinition.json") {
+            if (-not (Test-Path (Join-Path $solution "Package/$f"))) { throw "packaging tool did not produce $f" }
+          }
+      - name: arm-ttk
+        shell: pwsh
+        run: |
+          Import-Module ./arm-ttk/arm-ttk/arm-ttk.psd1
+          $targets = @("$env:SOLUTION/Package")
+          $targets += (Get-ChildItem "$env:SOLUTION/Playbooks" -Recurse -Filter azuredeploy.json).FullName
+          $targets += (Get-ChildItem "$env:SOLUTION/DataCollection" -Filter *.json).FullName
+          $failed = 0
+          foreach ($t in $targets) {
+            $results = @(Test-AzTemplate -TemplatePath $t)
+            $bad = @($results | Where-Object { -not $_.Passed })
+            "{0}: {1} test(s), {2} failed" -f $t, $results.Count, $bad.Count
+            $bad | Format-List Name, File, Errors
+            $failed += $bad.Count
+          }
+          if ($failed) { throw "$failed arm-ttk test(s) failed" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-solution-package
+          path: ${{ env.SOLUTION }}/Package/

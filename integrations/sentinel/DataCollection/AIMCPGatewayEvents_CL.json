@@ -1,0 +1,220 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AIMCPGatewayEvents_CL custom table and the data collection rule that ingests normalized 'mcp_gateway' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AIMCPGatewayEvents_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AIMCPGatewayEvents_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "AgentId",
+              "type": "string"
+            },
+            {
+              "name": "AuthType",
+              "type": "string"
+            },
+            {
+              "name": "EventType",
+              "type": "string"
+            },
+            {
+              "name": "ManifestHashApproved",
+              "type": "boolean"
+            },
+            {
+              "name": "NameSimilarityToApproved",
+              "type": "real"
+            },
+            {
+              "name": "PackageAgeDays",
+              "type": "long"
+            },
+            {
+              "name": "PublisherVerified",
+              "type": "boolean"
+            },
+            {
+              "name": "ServerFirstSeenForAgent",
+              "type": "boolean"
+            },
+            {
+              "name": "ServerId",
+              "type": "string"
+            },
+            {
+              "name": "ServerInAgentManifest",
+              "type": "boolean"
+            },
+            {
+              "name": "SessionId",
+              "type": "string"
+            },
+            {
+              "name": "ToolDescription",
+              "type": "string"
+            },
+            {
+              "name": "ToolName",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-mcp-gateway",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AIMCPGatewayEvents_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AIMCPGatewayEventsRaw": {
+            "columns": [
+              {
+                "name": "agent_id",
+                "type": "string"
+              },
+              {
+                "name": "auth_type",
+                "type": "string"
+              },
+              {
+                "name": "event_type",
+                "type": "string"
+              },
+              {
+                "name": "manifest_hash_approved",
+                "type": "boolean"
+              },
+              {
+                "name": "name_similarity_to_approved",
+                "type": "real"
+              },
+              {
+                "name": "package_age_days",
+                "type": "long"
+              },
+              {
+                "name": "publisher_verified",
+                "type": "boolean"
+              },
+              {
+                "name": "server_first_seen_for_agent",
+                "type": "boolean"
+              },
+              {
+                "name": "server_id",
+                "type": "string"
+              },
+              {
+                "name": "server_in_agent_manifest",
+                "type": "boolean"
+              },
+              {
+                "name": "session_id",
+                "type": "string"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              },
+              {
+                "name": "tool_description",
+                "type": "string"
+              },
+              {
+                "name": "tool_name",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AIMCPGatewayEventsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), AgentId = agent_id, AuthType = auth_type, EventType = event_type, ManifestHashApproved = manifest_hash_approved, NameSimilarityToApproved = name_similarity_to_approved, PackageAgeDays = package_age_days, PublisherVerified = publisher_verified, ServerFirstSeenForAgent = server_first_seen_for_agent, ServerId = server_id, ServerInAgentManifest = server_in_agent_manifest, SessionId = session_id, ToolDescription = tool_description, ToolName = tool_name",
+            "outputStream": "Custom-AIMCPGatewayEvents_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-mcp-gateway'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AIMCPGatewayEventsRaw"
+    }
+  }
+}

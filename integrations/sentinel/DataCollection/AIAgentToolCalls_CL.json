@@ -1,0 +1,364 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AIAgentToolCalls_CL custom table and the data collection rule that ingests normalized 'agent_runtime' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AIAgentToolCalls_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AIAgentToolCalls_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "ActingAboveUserPrivilege",
+              "type": "boolean"
+            },
+            {
+              "name": "ActorIsAdmin",
+              "type": "boolean"
+            },
+            {
+              "name": "AgentId",
+              "type": "string"
+            },
+            {
+              "name": "AttachmentCount",
+              "type": "long"
+            },
+            {
+              "name": "ChangeTarget",
+              "type": "string"
+            },
+            {
+              "name": "CloudApi",
+              "type": "string"
+            },
+            {
+              "name": "ContextHasUntrustedContent",
+              "type": "boolean"
+            },
+            {
+              "name": "CostUsd",
+              "type": "real"
+            },
+            {
+              "name": "DestinationAllowlisted",
+              "type": "boolean"
+            },
+            {
+              "name": "DestinationDomain",
+              "type": "string"
+            },
+            {
+              "name": "EventType",
+              "type": "string"
+            },
+            {
+              "name": "FilePath",
+              "type": "string"
+            },
+            {
+              "name": "HumanApproved",
+              "type": "boolean"
+            },
+            {
+              "name": "InitiatedByUser",
+              "type": "boolean"
+            },
+            {
+              "name": "InterArrivalS",
+              "type": "real"
+            },
+            {
+              "name": "IsExternalEgress",
+              "type": "long"
+            },
+            {
+              "name": "IsSecretRead",
+              "type": "long"
+            },
+            {
+              "name": "PageTrust",
+              "type": "string"
+            },
+            {
+              "name": "PrincipalId",
+              "type": "string"
+            },
+            {
+              "name": "RecipientExternal",
+              "type": "boolean"
+            },
+            {
+              "name": "RecordsReturned",
+              "type": "long"
+            },
+            {
+              "name": "RequestBytes",
+              "type": "long"
+            },
+            {
+              "name": "SessionId",
+              "type": "string"
+            },
+            {
+              "name": "TargetCategory",
+              "type": "string"
+            },
+            {
+              "name": "ToolArgs",
+              "type": "string"
+            },
+            {
+              "name": "ToolCategory",
+              "type": "string"
+            },
+            {
+              "name": "ToolInScope",
+              "type": "boolean"
+            },
+            {
+              "name": "ToolName",
+              "type": "string"
+            },
+            {
+              "name": "ToolOutput",
+              "type": "string"
+            },
+            {
+              "name": "ToolRisk",
+              "type": "string"
+            },
+            {
+              "name": "Url",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-agent-runtime",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AIAgentToolCalls_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AIAgentToolCallsRaw": {
+            "columns": [
+              {
+                "name": "acting_above_user_privilege",
+                "type": "boolean"
+              },
+              {
+                "name": "actor_is_admin",
+                "type": "boolean"
+              },
+              {
+                "name": "agent_id",
+                "type": "string"
+              },
+              {
+                "name": "attachment_count",
+                "type": "long"
+              },
+              {
+                "name": "change_target",
+                "type": "string"
+              },
+              {
+                "name": "cloud_api",
+                "type": "string"
+              },
+              {
+                "name": "context_has_untrusted_content",
+                "type": "boolean"
+              },
+              {
+                "name": "cost_usd",
+                "type": "real"
+              },
+              {
+                "name": "destination_allowlisted",
+                "type": "boolean"
+              },
+              {
+                "name": "destination_domain",
+                "type": "string"
+              },
+              {
+                "name": "event_type",
+                "type": "string"
+              },
+              {
+                "name": "file_path",
+                "type": "string"
+              },
+              {
+                "name": "human_approved",
+                "type": "boolean"
+              },
+              {
+                "name": "initiated_by_user",
+                "type": "boolean"
+              },
+              {
+                "name": "inter_arrival_s",
+                "type": "real"
+              },
+              {
+                "name": "is_external_egress",
+                "type": "long"
+              },
+              {
+                "name": "is_secret_read",
+                "type": "long"
+              },
+              {
+                "name": "page_trust",
+                "type": "string"
+              },
+              {
+                "name": "principal_id",
+                "type": "string"
+              },
+              {
+                "name": "recipient_external",
+                "type": "boolean"
+              },
+              {
+                "name": "records_returned",
+                "type": "long"
+              },
+              {
+                "name": "request_bytes",
+                "type": "long"
+              },
+              {
+                "name": "session_id",
+                "type": "string"
+              },
+              {
+                "name": "target_category",
+                "type": "string"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              },
+              {
+                "name": "tool_args",
+                "type": "string"
+              },
+              {
+                "name": "tool_category",
+                "type": "string"
+              },
+              {
+                "name": "tool_in_scope",
+                "type": "boolean"
+              },
+              {
+                "name": "tool_name",
+                "type": "string"
+              },
+              {
+                "name": "tool_output",
+                "type": "string"
+              },
+              {
+                "name": "tool_risk",
+                "type": "string"
+              },
+              {
+                "name": "url",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AIAgentToolCallsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), ActingAboveUserPrivilege = acting_above_user_privilege, ActorIsAdmin = actor_is_admin, AgentId = agent_id, AttachmentCount = attachment_count, ChangeTarget = change_target, CloudApi = cloud_api, ContextHasUntrustedContent = context_has_untrusted_content, CostUsd = cost_usd, DestinationAllowlisted = destination_allowlisted, DestinationDomain = destination_domain, EventType = event_type, FilePath = file_path, HumanApproved = human_approved, InitiatedByUser = initiated_by_user, InterArrivalS = inter_arrival_s, IsExternalEgress = is_external_egress, IsSecretRead = is_secret_read, PageTrust = page_trust, PrincipalId = principal_id, RecipientExternal = recipient_external, RecordsReturned = records_returned, RequestBytes = request_bytes, SessionId = session_id, TargetCategory = target_category, ToolArgs = tool_args, ToolCategory = tool_category, ToolInScope = tool_in_scope, ToolName = tool_name, ToolOutput = tool_output, ToolRisk = tool_risk, Url = url",
+            "outputStream": "Custom-AIAgentToolCalls_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-agent-runtime'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AIAgentToolCallsRaw"
+    }
+  }
+}

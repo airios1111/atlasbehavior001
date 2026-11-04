@@ -1,0 +1,196 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "ATLAS Behavior Map: AIMLWorkspaceEvents_CL custom table and the data collection rule that ingests normalized 'ml_workspace' events through the Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace of Microsoft Sentinel (same resource group)."
+      }
+    },
+    "dataCollectionEndpointName": {
+      "type": "string",
+      "defaultValue": "abm-ingestion",
+      "metadata": {
+        "description": "Data collection endpoint shared by all ABM sources; created if missing."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Region of the workspace."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2025-07-01",
+      "name": "[format('{0}/{1}', parameters('workspaceName'), 'AIMLWorkspaceEvents_CL')]",
+      "properties": {
+        "plan": "Analytics",
+        "schema": {
+          "name": "AIMLWorkspaceEvents_CL",
+          "columns": [
+            {
+              "name": "TimeGenerated",
+              "type": "dateTime"
+            },
+            {
+              "name": "ArtifactClassification",
+              "type": "string"
+            },
+            {
+              "name": "ArtifactId",
+              "type": "string"
+            },
+            {
+              "name": "Environment",
+              "type": "string"
+            },
+            {
+              "name": "EventType",
+              "type": "string"
+            },
+            {
+              "name": "PackageAgeDays",
+              "type": "long"
+            },
+            {
+              "name": "PackageName",
+              "type": "string"
+            },
+            {
+              "name": "PrincipalId",
+              "type": "string"
+            },
+            {
+              "name": "SuggestedByLlm",
+              "type": "boolean"
+            },
+            {
+              "name": "TyposquatScore",
+              "type": "real"
+            },
+            {
+              "name": "WorkspaceId",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[parameters('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "abm-ml-workspace",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), 'AIMLWorkspaceEvents_CL')]",
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName'))]",
+        "streamDeclarations": {
+          "Custom-AIMLWorkspaceEventsRaw": {
+            "columns": [
+              {
+                "name": "artifact_classification",
+                "type": "string"
+              },
+              {
+                "name": "artifact_id",
+                "type": "string"
+              },
+              {
+                "name": "environment",
+                "type": "string"
+              },
+              {
+                "name": "event_type",
+                "type": "string"
+              },
+              {
+                "name": "package_age_days",
+                "type": "long"
+              },
+              {
+                "name": "package_name",
+                "type": "string"
+              },
+              {
+                "name": "principal_id",
+                "type": "string"
+              },
+              {
+                "name": "suggested_by_llm",
+                "type": "boolean"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime"
+              },
+              {
+                "name": "typosquat_score",
+                "type": "real"
+              },
+              {
+                "name": "workspace_id",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Custom-AIMLWorkspaceEventsRaw"
+            ],
+            "destinations": [
+              "sentinelWorkspace"
+            ],
+            "transformKql": "source | project TimeGenerated = todatetime(timestamp), ArtifactClassification = artifact_classification, ArtifactId = artifact_id, Environment = environment, EventType = event_type, PackageAgeDays = package_age_days, PackageName = package_name, PrincipalId = principal_id, SuggestedByLlm = suggested_by_llm, TyposquatScore = typosquat_score, WorkspaceId = workspace_id",
+            "outputStream": "Custom-AIMLWorkspaceEvents_CL"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('dataCollectionEndpointName')), '2023-03-11').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', 'abm-ml-workspace'), '2023-03-11').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "Custom-AIMLWorkspaceEventsRaw"
+    }
+  }
+}
