@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 from pathlib import Path
@@ -11,6 +12,7 @@ from pathlib import Path
 from abm import __version__
 from abm.catalog import AtlasCatalog, sync
 from abm.compilers import TARGETS
+from abm.compilers.common import is_stub
 from abm.coverage import SCORE_LABEL, compute, gaps, write_reports
 from abm.engine import Engine, load_events, run_tests
 from abm.loader import find_root, load_behaviors
@@ -19,6 +21,27 @@ from abm.validator import validate
 
 
 # ---------------------------------------------------------------- helpers
+class _StderrHandler(logging.StreamHandler):
+    """Writes to the current sys.stderr (not the one captured at import time)."""
+
+    @property  # type: ignore[override]
+    def stream(self):
+        return sys.stderr
+
+    @stream.setter
+    def stream(self, _value) -> None:
+        pass
+
+
+def _setup_logging() -> None:
+    log = logging.getLogger("abm")
+    if not any(isinstance(h, _StderrHandler) for h in log.handlers):
+        h = _StderrHandler()
+        h.setFormatter(logging.Formatter("[%(levelname)-7s] %(message)s"))
+        log.addHandler(h)
+        log.setLevel(logging.WARNING)
+
+
 def _ctx(args):
     root = Path(args.root).resolve() if args.root else find_root()
     catalog_path = Path(args.catalog) if args.catalog else root / "atlas" / "catalog.yaml"
@@ -69,7 +92,7 @@ def cmd_compile(args) -> int:
     res = _behaviors(root, args.path)
     targets = list(TARGETS) if args.target == "all" else [args.target]
     out_root = Path(args.out) if args.out else root / "dist"
-    n = 0
+    n = stubs = 0
     for t in targets:
         fn, ext = TARGETS[t]
         out = out_root / t if (args.target == "all" or not args.out) else out_root
@@ -77,9 +100,12 @@ def cmd_compile(args) -> int:
         for b in res.behaviors:
             if b.status.value == "deprecated" and not args.include_deprecated:
                 continue
-            (out / f"{b.id}{ext}").write_text(fn(b), encoding="utf-8")
+            text = fn(b)
+            (out / f"{b.id}{ext}").write_text(text, encoding="utf-8")
             n += 1
-    print(f"compiled {n} rule(s) -> {out_root}")
+            stubs += is_stub(text)
+    note = f" ({stubs} not-expressible stub(s), see warnings)" if stubs else ""
+    print(f"compiled {n - stubs} rule(s){note} -> {out_root}")
     return 1 if res.errors else 0
 
 
@@ -260,6 +286,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _setup_logging()
     args = build_parser().parse_args(argv)
     return args.fn(args)
 

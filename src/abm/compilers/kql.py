@@ -47,8 +47,72 @@ def _where(field: str, spec: Any) -> list[str]:
     return out
 
 
+def _conds(spec: dict[str, Any], indent: str = "    ") -> list[str]:
+    return [f"{indent}| where {w}" for f, cond in spec.items() for w in _where(f, cond)]
+
+
+def _provenance(b: Behavior) -> str:
+    """Taint along the span graph as self-joins on an edge table, unrolled to max_hops.
+
+    Matches the reference engine for paths up to max_hops whose spans all fall inside the rule's
+    query period; the header says so in the generated rule."""
+    d = b.detection
+    p = d.provenance
+    if p is None:  # unreachable for validated behaviors (Detection._shape)
+        raise ValueError(f"{b.id}: provenance logic without a provenance block")
+    tables = list(dict.fromkeys(KQL_TABLES.get(s.source, pascal(s.source)) for s in b.telemetry.required))
+    n = p.max_hops
+    lines = [
+        header(b),
+        f"// Provenance: taint from source spans along ParentSpanId and InputSpanIds edges, up to {n} hop(s),",
+        "// as unrolled self-joins. Only spans inside the rule's query period are joined: set the lookback",
+        "// to cover a whole agent run, or a trace that straddles the boundary is missed.",
+        "// Spans ingested straight from OpenTelemetry have no InputSpanIds unless ingestion adds them; the",
+        "// rule then follows parent chains only (see docs/agent-telemetry.md, Limits).",
+        f"let Spans = materialize(union isfuzzy=true {', '.join(tables)}",
+        "    | where isnotempty(TraceId) and isnotempty(SpanId)",
+        *_conds(d.filters),
+        '    | extend InputSpanIds = todynamic(column_ifexists("InputSpanIds", "")));',
+        "let Edges = union",
+        '    (Spans | where isnotempty(ParentSpanId)',
+        '        | project TraceId, FromSpanId = ParentSpanId, ToSpanId = SpanId, Edge = "parent"),',
+        "    (Spans | mv-expand FromSpanId = InputSpanIds to typeof(string) | where isnotempty(FromSpanId)",
+        '        | project TraceId, FromSpanId, ToSpanId = SpanId, Edge = "input")',
+        "    | where FromSpanId != ToSpanId  // self-references are malformed; the engine ignores them",
+        "    | summarize Edge = take_any(Edge) by TraceId, FromSpanId, ToSpanId;",
+        "let Sources = Spans",
+        *_conds(p.source),
+        "    | project TraceId, SourceSpanId = SpanId",
+        "    | distinct TraceId, SourceSpanId;",
+    ]
+    prev, reached = "Sources", "SourceSpanId"
+    for hop in range(1, n + 1):
+        path = 'SourceSpanId' if hop == 1 else 'Path'
+        lines += [
+            f"let Hop{hop} = {prev}",
+            f"    | join kind=inner Edges on $left.TraceId == $right.TraceId, $left.{reached} == $right.FromSpanId",
+            f'    | project TraceId, SourceSpanId, ReachedSpanId = ToSpanId, Hops = {hop},',
+            f'              Path = strcat({path}, " -", Edge, "-> ", ToSpanId)',
+            "    | summarize Path = take_any(Path) by TraceId, SourceSpanId, ReachedSpanId, Hops;",
+        ]
+        prev, reached = f"Hop{hop}", "ReachedSpanId"
+    lines += [
+        f"union {', '.join(f'Hop{i}' for i in range(1, n + 1))}",
+        "| summarize arg_min(Hops, SourceSpanId, Path) by TraceId, ReachedSpanId",
+        "| join kind=inner (Spans",
+        *_conds(p.sink, "        "),
+        "    ) on $left.TraceId == $right.TraceId, $left.ReachedSpanId == $right.SpanId",
+        "| project-away TraceId1, ReachedSpanId",
+        f'| extend BehaviorId = "{b.id}", AtlasTechnique = "{b.primary_technique}",\n'
+        f'         AtlasTactics = dynamic({json.dumps(b.atlas.tactics)}), Severity = "{b.severity.value}"',
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def compile_behavior(b: Behavior) -> str:
     d = b.detection
+    if d.logic == "provenance":
+        return _provenance(b)
     table = KQL_TABLES.get(b.log_source, pascal(b.log_source))
     lines = [header(b), table]
     if d.window:

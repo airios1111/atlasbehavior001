@@ -5,12 +5,17 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from abm.compilers.common import SPL_SOURCES, header
+from abm.compilers.common import SPL_SOURCES, header, not_expressible
 from abm.models import Behavior
 
 _AGG = {"count": "count", "dcount": "dc({f})", "sum": "sum({f})", "avg": "avg({f})",
         "variance": "varp({f})", "max": "max({f})", "min": "min({f})"}
 _CMP = {"gt": ">", "gte": ">=", "lt": "<", "lte": "<="}
+_PROVENANCE = (
+    "provenance logic follows parent/input edges between the spans of a trace for up to {n} hops. "
+    "Unrolled joins in SPL are bounded by join/subsearch result limits and truncate without an error "
+    "on busy indexes, so a rule would under-report silently."
+)
 
 
 def _lit(v: Any) -> str:
@@ -39,8 +44,10 @@ def _where(field: str, spec: Any) -> list[str]:
 
 def compile_behavior(b: Behavior) -> str:
     d = b.detection
+    if d.logic == "provenance" and d.provenance:
+        return not_expressible(b, "spl", _PROVENANCE.format(n=d.provenance.max_hops), "```", " ```")
     base = SPL_SOURCES.get(b.log_source, f'index=ai sourcetype="{b.log_source}"')
-    lines = [header(b, "```"), base + (f" earliest=-{d.window}" if d.window else "")]
+    lines = [header(b, "```", " ```"), base + (f" earliest=-{d.window}" if d.window else "")]
     for f, spec in d.filters.items():
         lines += [f"| where {w}" for w in _where(f, spec)]
 

@@ -77,8 +77,10 @@ flowchart LR
 | **Countermeasure Resolver** | Binds ATLAS mitigations (`AML.M*`) and executable response actions to each technique. |
 
 The diagram describes the integration architecture. The current CLI evaluates **already-normalized
-JSONL events** using signatures, field matches, and windowed thresholds, then generates rules,
-coverage reports, and response plans. Source adapters and the normalizer are not included yet.
+JSONL events** using signatures, field matches, windowed thresholds and per-trace provenance
+graphs, then generates rules, coverage reports, and response plans. OpenTelemetry trace exports
+(OTLP/JSON with GenAI and MCP semantic conventions) are converted on load; other source adapters
+and the normalizer are not included yet.
 Production enforcement is performed by your connected controls or SOAR playbooks; local response
 execution defaults to a dry run.
 
@@ -165,7 +167,7 @@ references:
 
 ---
 
-## Coverage Snapshot (143 behaviors)
+## Coverage Snapshot (146 behaviors)
 
 | Behavior ID | Behavior | ATLAS Technique | Primary Mitigations | Default Response |
 |---|---|---|---|---|
@@ -198,6 +200,7 @@ references:
 | BHV-AG-013 | Agent performs process discovery | AML.T0089 Process Discovery | AML.M0032, AML.M0024 | Notify |
 | BHV-AG-014 | Agent application token used from a new network location | AML.T0091.000 Use Alternate Authentication Material: Application Access Token | AML.M0026, AML.M0019 | Revoke token, open incident |
 | BHV-AG-015 | AI agent deployed by an unapproved principal (shadow agent) | AML.T0103 Deploy AI Agent | AML.M0026, AML.M0024 | Notify, open incident |
+| BHV-AG-016 | Untrusted retrieved or tool-output content reaches a privileged tool call *(provenance)* | AML.T0053 AI Agent Tool Invocation | AML.M0030, AML.M0029, AML.M0026 | Deny tool call, kill session, open incident |
 | BHV-BD-002 | Trigger pattern in production input flips the prediction | AML.T0043.004 Craft Adversarial Data: Insert Backdoor Trigger | AML.M0015, AML.M0008 | Block request, open incident |
 | BHV-BD-003 | Production weights changed without a training job | AML.T0018 Manipulate AI Model | AML.M0014, AML.M0005 | Pull model, open incident |
 | BHV-BD-004 | Malware signature embedded in model file | AML.T0018.002 Manipulate AI Model: Embed Malware | AML.M0016, AML.M0014 | Quarantine artifact, block deploy, open incident |
@@ -232,6 +235,7 @@ references:
 | BHV-EXF-011 | Agent reads a secret and makes external egress in the same session | AML.T0086 Exfiltration via AI Agent Tool Invocation | AML.M0026, AML.M0029, AML.M0032 | Kill session, rotate credentials, open incident |
 | BHV-EXF-012 | Embedding inversion probing with near-identical inputs | AML.T0024.001 Exfiltration via AI Inference API: Invert AI Model | AML.M0002, AML.M0004 | Rate limit, notify |
 | BHV-EXF-013 | Vector store bulk export or full scan | AML.T0085.000 Data from AI Services: RAG Databases | AML.M0005, AML.M0019 | Revoke token, open incident |
+| BHV-EXF-014 | Secret read flows into an outbound HTTP call to a non-allowlisted host *(provenance)* | AML.T0086 Exfiltration via AI Agent Tool Invocation | AML.M0026, AML.M0028, AML.M0032 | Deny tool call, kill session, rotate credentials, open incident |
 | BHV-JB-002 | Many-shot jailbreak via long fabricated dialogue | AML.T0054 LLM Jailbreak | AML.M0020, AML.M0022 | Block request, increment risk |
 | BHV-JB-003 | Crescendo: harm score escalating across a session | AML.T0054 LLM Jailbreak | AML.M0020, AML.M0022 | Kill session, open incident |
 | BHV-JB-004 | Request to answer in an encoding or cipher to evade filters | AML.T0054 LLM Jailbreak | AML.M0020, AML.M0015 | Block request, increment risk |
@@ -284,6 +288,7 @@ references:
 | BHV-SC-009 | Model architecture differs from its signed manifest | AML.T0018.001 Manipulate AI Model: Modify AI Model Architecture | AML.M0014, AML.M0008 | Quarantine artifact, block deploy, open incident |
 | BHV-SC-010 | External dataset imported without signed provenance | AML.T0010.002 AI Supply Chain Compromise: Data | AML.M0025, AML.M0023 | Quarantine artifact, notify |
 | BHV-SC-011 | Recently created package installed on an LLM's suggestion (slopsquatting) | AML.T0011.001 User Execution: Malicious Package | AML.M0016, AML.M0018 | Open incident, notify |
+| BHV-SC-012 | MCP tool name advertised by more than one server to the same agent (tool shadowing) | AML.T0110 AI Agent Tool Poisoning | AML.M0028, AML.M0014 | Notify, open incident |
 | BHV-RC-001 | AI endpoint path enumeration from one client | AML.T0006 Active Scanning | AML.M0019, AML.M0004 | Rate limit, notify |
 | BHV-RC-002 | Network scanner fingerprint against AI endpoints | AML.T0006 Active Scanning | AML.M0019, AML.M0024 | Rate limit, notify |
 | BHV-RC-003 | Prompt enumerating employees, admins or org structure | AML.T0087 Gather Victim Identity Information | AML.M0020, AML.M0019 | Increment risk, notify |
@@ -315,9 +320,11 @@ references:
 
 > IDs and names are validated against ATLAS 5.6.0 (pinned in `atlas/atlas-data.lock`). If ATLAS renames or restructures a technique, `abm validate` fails and lists the drift.
 >
-> The first 15 (seed set) are listed first. The next 100 (behavior pack, IDs from -002/-003 upward) are generated from `scripts/behavior_pack/` by `scripts/gen_behavior_pack.py`. All ship at status `test` until their compiled queries are reviewed against real telemetry. Every behavior has a positive and a benign near-miss fixture.
+> The first 15 (seed set) are listed first. The next 103 (behavior pack, IDs from -002/-003 upward) are generated from `scripts/behavior_pack/` by `scripts/gen_behavior_pack.py`. All ship at status `test` until their compiled queries are reviewed against real telemetry. Every behavior has a positive and a benign near-miss fixture.
 >
 > The last 28 (RC, MA, CA, LM, C2, COL, RD) fill the thinnest ATLAS tactics and come from `scripts/behavior_pack/tactics.py`. Several read fields that the normalizer or an enrichment step must compute (`inter_arrival_s`, `server_first_seen_for_agent`, `source_domain_age_days`, `package_age_days`, `name_similarity_to_approved`, `publisher_similarity_to_allowlisted`). The RD behaviors ship as `experimental` (mitigation-only coverage): they detect a downstream artifact of resource development, not the adversary's preparation itself.
+>
+> Three of the pack behaviors, AG-016, EXF-014 and SC-012, come from `scripts/behavior_pack/provenance.py` and read the traced agent telemetry contract ([`docs/agent-telemetry.md`](docs/agent-telemetry.md)). AG-016 and EXF-014 use `provenance` logic: taint follows the per-trace span graph from a source span to a sink span within `max_hops`. They compile to KQL only; Sigma and SPL get a not-expressible stub and `abm compile` warns. SC-012 is a windowed threshold over MCP `tool_advertised` events and compiles to all three targets. Their fixtures are whole agent runs, each with a benign twin of the same shape.
 >
 > Seed set: Stable: PI-001, PI-002, JB-001, LK-001, LK-002, EXF-003, SC-001. Test: EXF-001, EXF-002, EV-001, PO-001, BD-001, AG-001, DOS-001. Experimental: CH-001.
 >
@@ -357,12 +364,17 @@ references:
 │   ├── catalog.py             # ATLAS catalog + atlas-data import
 │   ├── loader.py / validator.py
 │   ├── engine.py              # Reference detection engine (replay, fixtures)
+│   ├── provenance.py          # Per-trace span graph + taint propagation (provenance logic)
+│   ├── telemetry.py           # Traced agent telemetry contract (agent_runtime, mcp_gateway)
+│   ├── otel.py                # OTLP/JSON (GenAI + MCP semantic conventions) -> normalized spans
 │   ├── response.py            # Action registry, response planner, executors
 │   ├── coverage.py            # Scoring, gaps, Navigator layer
 │   ├── compilers/             # kql.py, sigma.py, spl.py
 │   └── cli.py                 # `abm` CLI
 ├── schemas/behavior.schema.json   # Generated from the model (make schema)
+├── schemas/agent-span.schema.json # Traced agent span contract (make schema)
 ├── scripts/gen_fixtures.py    # Deterministic fixture generator (seed set)
+├── scripts/gen_otel_fixtures.py  # OTLP/JSON trace fixtures (tests/fixtures/otel/)
 ├── scripts/gen_behavior_pack.py  # Renders scripts/behavior_pack/ specs to behaviors/ + fixtures
 ├── tests/
 │   ├── fixtures/              # Positive + benign near-miss JSONL telemetry
@@ -370,6 +382,7 @@ references:
 ├── examples/tutorial/        # Runnable walkthrough with a separate behavior set
 ├── integrations/xsoar/        # Cortex XSOAR setup and playbook guidance
 ├── docs/behavior-authoring.md
+├── docs/agent-telemetry.md    # Span fields, tool classes, OpenTelemetry mapping
 ├── dist/                      # Generated rules (gitignored)
 ├── reports/                   # Generated coverage (gitignored)
 ├── .github/workflows/ci.yml
@@ -430,6 +443,7 @@ abm map --behavior BHV-EXF-003 --format table
 abm coverage --matrix atlas --layer reports/atlas-layer.json
 abm replay --fixture tests/fixtures/extraction_burst.jsonl --respond --expect alert
 abm replay --fixture tests/fixtures/extraction_burst.jsonl --xsoar https://xsoar.example.com   # Cortex XSOAR incident
+abm replay --fixture tests/fixtures/otel/ag016_otlp_attack.json   # OTLP/JSON trace export, converted on load
 abm test                                   # run every behavior's declared fixtures
 abm gaps --tactic AML.TA0010
 abm atlas-sync [--file ATLAS.yaml]         # online or offline catalog refresh
@@ -540,7 +554,7 @@ that a deployed control or SOAR playbook successfully enforces the response.
 - **Unit and integration tests**: detection evaluation, model validation, coverage scoring, mocked XSOAR delivery, and the tutorial.
 - **Fixture replay**: attack and benign events in `tests/fixtures/` run through the reference engine; every `stable` behavior requires at least one positive and one negative test.
 - **Catalog validation**: CI fails if a referenced ATLAS ID does not resolve in the checked-in catalog. Upstream changes are checked when the catalog is refreshed.
-- **Compiler checks**: every behavior must compile to KQL, SPL, and Sigma; selected output shapes and Sigma YAML are tested. Target-native validation and execution against real workspaces remain deployment checks.
+- **Compiler checks**: every behavior must compile to KQL, SPL, and Sigma; selected output shapes and Sigma YAML are tested. Logic a target cannot express (provenance in Sigma and SPL) compiles to a stub with no rule, and `abm compile` logs a warning for it, so nothing ships as a silently wrong rule. Target-native validation and execution against real workspaces remain deployment checks.
 
 ```bash
 make test
@@ -565,10 +579,10 @@ See [`docs/behavior-authoring.md`](docs/behavior-authoring.md).
 
 ## Roadmap
 
-- [ ] Extend the current 143-behavior set toward full ATLAS technique coverage; every tactic now has at least one declared detection (score ≥ 2). Use `abm gaps --below 2` for remaining technique gaps; Resource Development is mostly outside this telemetry and is covered by experimental, mitigation-only behaviors
+- [ ] Extend the current 146-behavior set toward full ATLAS technique coverage; every tactic now has at least one declared detection (score ≥ 2). Use `abm gaps --below 2` for remaining technique gaps; Resource Development is mostly outside this telemetry and is covered by experimental, mitigation-only behaviors
 - [ ] OCSF AI-event extension mapping
 - [ ] Sentinel Content Hub packaging (analytics rules + workbooks + Logic Apps)
-- [ ] Agentic AI telemetry: MCP / tool-call provenance graph
+- [x] Agentic AI telemetry: MCP / tool-call provenance graph (trace contract, `provenance` logic, OTLP/JSON input; see [`docs/agent-telemetry.md`](docs/agent-telemetry.md))
 - [ ] Confidence calibration from production alert dispositions
 - [ ] OWASP LLM Top 10 and NIST AI RMF cross-reference tags
 - [ ] AWS (Bedrock / CloudTrail) and GCP (Vertex AI / Cloud Audit) source adapters
