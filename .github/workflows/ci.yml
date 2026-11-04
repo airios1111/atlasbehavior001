@@ -57,6 +57,7 @@ jobs:
             /Tools/Create-Azure-Sentinel-Solution/
             /Workbooks/WorkbooksMetadata.json
             /Logos/Azure_Sentinel.svg
+            /.script/package-automation/arm-ttk-sentinel-filters.ps1
       - uses: actions/checkout@v4
         with:
           repository: Azure/arm-ttk
